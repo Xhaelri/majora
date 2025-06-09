@@ -1,26 +1,51 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
+@theme {
   --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-foreground: var(--foreground); /* Corrected: `--foreground` is defined in `:root` */
+  --color-top-header-bg: var(--top-header); /* Corrected: Referencing the variable from `:root` */
+  --color-main-text-color: var(--main);           /* Corrected: Referencing the variable from `:root` */
+  --color-filter-bg: var(--filter);         /* Corrected: Referencing the variable from `:root` */
+  --color-footer-bg: var(--footer);         /* Corrected: Referencing the variable from `:root` */
+
+  --font-main: var(--font-montserrat);
 }
 
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #fff;
+    --foreground: #404040; /* Added: Define foreground color */
+    --top-header: #5a6d57;
+    --main: #0C0C0C;
+    --filter: #748c70;
+    --footer: #404040;
+    --spacing: 1rem;
+  }
+  .dark {
+    --background: #000;
+    --foreground: #eee; /* Define foreground for dark mode */
+    --top-header: #3a4d37; /* Example dark mode color */
+    --main: #fff; /* Example dark mode color */
+    --filter: #4a5c40; /* Example dark mode color */
+    --footer: #606060; /* Example dark mode color */
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+.font-body {
+  font-family: var(--font-main), sans-serif;
+  font-weight: 400;
+}
+
+.font-title {
+  font-family: var(--font-main), sans-serif;
+  font-weight: 600;
+}
+
+.container{
+  margin-inline: calc(var(--spacing) * 4)
 }
