@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
-import {  Montserrat } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import "./globals.css";
 import ThemeContextProvider from "../context/Theme";
 import TopHeader from "@/components/TopHeader";
+import Header from "@/components/Header/Header";
+import Footer from "@/components/Footer";
 
 const montserrat = Montserrat({
-  subsets: ['latin'],
-  weight: ['400', '600'], 
-  variable: '--font-montserrat',
-  display: 'swap',
-})
-
+  subsets: ["latin"],
+  weight: ["400", "600"],
+  variable: "--font-montserrat",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -25,11 +26,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <ThemeContextProvider>
-        <body
-          className={`${montserrat.variable}  antialiased`}
-        >
-          <TopHeader/>
+        <body className={`${montserrat.variable}  antialiased`}>
+          <TopHeader />
+          <Header />
           {children}
+          <Footer />
         </body>
       </ThemeContextProvider>
     </html>
