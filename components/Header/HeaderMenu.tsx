@@ -1,13 +1,32 @@
+"use client";
 import { headerData } from "@/constants";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import React from "react";
 
 export default function HeaderMenu() {
+  const pathname = usePathname();
   return (
-    <div className="hidden md:inline-flex w-1/3 items-center gap-5 text-sm capitalize font-body text-nowrap">
+    <div className="hidden lg:inline-flex  items-center justify-center space-x-9 tracking-wider text-sm capitalize font-body text-nowrap">
       {headerData.map((item) => (
-        <Link key={item?.title} href={item.href}>
+        <Link
+          className={`hover:text-green-900 hoverEffect relative group ${
+            pathname === item?.href && "text-green-900"
+          }`}
+          key={item?.title}
+          href={item.href}
+        >
           {item?.title}
+          <span
+            className={`absolute -bottom-0.5 left-1/2 w-0 h-0.5 bg-foreground hoverEffect group-hover:w-1/2 group-hover:left-0 ${
+              pathname === item?.href && "w-1/2"
+            }`}
+          />
+          <span
+            className={`absolute -bottom-0.5 right-1/2 w-0 h-0.5 bg-foreground hoverEffect group-hover:w-1/2 group-hover:right-0 ${
+              pathname === item?.href && "w-1/2"
+            }`}
+          />
         </Link>
       ))}
     </div>

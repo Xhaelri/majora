@@ -21,7 +21,6 @@
     --main: #0C0C0C;
     --filter: #748c70;
     --footer: #404040;
-    --spacing: 1rem;
   }
   .dark {
     --background: #000;
@@ -39,6 +38,12 @@
     font-size: 18px;
   line-height: 180%; 
 }
+.font-topHeader {
+  font-family: var(--font-main), sans-serif;
+  font-weight: 400;
+    font-size: 14px;
+  line-height: 180%; 
+}
 
 .font-title {
   font-family: var(--font-main), sans-serif;
@@ -47,9 +52,7 @@
   line-height: 140%;
 }
 
-/* .container{
-  margin-inline: calc(var(--spacing) * 4)
-} */
+
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
@@ -164,5 +167,8 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  .hoverEffect{
+    @apply transition-all ease-in-out duration-200 cursor-pointer
   }
 }
