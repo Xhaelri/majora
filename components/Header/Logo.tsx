@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import Link from "next/link";
+import Link from "../Link/Link";
 import React from "react";
 
 interface Props {
@@ -12,7 +12,7 @@ export default function Logo({ children, className }: Props) {
     <Link href={"/"}>
       <h2
         className={cn(
-          "text-2xl text-main-text-color tracking-wider uppercase",
+          "text-4xl font-light text-main-text-color tracking-wider uppercase",
           className
         )}
       >
