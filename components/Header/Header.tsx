@@ -44,7 +44,7 @@ export default function Header() {
 
     switch (headerState) {
       case "visible":
-        return `${baseClasses} relative transition-all duration-300 ease-out`;
+        return `${baseClasses} relative `;
       case "stuck":
         return `${baseClasses} fixed top-0 left-0 -translate-y-full transition-none`;
       case "opening":
@@ -56,7 +56,7 @@ export default function Header() {
 
   return (
     <header className={getHeaderClasses()}>
-      <div className="container h-14 grid grid-cols-[1fr_1fr_1fr] items-center justify-between text-primary">
+      <div className="container h-10 grid grid-cols-[1fr_1fr_1fr] items-center justify-between text-primary">
         <div className="text-left flex gap-2 lg:hidden">
           <MobileMenu />
           <SearchBar />

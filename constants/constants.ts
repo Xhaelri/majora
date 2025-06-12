@@ -1,3 +1,8 @@
+import hero1 from "@/assets/corey-saldana-pIKQbdSzF_k-unsplash.jpg";
+import hero2 from "@/assets/jon-ly-Xn7GvimQrk8-unsplash.jpg";
+import hero3 from "@/assets/mike-von-2UTk-Nip5aM-unsplash.jpg";
+import hero4 from "@/assets/mike-von-V4cl7_0N2mc-unsplash.jpg";
+
 export const headerData = [
   { title: "Home", href: "/" },
   { title: "collection", href: "/collection" },
@@ -5,9 +10,22 @@ export const headerData = [
   { title: "Modiweek", href: "/modiweek" },
   { title: "Plus Size", href: "/plus-size" },
   { title: "Sustinability", href: "/sustainability" },
- ];
+];
 
- export enum Directions {
+export const heroImages = [
+  { src: hero1, alt: "hero1" },
+  { src: hero2, alt: "hero2" },
+  { src: hero3, alt: "hero3" },
+  { src: hero4, alt: "hero4" },
+];
+export const heroData = [
+  { button: "SHOP", title: "SS'25", desc: "Live now", variant: "center" },
+  { button: "SHOP", title: "SHOP ALL" },
+  { button: "SHOP", title: "BEST SELLER" },
+  { button: "SHOP", title: "WINTER SALE" },
+];
+
+export enum Directions {
   RTL = "rtl",
   LTR = "ltr",
 }

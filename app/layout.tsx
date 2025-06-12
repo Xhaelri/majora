@@ -34,7 +34,7 @@ export default function RootLayout({
     <html lang="en">
       <ThemeContextProvider>
         <body
-          className={` ${playfair.variable} ${playfair.className} antialiased bg-black `}
+          className={` ${playfair.variable} ${playfair.className} antialiased`}
         >
           {/* <TopHeader /> */}
           <Header />
