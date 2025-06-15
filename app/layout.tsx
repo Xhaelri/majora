@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Playfair_Display } from "next/font/google";
+import { Playfair_Display, Roboto_Flex } from "next/font/google";
 import "./globals.css";
 import ThemeContextProvider from "../context/Theme";
 // import TopHeader from "@/components/Header/TopHeader";
@@ -11,6 +11,12 @@ const playfair = Playfair_Display({
   weight: ["400", "500", "600", "700", "800", "900"],
   variable: "--font-playfair",
   display: "swap",
+});
+const roboto_flex = Roboto_Flex({
+  subsets: ["latin"],
+  variable: "--font-playfair",
+  display: "swap",
+  weight: ["100","200","300","400", "500", "600", "700", "800", "900"],
 });
 
 // const montserrat = Montserrat({
@@ -34,7 +40,7 @@ export default function RootLayout({
     <html lang="en">
       <ThemeContextProvider>
         <body
-          className={` ${playfair.variable} ${playfair.className} antialiased`}
+          className={` ${roboto_flex.variable} ${roboto_flex.className} antialiased `}
         >
           {/* <TopHeader /> */}
           <Header />

@@ -1,10 +1,10 @@
 import hero1 from "@/assets/corey-saldana-pIKQbdSzF_k-unsplash.jpg";
 import hero2 from "@/assets/jon-ly-Xn7GvimQrk8-unsplash.jpg";
 import hero3 from "@/assets/mike-von-2UTk-Nip5aM-unsplash.jpg";
-import hero4 from "@/assets/mike-von-V4cl7_0N2mc-unsplash.jpg";
+import hero4 from "@/assets/ilya-mirnyy-FEQ5DMeB6Tc-unsplash.jpg";
 
 export const headerData = [
-  { title: "Home", href: "/" },
+  // { title: "Home", href: "/" },
   { title: "collection", href: "/collection" },
   { title: "New In", href: "/new" },
   { title: "Modiweek", href: "/modiweek" },

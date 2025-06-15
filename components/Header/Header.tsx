@@ -1,12 +1,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import HeaderMenu from "./HeaderMenu";
 import Logo from "./Logo";
 import MobileMenu from "./MobileMenu";
 import SearchBar from "./SearchBar";
 import CartIcon from "./CartIcon";
 import WhishList from "./WhishList";
 import UserIcon from "./UserIcon";
+import { HeaderMenu } from "./HeaderMenu";
 
 export default function Header() {
   const [headerState, setHeaderState] = useState("visible");
@@ -17,7 +17,6 @@ export default function Header() {
       const currentY = window.scrollY;
 
       if (currentY < 80) {
-        // Add a small delay when transitioning from opening to visible
         if (headerState === "opening") {
           setTimeout(() => setHeaderState("visible"), 100);
         } else {
@@ -40,7 +39,7 @@ export default function Header() {
 
   const getHeaderClasses = () => {
     const baseClasses =
-      "w-full bg-background shadow-md z-50 border-b border-gray-200 py-5";
+      "w-full bg-background z-50 border-b border-gray-200 py-5";
 
     switch (headerState) {
       case "visible":
@@ -66,7 +65,7 @@ export default function Header() {
         </div>
         <HeaderMenu />
         <div className="text-right flex justify-end">
-          <div className="flex gap-2">
+          <div className="flex gap-4">
             <UserIcon />
             <WhishList />
             <div className="hidden lg:inline-flex">

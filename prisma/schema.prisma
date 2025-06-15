@@ -1,0 +1,207 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+// User model for customer accounts
+model User {
+  id        String     @id @default(uuid())
+  email     String     @unique
+  password  String
+  firstName String?
+  lastName  String?
+  address   String?
+  phone     String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  orders    Order[]
+  cartItems CartItem[] // Items currently in the user's cart
+  reviews   Review[]
+}
+
+// Product model for clothing items
+model Product {
+  id          String         @id @default(uuid())
+  name        String
+  description String?
+  price       Float // Original price of the product
+  salePrice   Float? // New field for sale price
+  isLimitedEdition Boolean @default(false) // New field for limited edition badge
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  category    Category?      @relation(fields: [categoryId], references: [id])
+  categoryId  String?
+  images      ProductImage[]
+  variants    ProductVariant[] // Different combinations of size and color
+  reviews     Review[]
+}
+
+// Category model to organize products (e.g., Dresses, Tops, Pants)
+model Category {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+// ProductImage model to store multiple images per product
+model ProductImage {
+  id        String   @id @default(uuid())
+  url       String   // URL to the image
+  altText   String?  // Alt text for accessibility
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Size model (e.g., S, M, L, XL, S/M, M/L)
+model Size {
+  id              String           @id @default(uuid())
+  name            String           @unique // e.g., "S", "M", "L", "S/M", "38", "40"
+  productVariants ProductVariant[]
+}
+
+// Color model (e.g., Black, Nude, White, Beige)
+model Color {
+  id              String           @id @default(uuid())
+  name            String           @unique // e.g., "Black", "Blushed Nude", "White"
+  hexCode         String?          // Optional: for storing color's hex code
+  productVariants ProductVariant[]
+}
+
+// ProductVariant model to represent a specific size-color combination of a product
+model ProductVariant {
+  id            String       @id @default(uuid())
+  productId     String
+  product       Product      @relation(fields: [productId], references: [id])
+  sizeId        String
+  size          Size         @relation(fields: [sizeId], references: [id])
+  colorId       String
+  color         Color        @relation(fields: [colorId], references: [id])
+  stock         Int          // Current stock for this specific variant
+  sku           String?      @unique // Stock Keeping Unit (optional, but good for inventory)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+
+  @@unique([productId, sizeId, colorId]) // Ensures unique variant for a product
+}
+
+// CartItem model for items in a user's shopping cart
+model CartItem {
+  id              String         @id @default(uuid())
+  userId          String
+  user            User           @relation(fields: [userId], references: [id])
+  productVariantId String
+  productVariant  ProductVariant @relation(fields: [productVariantId], references: [id])
+  quantity        Int            @default(1)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+// Order model for customer orders
+model Order {
+  id              String      @id @default(uuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id])
+  orderDate       DateTime    @default(now())
+  status          OrderStatus @default(PENDING)
+  subtotal        Float // New field for subtotal before discount/shipping
+  discountAmount  Float? // New field for the discount applied
+  shippingCost    Float? // New field for shipping cost
+  totalAmount     Float       // Total amount of the order after discounts/shipping
+  shippingAddress String?
+  paymentMethod   String?
+  discountCodeId  String? // Link to the applied discount code
+  discountCode    DiscountCode? @relation(fields: [discountCodeId], references: [id])
+  governorate     String? // New field to store the selected governorate
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  orderItems      OrderItem[]
+}
+
+// OrderItem model for individual products within an order
+model OrderItem {
+  id                String         @id @default(uuid())
+  orderId           String
+  order             Order          @relation(fields: [orderId], references: [id])
+  productVariantId  String
+  productVariant    ProductVariant @relation(fields: [productVariantId], references: [id])
+  quantity          Int
+  priceAtPurchase   Float          // Price of the item when the order was placed
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+}
+
+// Enum for order status
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  RETURNED
+}
+
+// Review model for product reviews
+model Review {
+  id        String   @id @default(uuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  rating    Int      // This will be an integer
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// New model for Discount Codes
+model DiscountCode {
+  id           String     @id @default(uuid())
+  code         String     @unique // The actual discount code (e.g., "SUMMER20")
+  discountType DiscountType // PERCENTAGE or FIXED_AMOUNT
+  value        Float      // The percentage (e.g., 0.1 for 10%) or fixed amount (e.g., 50.00)
+  minOrderAmount Float?   // Optional: minimum order amount for the discount to apply
+  isActive     Boolean    @default(true)
+  expiresAt    DateTime?  // Optional: when the discount code expires
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  orders       Order[]
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+// New model for Shipping Rates
+model ShippingRate {
+  id          String   @id @default(uuid())
+  governorate String   @unique // Name of the governorate (e.g., "Cairo", "Alexandria")
+  cost        Float    // Shipping cost for this governorate
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Example of a basic NewsletterSubscription model
+model NewsletterSubscription {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}

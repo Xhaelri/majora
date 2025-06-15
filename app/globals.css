@@ -12,7 +12,6 @@
   --color-footer-bg: var(--footer);
   --font-primary: var(--font-playfair);
   --font-secondary: var(--font-montserrat);
-  
 }
 
 @theme inline {
@@ -126,12 +125,14 @@
   * {
     @apply border-border outline-ring/50 scroll-smooth;
   }
-
+body{
+  @apply bg-background
+}
   .hoverEffect {
     @apply transition-all ease-in-out duration-200 cursor-pointer;
   }
   .container {
-    @apply mx-auto px-4 md:px-8 lg:px-12 xl:px-16;
+    @apply mx-auto  px-5   ;
   }
   .navText {
     @apply tracking-wider xl:text-xl;

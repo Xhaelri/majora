@@ -33,7 +33,7 @@ export default function CarouselWithPagination() {
   }, [api]);
 
   return (
-    <div className="">
+    <div >
       <Carousel
         setApi={setApi}
         className="relative"
@@ -54,11 +54,11 @@ export default function CarouselWithPagination() {
           ))}
         </div>
 
-        <CarouselContent>
+        <CarouselContent >
           {heroImages.map((image, index) => (
             <CarouselItem key={index}>
               <Card>
-                <CardContent className="flex aspect-square max-h-[960px] items-center justify-center relative">
+                <CardContent className="flex aspect-square max-h-[960px]  items-center justify-center relative">
                   <Image
                     src={image.src}
                     alt={image.alt}
