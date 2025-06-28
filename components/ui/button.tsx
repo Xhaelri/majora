@@ -20,10 +20,17 @@ const buttonVariants = cva(
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
-        hero:
-          "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
+        hero: "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
         section:
           "bg-transparent text-primary shadow-xs hover:border-black hover:border-1 cursor-pointer tracking-widest uppercase",
+        stock:
+          "bg-transparent text-primary text-lg font-light shadow-xs cursor-pointer tracking-widest uppercase",
+        color:
+          "bg-transparent text-primary rounded-full text-sm font-light shadow-xs disabled:pointer-events-none disabled:line-through disabled:opacity-50 [&_svg]:pointer-events-none cursor-pointer tracking-widest uppercase",
+          cartAdd:
+          "bg-transparent text-primary text-sm font-normal shadow-xs border-1 border-primary disabled:pointer-events-none  disabled:opacity-50 [&_svg]:pointer-events-none cursor-pointer tracking-widest uppercase",
+          cartBuyNow:
+          "bg-primary text-secondary text-sm font-normal shadow-xs border-1 border-primary disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none cursor-pointer tracking-widest uppercase",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
@@ -32,6 +39,11 @@ const buttonVariants = cva(
         icon: "size-9",
         user: "h-10 px-6 w-40",
         hero: "h-10 px-6 w-24",
+        stock: "h-10 px-4 w-18",
+        color: "h-10 px-4 w-18",
+        cartAdd: "h-12 px-4 w-full",
+        cartBuyNow: "h-12 px-4 w-full",
+        login: "h-12 px-4 w-full",
       },
     },
     defaultVariants: {

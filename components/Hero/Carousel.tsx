@@ -33,7 +33,7 @@ export default function CarouselWithPagination() {
   }, [api]);
 
   return (
-    <div >
+    <div>
       <Carousel
         setApi={setApi}
         className="relative"
@@ -54,11 +54,11 @@ export default function CarouselWithPagination() {
           ))}
         </div>
 
-        <CarouselContent >
+        <CarouselContent>
           {heroImages.map((image, index) => (
             <CarouselItem key={index}>
               <Card>
-                <CardContent className="flex aspect-square max-h-[960px]  items-center justify-center relative">
+                <CardContent className="flex aspect-square max-h-[960px] items-center justify-center relative">
                   <Image
                     src={image.src}
                     alt={image.alt}
@@ -67,13 +67,15 @@ export default function CarouselWithPagination() {
                     priority={index === 0}
                   />
                   <AnimatePresence mode="wait">
-                    <HeroData
-                      key={current}
-                      button={heroData[index]?.button || "SHOP"}
-                      title={heroData[index]?.title}
-                      desc={heroData[index]?.desc}
-                      variant={heroData[index]?.variant}
-                    />
+                    <div className="container relative z-10 h-full w-full"> {/* <-- Add container here */}
+                      <HeroData
+                        key={current}
+                        button={heroData[index]?.button || "SHOP"}
+                        title={heroData[index]?.title}
+                        desc={heroData[index]?.desc}
+                        variant={heroData[index]?.variant}
+                      />
+                    </div>
                   </AnimatePresence>
                 </CardContent>
               </Card>

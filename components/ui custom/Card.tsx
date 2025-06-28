@@ -1,15 +1,17 @@
 "use client";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { formatPrice } from "@/lib/formatPrice";
-import { Product } from "@/types/product";
+import { formatPrice } from "@/utils/formatPrice";
 import Image from "next/image";
 import React, { useState } from "react";
+import { FullProduct } from "@/types/product";
+import Link from "../Link/Link";
+import { slugifyAdvanced } from "@/utils/slugify";
 
 type CardProps = {
-  productData: Product;
+  productData: FullProduct;
 };
 
-const Card = ({ productData }: CardProps) => {
+const Card = ({ productData}: CardProps) => {
   const primaryImageUrl =
     productData.images.length > 0 ? productData.images[0].url : "";
 
@@ -37,7 +39,7 @@ const Card = ({ productData }: CardProps) => {
   return (
     <div>
       {isDesktop ? (
-        <div className="flex flex-col  items-center justify-center gap-2 w-full max-w-[260px] ">
+        <Link href={`/products/${slugifyAdvanced(productData.name)}`} className="flex flex-col  items-center justify-center gap-2 w-full max-w-[260px]">
           <div
             className="w-full aspect-[2/3] relative cursor-pointer "
             onMouseEnter={() => setImageSrc(hoverImageUrl)}
@@ -55,7 +57,7 @@ const Card = ({ productData }: CardProps) => {
               className="object-cover "
             />
           </div>
-          <h1 className="text-lg font-extralight  md:tracking-[2px] text-center h-12 overflow-hidden break-all uppercase">
+          <h1 className="text-md font-light  md:tracking-[2px] text-center h-11 line-clamp-2 break-all uppercase">
             {productData.name}
           </h1>
           <div className="text-md font-extralight tracking-widest flex flex-col items-center">
@@ -75,12 +77,12 @@ const Card = ({ productData }: CardProps) => {
               </h2>
             ) : null}
           </div>
-        </div>
+        </Link>
       ) : (
-        <div className="flex flex-col items-center gap-2 w-full max-w-[260px]">
+        <Link href={`/products/${slugifyAdvanced(productData.name)}`}  className="flex flex-col items-center gap-2 w-full max-w-[260px]">
           <div className="w-full aspect-[2/3] relative cursor-pointer">
             {isOnSale ? (
-              <div className="bg-foreground text-secondary absolute top-0 right-0 h-7 w-14 z-20 flex items-center justify-center">
+              <div className="bg-foreground text-secondary absolute top-0 right-0 h-5 w-11 text-sm  md:h-7 md:w-14 md:text-md z-20 flex items-center justify-center">
                 <p>Sale</p>
               </div>
             ) : null}
@@ -91,11 +93,11 @@ const Card = ({ productData }: CardProps) => {
               className="object-cover"
             />
           </div>
-          <h1 className="text-lg font-extralight tracking-[4px] text-center h-12 overflow-hidden break-all uppercase">
+          <h1 className="text-lg font-extralight tracking-[2px] text-center h-12 overflow-hidden break-all uppercase">
             {productData.name}
           </h1>
           <div className="text-md font-extralight tracking-widest flex flex-col items-center">
-            <div className="flex flex-col lg:flex-row gap-0 lg:gap-2 ">
+            <div className="flex flex-row  gap-3  ">
               {isOnSale ? (
                 <h2 className="line-through text-nowrap text-sm">
                   {formatPrice(originalPrice)}
@@ -111,7 +113,7 @@ const Card = ({ productData }: CardProps) => {
               </h2>
             ) : null}
           </div>
-        </div>
+        </Link>
       )}
     </div>
   );
