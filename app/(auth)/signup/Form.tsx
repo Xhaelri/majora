@@ -1,128 +1,125 @@
 "use client";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff, Lock, Mail, User } from "lucide-react";
-import { useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import React from "react";
+import { useFormStatus } from "react-dom";
+import { signupAction, type SignupState } from "@/server/actions/auth";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
-// Zod schema for form validation
-const formSchema = z.object({
-  firstName: z
-    .string()
-    .min(2, "First name must be at least 2 characters")
-    .max(50, "First name must be less than 50 characters")
-    .regex(/^[a-zA-Z\s]+$/, "First name can only contain letters and spaces"),
-  lastName: z
-    .string()
-    .min(2, "Last name must be at least 2 characters")
-    .max(50, "Last name must be less than 50 characters")
-    .regex(/^[a-zA-Z\s]+$/, "Last name can only contain letters and spaces"),
-  email: z
-    .string()
-    .email("Please enter a valid email address")
-    .min(1, "Email is required"),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
-      "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
-    ),
-});
-
-type FormData = z.infer<typeof formSchema>;
+const initialState: SignupState = { message: "", errors: {} };
 
 function Form() {
   const [showPassword, setShowPassword] = useState(false);
-  
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-    reset,
-  } = useForm<FormData>({
-    resolver: zodResolver(formSchema),
-    mode: "onChange", // Validate on change for better UX
-  });
+  const [state, dispatch] = useActionState(signupAction, initialState);
+  const { pending } = useFormStatus();
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
-  const onSubmit = async (data: FormData) => {
-    try {
-      // Simulate API call
-      console.log("Form submitted:", data);
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate loading
-      alert("Form submitted successfully!");
-      reset(); // Reset form after successful submission
-    } catch (error) {
-      console.error("Submission error:", error);
-      alert("Something went wrong. Please try again.");
+  const router = useRouter();
+
+  useEffect(() => {
+    if (state.message && state.toastType) {
+      if (state.toastType === "success") {
+        toast.success(state.message);
+        if (state.redirect) {
+          router.push(state.redirect);
+        }
+      } else if (state.toastType === "error") {
+        toast.error(state.message);
+      }
     }
-  };
+  }, [state.message, state.toastType, state.redirect, router]);
 
   return (
-    <form className="w-full px-20" onSubmit={handleSubmit(onSubmit)}>
+    <form action={dispatch} noValidate className="w-full px-20">
       <div className="w-full space-y-4">
         <div className="flex w-full justify-center gap-2 items-start">
           <div className="w-full">
-            <div className="relative flex items-center rounded-md border focus-within:ring-1 focus-within:ring-ring pl-2">
+            <div className="relative flex gap-2 items-center rounded-md border focus-within:ring-1 focus-within:ring-ring pl-2">
               <User className="h-5 w-5 text-muted-foreground" />
               <Input
-                {...register("firstName")}
+                id="firstName"
+                name="firstName"
                 type="text"
                 placeholder="First Name"
                 className="border-0 focus-visible:ring-0 shadow-none"
+                aria-describedby="firstName-error"
+                defaultValue={state?.values?.firstName || ""}
               />
             </div>
-            {errors.firstName && (
-              <p className="text-sm text-red-500 mt-1">{errors.firstName.message}</p>
-            )}
+            <div id="firstName-error" aria-live="polite" aria-atomic="true">
+              {state.errors?.firstName &&
+                state.errors.firstName.map((error: string) => (
+                  <p className="text-sm text-red-500 mt-1" key={error}>
+                    {error}
+                  </p>
+                ))}
+            </div>
           </div>
-          
+
           <div className="w-full">
-            <div className="relative flex items-center rounded-md border focus-within:ring-1 focus-within:ring-ring pl-2">
+            <div className="relative flex gap-2 items-center rounded-md border focus-within:ring-1 focus-within:ring-ring pl-2">
               <User className="h-5 w-5 text-muted-foreground" />
               <Input
-                {...register("lastName")}
+                id="lastName"
+                name="lastName"
                 type="text"
                 placeholder="Last Name"
                 className="border-0 focus-visible:ring-0 shadow-none"
+                aria-describedby="lastName-error"
+                defaultValue={state?.values?.lastName || ""}
               />
             </div>
-            {errors.lastName && (
-              <p className="text-sm text-red-500 mt-1">{errors.lastName.message}</p>
-            )}
+            <div id="lastName-error" aria-live="polite" aria-atomic="true">
+              {state.errors?.lastName &&
+                state.errors.lastName.map((error: string) => (
+                  <p className="text-sm text-red-500 mt-1" key={error}>
+                    {error}
+                  </p>
+                ))}
+            </div>
           </div>
         </div>
 
         <div>
-          <div className="relative flex items-center rounded-md border focus-within:ring-1 focus-within:ring-ring pl-2">
+          <div className="relative flex gap-2 items-center rounded-md border focus-within:ring-1 focus-within:ring-ring pl-2">
             <Mail className="h-5 w-5 text-muted-foreground" />
             <Input
-              {...register("email")}
+              id="email"
+              name="email"
               type="email"
               placeholder="Email"
               className="border-0 focus-visible:ring-0 shadow-none"
+              aria-describedby="email-error"
+              defaultValue={state?.values?.email || ""}
             />
           </div>
-          {errors.email && (
-            <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>
-          )}
+          <div id="email-error" aria-live="polite" aria-atomic="true">
+            {state.errors?.email &&
+              state.errors.email.map((error: string) => (
+                <p className="text-sm text-red-500 mt-1" key={error}>
+                  {error}
+                </p>
+              ))}
+          </div>
         </div>
 
         <div>
-          <div className="relative flex items-center rounded-md border focus-within:ring-1 focus-within:ring-ring px-2">
+          <div className="relative flex gap-2 items-center rounded-md border focus-within:ring-1 focus-within:ring-ring px-2">
             <Lock className="h-5 w-5 text-muted-foreground" />
             <Input
-              {...register("password")}
+              id="password"
+              name="password"
               type={showPassword ? "text" : "password"}
               placeholder="Password"
               className="border-0 focus-visible:ring-0 shadow-none"
+              aria-describedby="password-error"
+              defaultValue={state?.values?.password || ""}
             />
             <button type="button" onClick={togglePasswordVisibility}>
               {showPassword ? (
@@ -132,18 +129,23 @@ function Form() {
               )}
             </button>
           </div>
-          {errors.password && (
-            <p className="text-sm text-red-500 mt-1">{errors.password.message}</p>
-          )}
+          <div id="password-error" aria-live="polite" aria-atomic="true">
+            {state.errors?.password &&
+              state.errors.password.map((error: string) => (
+                <p className="text-sm text-red-500 mt-1" key={error}>
+                  {error}
+                </p>
+              ))}
+          </div>
         </div>
-        
-        <Button 
-          type="submit" 
-          className="w-full cursor-pointer" 
+
+        <Button
+          type="submit"
+          className="w-full cursor-pointer"
           size={"login"}
-          disabled={isSubmitting}
+          disabled={pending}
         >
-          {isSubmitting ? "Signing up..." : "Sign Up"}
+          {pending ? "Signing up..." : "Sign Up"}
         </Button>
       </div>
     </form>

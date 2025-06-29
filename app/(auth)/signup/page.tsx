@@ -3,6 +3,7 @@ import { heroImages } from "@/constants/constants";
 import Image from "next/image";
 import React from "react";
 import Form from "./Form";
+import GoogleSign from "../Google-Sign";
 
 function SignupPage() {
   return (
@@ -16,16 +17,19 @@ function SignupPage() {
           />
         </div>
         <div className="w-full md:w-1/2 flex flex-col items-center justify-center">
-          <h1 className="text-primary text-4xl tracking-widest">Register</h1>
-          <Form/>
+          <h1 className="text-primary font-bold text-5xl tracking-widest p-10">Register</h1>
+          <Form />
+          <GoogleSign />
           <p className="mt-2 flex items-center justify-center text-primary text-sm gap-3">
             <span>Already have an account?</span>
-            <Link href={"/signin"} className="underline">Login</Link>
+            <Link href={"/signin"} className="underline">
+              Login
+            </Link>
           </p>
         </div>
       </section>
     </main>
-  )
+  );
 }
 
-export default SignupPage
+export default SignupPage;

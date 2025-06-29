@@ -5,6 +5,7 @@ import ThemeContextProvider from "../context/Theme";
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
 import { Providers } from "@/redux/storeProvider";
+import { Toaster } from "@/components/ui/sonner";
 
 const libre = Libre_Franklin({
   subsets: ["latin"],
@@ -36,6 +37,7 @@ export default function RootLayout({
           >
             {/* <TopHeader /> */}
             <Header />
+            <Toaster position="top-right" richColors />
             {children}
             <Footer />
           </body>

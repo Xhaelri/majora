@@ -1,82 +1,77 @@
 "use client";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
-import { useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import React from "react";
+import { useFormStatus } from "react-dom";
+import { loginAction, type LoginState } from "@/server/actions/auth";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
-const loginSchema = z.object({
-  email: z
-    .string()
-    .email("Please enter a valid email address")
-    .min(1, "Email is required"),
-  password: z
-    .string()
-    .min(1, "Password is required")
-    .min(6, "Password must be at least 6 characters"),
-});
-
-type LoginFormData = z.infer<typeof loginSchema>;
+const initialState: LoginState = { message: "", errors: {} };
 
 function Form() {
   const [showPassword, setShowPassword] = useState(false);
-  
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-    reset,
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-    mode: "onChange", // Validate on change for better UX
-  });
+  const [state, dispatch] = useActionState(loginAction, initialState);
+  const { pending } = useFormStatus();
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
-  const onSubmit = async (data: LoginFormData) => {
-    try {
-      // Simulate API call
-      console.log("Login form submitted:", data);
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate loading
-      alert("Login successful!");
-      reset(); // Reset form after successful submission
-    } catch (error) {
-      console.error("Login error:", error);
-      alert("Login failed. Please check your credentials and try again.");
+  const router = useRouter();
+
+  useEffect(() => {
+    if (state.message && state.toastType) {
+      if (state.toastType === "success") {
+        toast.success(state.message);
+        if (state.redirect) {
+          router.push(state.redirect);
+        }
+      } else if (state.toastType === "error") {
+        toast.error(state.message);
+      }
     }
-  };
+  }, [state.message, state.toastType, state.redirect, router]);
 
   return (
     <div className="w-full px-20">
-      <div className="w-full space-y-4" onSubmit={handleSubmit(onSubmit)}>
+      <form action={dispatch} noValidate className="w-full space-y-4">
         <div>
-          <div className="relative flex items-center rounded-md border focus-within:ring-1 focus-within:ring-ring pl-2">
+          <div className="relative flex gap-2 items-center rounded-md border focus-within:ring-1 focus-within:ring-ring pl-2">
             <Mail className="h-5 w-5 text-muted-foreground" />
             <Input
-              {...register("email")}
+              id="email"
+              name="email"
               type="email"
               placeholder="Email"
               className="border-0 focus-visible:ring-0 shadow-none"
+              aria-describedby="email-error"
+              defaultValue={state?.values?.email || ""}
             />
           </div>
-          {errors.email && (
-            <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>
-          )}
+          <div id="email-error" aria-live="polite" aria-atomic="true">
+            {state.errors?.email &&
+              state.errors.email.map((error: string) => (
+                <p className="text-sm text-red-500 mt-1" key={error}>
+                  {error}
+                </p>
+              ))}
+          </div>
         </div>
 
         <div>
-          <div className="relative flex items-center rounded-md border focus-within:ring-1 focus-within:ring-ring px-2">
+          <div className="relative flex gap-2 items-center rounded-md border focus-within:ring-1 focus-within:ring-ring px-2">
             <Lock className="h-5 w-5 text-muted-foreground" />
             <Input
-              {...register("password")}
+              id="password"
+              name="password"
               type={showPassword ? "text" : "password"}
               placeholder="Password"
               className="border-0 focus-visible:ring-0 shadow-none"
+              aria-describedby="password-error"
+              defaultValue={state?.values?.password || ""}
             />
             <button type="button" onClick={togglePasswordVisibility}>
               {showPassword ? (
@@ -86,21 +81,25 @@ function Form() {
               )}
             </button>
           </div>
-          {errors.password && (
-            <p className="text-sm text-red-500 mt-1">{errors.password.message}</p>
-          )}
+          <div id="password-error" aria-live="polite" aria-atomic="true">
+            {state.errors?.password &&
+              state.errors.password.map((error: string) => (
+                <p className="text-sm text-red-500 mt-1" key={error}>
+                  {error}
+                </p>
+              ))}
+          </div>
         </div>
-        
-        <Button 
-          type="button" 
-          className="w-full cursor-pointer" 
+
+        <Button
+          type="submit"
+          className="w-full cursor-pointer"
           size={"login"}
-          disabled={isSubmitting}
-          onClick={handleSubmit(onSubmit)}
+          disabled={pending}
         >
-          {isSubmitting ? "Logging in..." : "Login"}
+          {pending ? "Logging in..." : "Login"}
         </Button>
-      </div>
+      </form>
     </div>
   );
 }
