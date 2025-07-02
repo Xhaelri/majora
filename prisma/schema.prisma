@@ -16,11 +16,10 @@ datasource db {
 
 // =====================================================================
 // NextAuth.js Prisma Adapter Models
-// These models are required by the NextAuth Prisma Adapter for authentication
 // =====================================================================
 
 model Account {
-  id                String  @id @default(cuid()) // Changed to cuid() for consistency with NextAuth docs, but uuid() also works.
+  id                String  @id @default(cuid())
   userId            String
   type              String
   provider          String
@@ -59,51 +58,78 @@ model VerificationToken {
 // Core Application Models
 // =====================================================================
 
-// User model for customer accounts (Modified for NextAuth and Cart)
 model User {
   id            String    @id @default(uuid())
-  email         String?   @unique // Made optional for OAuth users who might not have an email or for users who sign up with phone
-  password      String?   // Made optional for users signing up with OAuth. This field will store the HASHED password.
+  email         String?   @unique
+  password      String?
   firstName     String?
   lastName      String?
-  // NextAuth specific fields
-  name          String?   // NextAuth often uses a single 'name' field for display
+  name          String?
   emailVerified DateTime?
-  image         String?   // Profile image URL from OAuth provider
-  
+  image         String?
   address       String?
   phone         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  // REQUIRED RELATIONS for NextAuth Adapter
-  accounts      Account[]
-  sessions      Session[]
+  // NEW: Fields for guest user management
+  isGuest       Boolean   @default(true)
+  anonymousId   String?   @unique // To link guest users to their cookie
 
-  // Existing relations
-  orders        Order[]
-  cart          Cart?     // A user can have one cart (replaces direct cartItems relation)
-  reviews       Review[]
+  accounts Account[]
+  sessions Session[]
+  orders   Order[]
+  cart     Cart?
+  reviews  Review[]
 }
 
 model Product {
   id               String           @id @default(uuid())
   name             String
-  slug             String           @unique // URL-friendly unique identifier
+  slug             String           @unique
   description      String?
-  price            Float            // Original price of the product
-  salePrice        Float?           // New field for sale price
+  price            Float
+  salePrice        Float?
   isLimitedEdition Boolean          @default(false)
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
   category         Category?        @relation(fields: [categoryId], references: [id])
   categoryId       String?
-  images           ProductImage[]
+  // REMOVED
+  // images        ProductImage[]
   variants         ProductVariant[]
   reviews          Review[]
 }
 
-// Category model to organize products (e.g., Dresses, Tops, Pants)
+model ProductVariant {
+  id          String         @id @default(uuid())
+  productId   String
+  product     Product        @relation(fields: [productId], references: [id])
+  sizeId      String
+  size        Size           @relation(fields: [sizeId], references: [id])
+  colorId     String
+  color       Color          @relation(fields: [colorId], references: [id])
+  stock       Int
+  sku         String?        @unique
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
+  // ADDED
+  images      ProductImage[]
+
+  @@unique([productId, sizeId, colorId])
+}
+
+model ProductImage {
+  id        String   @id @default(uuid())
+  url       String
+  altText   String
+  // ADDED
+  variantId String
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
+
+}
 model Category {
   id        String    @id @default(uuid())
   name      String    @unique
@@ -112,68 +138,37 @@ model Category {
   updatedAt DateTime  @updatedAt
 }
 
-// ProductImage model to store multiple images per product
-model ProductImage {
-  id        String   @id @default(uuid())
-  url       String   // URL to the image
-  altText   String   // Alt text for accessibility
-  productId String
-  product   Product  @relation(fields: [productId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
 
-// Size model (e.g., S, M, L, XL, S/M, M/L)
 model Size {
   id              String           @id @default(uuid())
-  name            String           @unique // e.g., "S", "M", "L", "S/M", "38", "40"
+  name            String           @unique
   productVariants ProductVariant[]
 }
 
-// Color model (e.g., Black, Nude, White, Beige)
 model Color {
   id              String           @id @default(uuid())
-  name            String           @unique // e.g., "Black", "Blushed Nude", "White"
+  name            String           @unique
   productVariants ProductVariant[]
 }
 
-// ProductVariant model to represent a specific size-color combination of a product
-model ProductVariant {
-  id          String      @id @default(uuid())
-  productId   String
-  product     Product     @relation(fields: [productId], references: [id])
-  sizeId      String
-  size        Size        @relation(fields: [sizeId], references: [id])
-  colorId     String
-  color       Color       @relation(fields: [colorId], references: [id])
-  stock       Int         // Current stock for this specific variant
-  sku         String?     @unique // Stock Keeping Unit (optional, but good for inventory)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  cartItems   CartItem[]
-  orderItems  OrderItem[]
-
-  @@unique([productId, sizeId, colorId]) // Ensures unique variant for a product-size-color combination
-}
 
 // =====================================================================
-// Shopping Cart Functionality (Modified for Guest Carts)
+// Shopping Cart Functionality
 // =====================================================================
 
-// New Cart model to represent a shopping cart, which can be linked to a user or be a guest cart
 model Cart {
   id        String     @id @default(uuid())
-  userId    String?    @unique // Optional (for guest carts) and unique (one cart per user)
-  user      User?      @relation(fields: [userId], references: [id])
+  // MODIFIED: Every cart must have a user (guest or registered)
+  userId    String     @unique
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
-  items     CartItem[] // Items currently in this cart
+  items     CartItem[]
 }
 
-// CartItem model for individual items within a shopping cart
 model CartItem {
   id               String         @id @default(uuid())
-  cartId           String         // Link to the Cart model
+  cartId           String
   cart             Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
   productVariantId String
   productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
@@ -181,35 +176,33 @@ model CartItem {
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 
-  @@unique([cartId, productVariantId]) // Ensures a product variant appears only once per cart
+  @@unique([cartId, productVariantId])
 }
 
 // =====================================================================
 // Order and Transaction Models
 // =====================================================================
 
-// Order model for customer orders
 model Order {
-  id             String        @id @default(uuid())
-  userId         String
-  user           User          @relation(fields: [userId], references: [id])
-  orderDate      DateTime      @default(now())
-  status         OrderStatus   @default(PENDING)
-  subtotal       Float         // Subtotal before discount/shipping
-  discountAmount Float?        // Discount applied
-  shippingCost   Float?        // Shipping cost
-  totalAmount    Float         // Total amount of the order after discounts/shipping
+  id              String        @id @default(uuid())
+  userId          String
+  user            User          @relation(fields: [userId], references: [id])
+  orderDate       DateTime      @default(now())
+  status          OrderStatus   @default(PENDING)
+  subtotal        Float
+  discountAmount  Float?
+  shippingCost    Float?
+  totalAmount     Float
   shippingAddress String?
-  paymentMethod  String?
-  discountCodeId String?       // Link to the applied discount code
-  discountCode   DiscountCode? @relation(fields: [discountCodeId], references: [id])
-  governorate    String?       // Selected governorate for shipping
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  orderItems     OrderItem[]
+  paymentMethod   String?
+  discountCodeId  String?
+  discountCode    DiscountCode? @relation(fields: [discountCodeId], references: [id])
+  governorate     String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  orderItems      OrderItem[]
 }
 
-// OrderItem model for individual products within an order
 model OrderItem {
   id               String         @id @default(uuid())
   orderId          String
@@ -217,12 +210,11 @@ model OrderItem {
   productVariantId String
   productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
   quantity         Int
-  priceAtPurchase  Float          // Price of the item when the order was placed
+  priceAtPurchase  Float
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 }
 
-// Enum for order status
 enum OrderStatus {
   PENDING
   PROCESSING
@@ -232,31 +224,29 @@ enum OrderStatus {
   RETURNED
 }
 
-// Review model for product reviews
 model Review {
   id        String   @id @default(uuid())
   productId String
   product   Product  @relation(fields: [productId], references: [id])
   userId    String
   user      User     @relation(fields: [userId], references: [id])
-  rating    Int      // This will be an integer (e.g., 1-5 stars)
+  rating    Int
   comment   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-// New model for Discount Codes
 model DiscountCode {
-  id           String       @id @default(uuid())
-  code         String       @unique // The actual discount code (e.g., "SUMMER20")
-  discountType DiscountType // PERCENTAGE or FIXED_AMOUNT
-  value        Float        // The percentage (e.g., 0.1 for 10%) or fixed amount (e.g., 50.00)
-  minOrderAmount Float?     // Optional: minimum order amount for the discount to apply
-  isActive     Boolean      @default(true)
-  expiresAt    DateTime?    // Optional: when the discount code expires
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  orders       Order[]
+  id             String       @id @default(uuid())
+  code           String       @unique
+  discountType   DiscountType
+  value          Float
+  minOrderAmount Float?
+  isActive       Boolean      @default(true)
+  expiresAt      DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  orders         Order[]
 }
 
 enum DiscountType {
@@ -264,16 +254,14 @@ enum DiscountType {
   FIXED_AMOUNT
 }
 
-// New model for Shipping Rates
 model ShippingRate {
   id          String   @id @default(uuid())
-  governorate String   @unique // Name of the governorate (e.g., "Cairo", "Alexandria")
-  cost        Float    // Shipping cost for this governorate
+  governorate String   @unique
+  cost        Float
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
-// Example of a basic NewsletterSubscription model
 model NewsletterSubscription {
   id        String   @id @default(uuid())
   email     String   @unique

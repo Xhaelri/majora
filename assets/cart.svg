@@ -1,0 +1,23 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 64 64"
+  width="21"
+  height="21"
+  fill="currentColor"
+  stroke="currentColor"
+>
+  <polygon
+    fill="none"
+    points="44,18 54,18 54,63 10,63 10,18 20,18"
+    stroke="currentColor"
+    stroke-miterlimit="10"
+    stroke-width="2"
+  />
+  <path
+    d="M22,24V11c0-5.523,4.477-10,10-10s10,4.477,10,10v13"
+    fill="none"
+    stroke="currentColor"
+    stroke-miterlimit="10"
+    stroke-width="2"
+  />
+</svg>

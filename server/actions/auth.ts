@@ -3,8 +3,11 @@
 import { z } from "zod";
 import { db } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { signIn } from "@/auth";
+import { AuthError } from "next-auth";
+import { mergeGuestCartWithUserCart } from "./cart"; // Import the merge function
 
-// Validation schemas
+// Validation schemas (keeping your existing ones)
 const loginSchema = z.object({
   email: z
     .string()
@@ -122,6 +125,7 @@ const signupSchema = z.object({
   }),
 });
 
+
 export type LoginState = {
   errors?: {
     email?: string[];
@@ -156,6 +160,7 @@ export type SignupState = {
   success?: boolean;
 };
 
+
 export async function loginAction(
   prevState: LoginState,
   formData: FormData
@@ -163,13 +168,11 @@ export async function loginAction(
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
-  // Always preserve form values
   const formValues = {
     email: email || "",
     password: password || "",
   };
 
-  // Validate form data
   const validatedFields = loginSchema.safeParse({
     email,
     password,
@@ -184,12 +187,11 @@ export async function loginAction(
   }
 
   try {
-    // Check if user exists
     const user = await db.user.findUnique({
       where: { email },
     });
 
-    if (!user || !user.password) {
+    if (!user || !user.password || user.isGuest) {
       return {
         values: formValues,
         message: "Invalid credentials.",
@@ -197,7 +199,6 @@ export async function loginAction(
       };
     }
 
-    // Verify password
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
@@ -208,15 +209,31 @@ export async function loginAction(
       };
     }
 
-    // Return success - let the client handle the signIn
+    // NEW: Merge guest cart before signing in
+    await mergeGuestCartWithUserCart(user.id);
+
+    await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+    
     return {
       success: true,
       message: "Login successful!",
       toastType: "success",
-      redirect: "/",
+      redirect: "/account",
     };
+
   } catch (error) {
     console.error("Login error:", error);
+    if (error instanceof AuthError) {
+      return {
+        values: formValues,
+        message: "Authentication failed.",
+        toastType: "error",
+      };
+    }
     return {
       values: formValues,
       message: "Something went wrong.",
@@ -234,7 +251,6 @@ export async function signupAction(
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
-  // Always preserve form values
   const formValues = {
     firstName: firstName || "",
     lastName: lastName || "",
@@ -242,7 +258,6 @@ export async function signupAction(
     password: password || "",
   };
 
-  // Validate form data
   const validatedFields = signupSchema.safeParse({
     firstName,
     lastName,
@@ -259,12 +274,11 @@ export async function signupAction(
   }
 
   try {
-    // Check if user already exists
     const existingUser = await db.user.findUnique({
       where: { email },
     });
 
-    if (existingUser) {
+    if (existingUser && !existingUser.isGuest) {
       return {
         values: formValues,
         message: "A user with this email already exists.",
@@ -272,26 +286,27 @@ export async function signupAction(
       };
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Create user
     const user = await db.user.create({
       data: {
         firstName,
         lastName,
         email,
         password: hashedPassword,
-        name: `${firstName} ${lastName}`, // For NextAuth compatibility
+        name: `${firstName} ${lastName}`,
+        isGuest: false, // NEW: Mark as not a guest
       },
     });
 
-    // Create a cart for the new user
     await db.cart.create({
       data: {
         userId: user.id,
       },
     });
+
+    // NEW: Attempt to merge any existing guest cart
+    await mergeGuestCartWithUserCart(user.id);
 
     return {
       success: true,
@@ -307,4 +322,11 @@ export async function signupAction(
       toastType: "error",
     };
   }
+}
+
+
+import { signOut } from "@/auth";
+
+export async function signOutAction() {
+  await signOut({ redirectTo: "/signin" });
 }

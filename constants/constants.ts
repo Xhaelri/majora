@@ -5,11 +5,24 @@ import hero4 from "@/assets/ilya-mirnyy-FEQ5DMeB6Tc-unsplash.jpg";
 
 export const headerData = [
   // { title: "Home", href: "/" },
-  { title: "collection", href: "/collection" },
-  { title: "New In", href: "/new" },
-  { title: "Modiweek", href: "/modiweek" },
-  { title: "Plus Size", href: "/plus-size" },
-  { title: "Sustinability", href: "/sustainability" },
+  { title: "Women", href: "/collection" },
+  { title: "Men", href: "/new" },
+  { title: "Teen", href: "/modiweek" },
+  { title: "Kids", href: "/plus-size" },
+];
+export const mobileMenue = [
+  // { title: "Home", href: "/" },
+  { title: "NEW ARRIVALS", items: ["Women", "Men", "Kids"] },
+  { title: "Summer" },
+  { title: "MITCHA LABEL", items: ["Women", "Men", "Kids"] },
+  { title: "TRENDING" },
+  {
+    title: "Women",
+    items: ["Clothing", "Footwear & Bags", "Jewelry & Accessories", "Beauty"],
+  },
+  { title: "MEN", items: ["Clothing", "Footwear", "Accessories"] },
+  { title: "KIDS", items: ["Boys", "Girl"] },
+  { title: "SALE" },
 ];
 
 export const heroImages = [

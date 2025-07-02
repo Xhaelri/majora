@@ -1,7 +1,8 @@
-import { SearchIcon } from "lucide-react";
+import Search from "@/assets/172546_search_icon.svg";
 import React, { useEffect, useRef, useState } from "react";
 
 import { AnimatePresence, motion } from "framer-motion";
+
 
 export default function SearchBar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -29,16 +30,14 @@ export default function SearchBar() {
     };
   }, [isOpen]);
 
-  const dropdownTopOffset = "80px";
+  const dropdownTopOffset = "40px";
 
   return (
     <>
       <div className="relative group h-full flex items-center" ref={searchRef}>
         <div>
-          <SearchIcon
-            size={32}
-            strokeWidth={1}
-            className="w-7 h-7 hover:text-green-900 hoverEffect"
+          <Search
+            className=" hover:text-gray-700 hoverEffect"
             onClick={handleclick}
           />
         </div>

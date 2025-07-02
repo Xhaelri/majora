@@ -1,0 +1,13 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 222 222"
+  width="1em"
+  height="1em"
+  fill="currentColor"
+>
+  <g transform=" scale(2.35)">
+    <rect x="0" y="15.64" width="90" height="4" />
+    <rect x="0" y="43" width="90" height="4" />
+    <rect x="0" y="70.36" width="90" height="4" />
+  </g>
+</svg>

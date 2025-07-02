@@ -36,7 +36,7 @@ function Form() {
   }, [state.message, state.toastType, state.redirect, router]);
 
   return (
-    <form action={dispatch} noValidate className="w-full px-20">
+    <form action={dispatch} noValidate className="w-full lg:px-20">
       <div className="w-full space-y-4">
         <div className="flex w-full justify-center gap-2 items-start">
           <div className="w-full">

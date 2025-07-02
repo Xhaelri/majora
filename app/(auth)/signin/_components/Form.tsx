@@ -8,6 +8,7 @@ import { useFormStatus } from "react-dom";
 import { loginAction, type LoginState } from "@/server/actions/auth";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useCart } from "@/context/CartContext"; // -> 1. ADD THIS IMPORT
 
 const initialState: LoginState = { message: "", errors: {} };
 
@@ -15,28 +16,34 @@ function Form() {
   const [showPassword, setShowPassword] = useState(false);
   const [state, dispatch] = useActionState(loginAction, initialState);
   const { pending } = useFormStatus();
+  const { refreshCart } = useCart(); // -> 2. ADD THIS HOOK
+  const router = useRouter();
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
-  const router = useRouter();
-
   useEffect(() => {
-    if (state.message && state.toastType) {
-      if (state.toastType === "success") {
-        toast.success(state.message);
-        if (state.redirect) {
-          router.push(state.redirect);
-        }
-      } else if (state.toastType === "error") {
-        toast.error(state.message);
+    // -> 3. MODIFY THIS EFFECT
+    if (state.success) { // It's safer to check for the success flag directly
+      toast.success(state.message || "Login successful!");
+
+      // This is the crucial fix:
+      // Explicitly tell the cart to refetch its data from the server
+      // AFTER the login and server-side cart merge are complete.
+      refreshCart();
+
+      if (state.redirect) {
+        router.push(state.redirect);
       }
+    } else if (state.message && state.toastType === "error") {
+      toast.error(state.message);
     }
-  }, [state.message, state.toastType, state.redirect, router]);
+    // Add refreshCart to the dependency array
+  }, [state, router, refreshCart]);
 
   return (
-    <div className="w-full px-20">
+    <div className="w-full lg:px-20">
       <form action={dispatch} noValidate className="w-full space-y-4">
         <div>
           <div className="relative flex gap-2 items-center rounded-md border focus-within:ring-1 focus-within:ring-ring pl-2">

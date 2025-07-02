@@ -6,10 +6,11 @@ import Form from "./_components/Form";
 import GoogleSign from "../Google-Sign";
 
 function SigninPage() {
+  
   return (
     <main className="container pt-0 md:pt-20">
       <section className="flex flex-col md:flex-row gap-15">
-        <div className="w-full md:w-1/2">
+        <div className="w-full md:w-1/2 hidden sm:block">
           <Image
             src={heroImages[2].src}
             alt={heroImages[2].alt}

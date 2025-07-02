@@ -1,5 +1,4 @@
 "use client";
-import { AlignLeft } from "lucide-react";
 import React, { useState } from "react";
 
 import {
@@ -13,63 +12,74 @@ import {
 } from "@/components/ui/sheet";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import Link from "../Link/Link";
-import { headerData } from "@/constants/constants";
+import { mobileMenue } from "@/constants/constants";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
+  AccordionTrigger2,
 } from "../ui/accordion";
 import { Separator } from "../ui/separator";
 import UserIcon from "./UserIcon";
+import Mobile from "@/assets/mobile.svg";
+import { useSession } from "next-auth/react";
 
 export default function MobileMenu() {
   const [open, setOpen] = useState(false);
-  const isDesktop = useMediaQuery("(min-width:768px)");
+  const isDesktop = useMediaQuery("(min-width:1024px)");
+  const session = useSession();
 
   return (
     <div>
       {isDesktop ? (
-        <AlignLeft
-          size={43}
-          strokeWidth={1}
-          className="w-7 h-7 hover:text-green-900 hoverEffect"
-        />
+        <Mobile className="w-5 h-5 hover:text-gray-700 hoverEffect lg:hidden" />
       ) : (
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
-            <AlignLeft
-              size={43}
-              strokeWidth={1}
-              className="w-7 h-7 hover:text-green-900 hoverEffect"
-            />
+            <Mobile className="w-5 h-5 hover:text-gray-700 hoverEffect lg:hidden" />
           </SheetTrigger>
-          <SheetContent side="right" className="text-primary  overflow-y-auto">
+
+          <SheetContent side="left" className="text-primary overflow-y-auto">
             <SheetHeader>
-              <SheetTitle></SheetTitle>
+              <SheetTitle className="text-2xl">Menu</SheetTitle>
             </SheetHeader>
-            {headerData.slice(1).map((item) => (
+            {mobileMenue.map((item) => (
               <Accordion
                 key={item?.title}
                 type="single"
                 collapsible
-                className="flex flex-col w-full p-5 "
+                className="flex flex-col w-full px-5"
               >
                 <AccordionItem value={`${item?.title}`}>
-                  <AccordionTrigger className="text-2xl">
-                    {item?.title}
-                  </AccordionTrigger>
-                  <AccordionContent className="flex flex-col gap-1 text-balance ps-5 text-lg">
-                    <p>Our flagship</p>
-                    <p>Key features</p>
+                  {item?.items ? (
+                    <AccordionTrigger className="text-md uppercase">
+                      {item?.title}
+                    </AccordionTrigger>
+                  ) : (
+                    <AccordionTrigger2 className="text-md uppercase">
+                      {item?.title}
+                    </AccordionTrigger2>
+                  )}
+
+                  <AccordionContent className="flex flex-col gap-1 text-balance ps-2 ">
+                    {item.items &&
+                      item.items.map((subItem) => (
+                          <p
+                            key={subItem}
+                            className="text-[16px] text-gray-700"
+                          >
+                            {subItem}
+                          </p>
+                      ))}
                   </AccordionContent>
                   <Separator className="bg-primary mt-[-10px]" />
                 </AccordionItem>
               </Accordion>
 
               // <Link
-              // className={`hover:text-green-900 text-primary hoverEffect relative group ${
-              //   pathname === item?.href && "text-green-900"
+              // className={`hover:text-gray-700 text-primary hoverEffect relative group ${
+              //   pathname === item?.href && "text-gray-700"
               //   }`}
               //   key={item?.title}
               //   href={item.href}
@@ -79,25 +89,38 @@ export default function MobileMenu() {
               //   </SheetClose>
               // </Link>
             ))}
-            <SheetFooter className="flex flex-row items-center justify-center">
-              <SheetClose asChild>
-                <Link
-                  href={"/"}
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap  text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-10 px-6 w-40 border-1 border-black rounded-none cursor-pointer "
-                >
-                  <UserIcon /> Login
-                </Link>
-              </SheetClose>
+            {session?.data?.user ? (
+              <SheetFooter className="flex flex-row items-center justify-center">
+                <SheetClose asChild>
+                  <Link
+                    href={"/account"}
+                    className="inline-flex items-center justify-center gap-2 whitespace-nowrap  text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-10 px-6 w-30 border-1 border-black rounded-none cursor-pointer "
+                  >
+                    Account
+                  </Link>
+                </SheetClose>
+              </SheetFooter>
+            ) : (
+              <SheetFooter className="flex flex-row items-center justify-center">
+                <SheetClose asChild>
+                  <Link
+                    href={"/signin"}
+                    className="inline-flex items-center justify-center gap-2 whitespace-nowrap  text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-10 px-6 w-30 border-1 border-black rounded-none cursor-pointer "
+                  >
+                    <UserIcon /> Login
+                  </Link>
+                </SheetClose>
 
-              <SheetClose asChild>
-                <Link
-                  href={"/"}
-                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap  text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-10 px-6 w-40 border-1 border-black rounded-none cursor-pointer "
-                >
-                  Create Account
-                </Link>
-              </SheetClose>
-            </SheetFooter>
+                <SheetClose asChild>
+                  <Link
+                    href={"/signup"}
+                    className="inline-flex items-center justify-center gap-2 whitespace-nowrap  text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-10 px-6 w-30 border-1 border-black rounded-none cursor-pointer "
+                  >
+                    Create Account
+                  </Link>
+                </SheetClose>
+              </SheetFooter>
+            )}
           </SheetContent>
         </Sheet>
       )}

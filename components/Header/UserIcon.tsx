@@ -1,10 +1,15 @@
-import { User } from 'lucide-react'
-import React from 'react'
+import User from "@/assets/user2.svg";
+import React from "react";
+import Link from "../Link/Link";
 
 const UserIcon = () => {
   return (
-    <User size={32} strokeWidth={1} className='w-7 h-7 hover:text-green-900 hoverEffect'/>
-  )
-}
+    <Link href={"/signin"}>
+    
+          <User className=" hover:text-gray-700 hoverEffect" />
 
-export default UserIcon
+    </Link>
+  );
+};
+
+export default UserIcon;

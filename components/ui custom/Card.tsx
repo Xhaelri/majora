@@ -11,12 +11,16 @@ type CardProps = {
   productData: FullProduct;
 };
 
-const Card = ({ productData}: CardProps) => {
-  const primaryImageUrl =
-    productData.images.length > 0 ? productData.images[0].url : "";
+const Card = ({ productData }: CardProps) => {
+  // Use the first variant as the default
+  const primaryVariant = productData.variants?.[0];
 
-  const hoverImageUrl =
-    productData.images.length > 1 ? productData.images[1].url : primaryImageUrl;
+  // Use the images from the primary variant
+  const primaryImageUrl = primaryVariant?.images?.[0]?.url || "";
+
+  const hoverImageUrl = primaryVariant?.images?.[1]?.url || primaryImageUrl;
+
+  const imageAltText = primaryVariant?.images?.[0]?.altText || productData.name;
 
   const isOnSale =
     productData.salePrice !== null && productData.salePrice < productData.price;
@@ -28,18 +32,16 @@ const Card = ({ productData}: CardProps) => {
   const originalPrice = productData.price;
   const discountAmount = isOnSale ? originalPrice - currentPrice : 0;
 
-  const imageAltText =
-    productData.images.length > 0
-      ? productData.images[0].altText || productData.name
-      : productData.name;
-
   const [imageSrc, setImageSrc] = useState(primaryImageUrl);
   const isDesktop = useMediaQuery("(min-width:768px)");
 
   return (
     <div>
       {isDesktop ? (
-        <Link href={`/products/${slugifyAdvanced(productData.name)}`} className="flex flex-col  items-center justify-center gap-2 w-full max-w-[260px]">
+        <Link
+          href={`/products/${slugifyAdvanced(productData.name)}`}
+          className="flex flex-col  items-center justify-center gap-2 w-full max-w-[260px]"
+        >
           <div
             className="w-full aspect-[2/3] relative cursor-pointer "
             onMouseEnter={() => setImageSrc(hoverImageUrl)}
@@ -79,7 +81,10 @@ const Card = ({ productData}: CardProps) => {
           </div>
         </Link>
       ) : (
-        <Link href={`/products/${slugifyAdvanced(productData.name)}`}  className="flex flex-col items-center gap-2 w-full max-w-[260px]">
+        <Link
+          href={`/products/${slugifyAdvanced(productData.name)}`}
+          className="flex flex-col items-center gap-2 w-full max-w-[260px]"
+        >
           <div className="w-full aspect-[2/3] relative cursor-pointer">
             {isOnSale ? (
               <div className="bg-foreground text-secondary absolute top-0 right-0 h-5 w-11 text-sm  md:h-7 md:w-14 md:text-md z-20 flex items-center justify-center">

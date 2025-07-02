@@ -1,24 +1,44 @@
+// @/app/products/[slug]/components/ProductVariants.tsx
+
 "use client";
 
 import { Button } from "@/components/ui/button";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AvailabilityPing from "@/components/ui custom/Availability";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { addItemToCart } from "@/redux/slices/cartSlice";
-import { CartProductVariant } from "@/types/cartTypes";
-import { RootState } from "@/redux/store";
+import { AddToCartButton } from "./AddToCartButton";
 
-type Variant = CartProductVariant;
-// if we need anything else for the variant we should include in the prisma function
-type Props = {
-  variants: Variant[];
+type Image = {
+  url: string;
+  altText: string;
 };
 
-const ProductVariants = ({ variants }: Props) => {
-  const router = useRouter();
+type Variant = {
+  id: string;
+  stock: number;
+  size: { id: string; name: string };
+  color: { id: string; name: string };
+  images: Image[];
+};
 
+type Props = {
+  variants: Variant[];
+  onVariantChange: (images: Image[]) => void;
+};
+
+const ProductVariants = ({ variants, onVariantChange }: Props) => {
+  const router = useRouter();
   const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
+
+  const imagesByColor = React.useMemo(() => {
+    const map = new Map<string, Image[]>();
+    variants.forEach((variant) => {
+      if (!map.has(variant.color.id) && variant.images.length > 0) {
+        map.set(variant.color.id, variant.images);
+      }
+    });
+    return map;
+  }, [variants]);
 
   const uniqueSizes = Array.from(
     new Map(variants.map((v) => [v.size.id, v.size])).values()
@@ -34,20 +54,21 @@ const ProductVariants = ({ variants }: Props) => {
     );
 
   useEffect(() => {
-    const initialVariant =
-      variants.find((v) => v.colorId === "1" && v.stock > 0) ||
-      variants.find((v) => v.stock > 0);
-
+    const initialVariant = variants.find((v) => v.stock > 0);
     if (initialVariant) {
       setSelectedVariant(initialVariant);
     }
-  }, []);
+  }, [variants]);
 
   useEffect(() => {
     if (selectedVariant) {
       router.replace(`?variant=${selectedVariant.id}`, { scroll: false });
+      const newImages = imagesByColor.get(selectedVariant.color.id);
+      if (newImages) {
+        onVariantChange(newImages);
+      }
     }
-  }, [selectedVariant, router]);
+  }, [selectedVariant, router, onVariantChange, imagesByColor]);
 
   const handleSizeClick = (sizeId: string) => {
     const variant =
@@ -76,16 +97,6 @@ const ProductVariants = ({ variants }: Props) => {
       setSelectedVariant(variant);
     }
   };
-
-  const dispatch = useAppDispatch();
-  const cartItems = useAppSelector((state: RootState) => state.cart.items);
-  const handleAddToCart = () => {
-    if (selectedVariant) {
-      dispatch(addItemToCart({ productVariant: selectedVariant }));
-    }
-  };
-
-  console.log(cartItems);
 
   return (
     <>
@@ -174,13 +185,7 @@ const ProductVariants = ({ variants }: Props) => {
       </div>
       <div className="pt-5">
         {(selectedVariant?.stock ?? 0) > 0 ? (
-          <Button
-            variant={"cartAdd"}
-            size={"cartAdd"}
-            onClick={handleAddToCart}
-          >
-            ADD TO CART
-          </Button>
+          <AddToCartButton productVariantId={selectedVariant?.id || ""} />
         ) : (
           <Button variant={"cartAdd"} size={"cartAdd"} disabled>
             SOLD OUT

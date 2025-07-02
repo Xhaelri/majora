@@ -1,0 +1,25 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 50 50"
+  width="20"
+  height="20"
+  fill="none"
+  stroke="currentColor"
+>
+  <circle
+    cx="21"
+    cy="20"
+    r="16"
+    stroke-linecap="round"
+    stroke-miterlimit="10"
+    stroke-width="2"
+  />
+  <line
+    x1="32.229"
+    y1="32.229"
+    x2="45.5"
+    y2="45.5"
+    stroke-miterlimit="10"
+    stroke-width="4"
+  />
+</svg>
