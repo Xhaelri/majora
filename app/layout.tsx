@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Libre_Franklin } from "next/font/google";
+import { Corinthia, Libre_Franklin, Meow_Script } from "next/font/google";
 import "./globals.css";
 import ThemeContextProvider from "../context/Theme";
 import Header from "@/components/Header/Header";
@@ -9,12 +9,18 @@ import { Toaster } from "@/components/ui/sonner";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
 import { CartProvider } from "@/context/CartContext";
-// REMOVED: import CartMergeHandler from "@/hooks/cartMerge";
 
 const libre = Libre_Franklin({
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-  variable: "--font-antic",
+  variable: "--font-libre-franklin",
+  display: "swap",
+});
+
+const corinthia = Meow_Script({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-corinthia",
   display: "swap",
 });
 
@@ -32,15 +38,24 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={` ${libre.variable} ${libre.className} antialiased `}>
+      <body
+        className={`${libre.variable} ${corinthia.variable} ${libre.className} antialiased`}
+      >
         <SessionProvider session={session}>
           <CartProvider>
             <Providers>
               <ThemeContextProvider>
                 <Header />
-                <Toaster position="top-right" richColors />
+                <Toaster
+                  position="top-right"
+                  expand={false}
+                  offset={60}
+                  mobileOffset={60}
+                  duration={2000}
+                  invert
+                  theme="light"
+                />
                 {children}
-                {/* REMOVED: <CartMergeHandler /> */}
                 <Footer />
               </ThemeContextProvider>
             </Providers>
@@ -50,38 +65,3 @@ export default async function RootLayout({
     </html>
   );
 }
-// Font files can be colocated inside of `app`
-
-// const playfair = Playfair_Display({
-//   subsets: ["latin"],
-//   weight: ["400", "500", "600", "700", "800", "900"],
-//   variable: "--font-playfair",
-//   display: "swap",
-// });
-
-// const antic = Antic_Didone({
-//   subsets: ["latin"],
-//   weight: ["400"],
-//   variable: "--font-antic",
-//   display: "swap",
-// });
-// const cormorant = Cormorant_Infant({
-//   subsets: ["latin"],
-//   weight: ["400"],
-//   variable: "--font-antic",
-//   display: "swap",
-// });
-
-// const roboto_flex = Roboto_Flex({
-//   subsets: ["latin"],
-//   variable: "--font-playfair",
-//   display: "swap",
-//   weight: ["100","200","300","400", "500", "600", "700", "800", "900"],
-// });
-
-// const montserrat = Montserrat({
-//   subsets: ["latin"],
-//   weight: ["300", "400", "500", "600", "700", "800", "900"],
-//   variable: "--font-montserrat",
-//   display: "swap",
-// });

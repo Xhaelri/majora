@@ -14,7 +14,7 @@ export default function CartIcon() {
         <Cart className="hover:text-gray-700 hoverEffect cursor-pointer" />
       </Link>
       {count > 0 && (
-        <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full min-w-5 h-5 flex items-center justify-center px-1">
+        <div className="absolute -bottom-2 -right-2 bg-red-500 text-white text-[8px] font-light rounded-full min-w-4 max-w-4 w-4 h-4 flex items-center justify-center p-1">
           {count > 99 ? '99+' : count}
         </div>
       )}

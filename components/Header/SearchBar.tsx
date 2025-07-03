@@ -30,7 +30,7 @@ export default function SearchBar() {
     };
   }, [isOpen]);
 
-  const dropdownTopOffset = "40px";
+  const dropdownTopOffset = "50px";
 
   return (
     <>

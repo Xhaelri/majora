@@ -1,11 +1,10 @@
 "use client";
-
+import Check from "@/assets/check.svg"
 import { Button } from "@/components/ui/button";
 import { addToCart } from "@/server/actions/cart";
 import { useCart } from "@/context/CartContext";
 import { useTransition } from "react";
 import { toast } from "sonner";
-
 export function AddToCartButton({
   productVariantId,
   quantity = 1,
@@ -21,10 +20,15 @@ export function AddToCartButton({
       try {
         const result = await addToCart(productVariantId, quantity);
         if (result.success) {
-          toast.success("Item added to cart!");
-          refreshCart(); // Refresh the global cart state
+          toast.custom(() => (
+            <div className="bg-black text-white w-full px-4 py-3 text-sm rounded-none flex items-center justify-center gap-2">
+              <Check/>
+              <p className="font-semibold uppercase">Item added to shopping bag</p>
+            </div>
+          ));
+          refreshCart(); 
         } else {
-           toast.error("Failed to add item. Please try again.");
+          toast.error("Failed to add item. Please try again.");
         }
       } catch (err) {
         console.error("Failed to add to cart:", err);

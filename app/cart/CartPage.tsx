@@ -1,43 +1,48 @@
-"use client"
+"use client";
 
-import { useCart } from "@/context/CartContext"
+import { useCart } from "@/context/CartContext";
+import CartItemCard from "./_components/CartItemCard";
+import CheckOut from "./_components/CheckOut";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 export function CartPage() {
-  const { items: cartItems, count } = useCart()
+  const { items: cartItems, count } = useCart();
+  const isDesktop = useMediaQuery("(min-width:1024px)");
 
-  // if (isLoading) {
-  //   return (
-  //     <div className="container mx-auto p-4">
-  //       <h1 className=" mb-6 uppercase">Shopping Bag</h1>
-  //       <p>Loading cart...</p>
-  //     </div>
-  //   )
-  // }
-  
+  console.log(cartItems);
   return (
-    <div className="">
-        <h1 className=" mb-6 uppercase p-6">Shopping Bag ({count})</h1>
-      
+    <div className="container">
+      <h1 className=" mb-6 text-sm font-bold uppercase pt-6">
+        Shopping Bag ({count})
+      </h1>
+
       {count === 0 ? (
         <p>Your cart is empty</p>
+      ) : isDesktop ? (
+        <div className="flex justify-between gap-5 min-h-screen">
+          <div className="w-3/4">
+            <div className="grid grid-cols-3 grid-rows-2 gap-2 justify-start">
+              {cartItems.map((item) => (
+                <CartItemCard key={item.id} item={item} />
+              ))}
+            </div>
+          </div>
+          <div className="w-1/4">
+            <div className="sticky top-20">
+              <CheckOut cartItems={cartItems} />
+            </div>
+          </div>
+        </div>
       ) : (
-        <>
-          <div className="space-y-4 mb-6">
+        <div>
+          <div className="space-y-1 mb-6">
             {cartItems.map((item) => (
-              <div key={item.id} className="border p-4 rounded">
-                <p>Product: {item.productVariant.product.name}</p>
-                <p>Size: {item.productVariant.size.name}</p>
-                <p>Color: {item.productVariant.color.name}</p>
-                <p>Quantity: {item.quantity}</p>
-                <p>Cart Item ID: {item.id}</p>
-              </div>
+              <CartItemCard key={item.id} item={item} />
             ))}
           </div>
-          
-          {/* <CheckoutButton /> */}
-          
-        </>
+          <CheckOut cartItems={cartItems} />
+        </div>
       )}
     </div>
-  )
+  );
 }

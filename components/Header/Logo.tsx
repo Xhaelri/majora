@@ -12,7 +12,7 @@ export default function Logo({ children, className }: Props) {
     <Link href={"/"}>
       <h2
         className={cn(
-          "text-xl font-bold text-center flex items-center justify-center text-main-text-color tracking-wider uppercase",
+          "text-3xl font-semibold font-corinthia text-center flex items-center justify-center text-main-text-color tracking-wider ",
           className
         )}
       >

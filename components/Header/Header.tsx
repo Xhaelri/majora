@@ -60,9 +60,7 @@ export default function Header() {
       {isDesktop ? (
         <div className="container grid grid-cols-[1fr_1fr_1fr] items-center text-primary">
           <HeaderMenu />
-          <div>
-            <Logo>Sekra</Logo>
-          </div>
+          <Logo>Sekra</Logo>
           <div className="text-right flex justify-end">
             <div className="flex gap-3 items-center">
               <SearchBar />
@@ -74,7 +72,7 @@ export default function Header() {
         </div>
       ) : (
         <div className="container grid grid-cols-[1fr_1fr] items-center justify-between text-primary">
-          <div className=" flex items-center gap-3">
+          <div className="flex items-center gap-3">
             <MobileMenu />
             <Logo>Sekra</Logo>
           </div>
