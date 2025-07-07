@@ -1,3 +1,4 @@
+"use client"
 import React from 'react'
 import SortDropDown from './SortDropDown'
 import FilterList from './FilterList'

@@ -1,4 +1,4 @@
-
+'use client'
 const AvailabilityPing = ({ available }: { available: boolean }) => {
   const color = available ? "bg-green-500" : "bg-yellow-500";
 

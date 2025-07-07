@@ -1,8 +1,8 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
-import CartItemCard from "./_components/CartItemCard";
-import CheckOut from "./_components/CheckOut";
+import CartItemCard from "./components/CartItemCard";
+import CheckOut from "./components/CheckOut";
 import useMediaQuery from "@/hooks/useMediaQuery";
 
 export default function CartPage() {
