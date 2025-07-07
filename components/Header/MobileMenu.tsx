@@ -16,7 +16,6 @@ import { mobileMenue } from "@/constants/constants";
 import {
   Accordion,
   AccordionItem,
-  AccordionTrigger,
   AccordionTrigger2,
 } from "../ui/accordion";
 import UserIcon from "./UserIcon";
@@ -52,15 +51,10 @@ export default function MobileMenu() {
                 className="flex flex-col w-full px-5"
               >
                 <AccordionItem value={`${item?.title}`}>
-                  {item?.items ? (
-                    <AccordionTrigger className="text-lg font-light uppercase">
-                      <Link href={`/categories/${item?.href}`}>{item?.title}</Link>
-                    </AccordionTrigger>
-                  ) : (
                     <AccordionTrigger2 className="text-lg font-light tracking-widest uppercase">
                       <Link href={`/categories/${item?.href}`}>{item?.title}</Link>
                     </AccordionTrigger2>
-                  )}
+
 
                   {/* <AccordionContent className="flex flex-col gap-1 text-balance ps-2 ">
                     {item.items &&

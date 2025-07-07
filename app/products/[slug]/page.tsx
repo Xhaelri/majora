@@ -1,12 +1,11 @@
-
 import { getProductBySlug } from "@/server/db/prisma";
 import { notFound } from "next/navigation";
 import ProductDetails from "./ProductDetails";
 
 type Props = {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 };
 
 const ProductPage = async ({ params }: Props) => {
