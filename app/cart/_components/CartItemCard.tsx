@@ -1,5 +1,5 @@
 import { CartItemWithVariant } from "@/types/product";
-import { formatPrice } from "@/utils/formatPrice";
+import  formatPrice  from "@/utils/formatPrice";
 import Image from "next/image";
 import React, { useState } from "react";
 import Close from "@/assets/close.svg";

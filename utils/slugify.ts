@@ -1,4 +1,4 @@
-export function slugifyAdvanced(text: string): string {
+export default function slugifyAdvanced(text: string): string {
   return text
     .toString()
     .normalize('NFD') // Normalize diacritics

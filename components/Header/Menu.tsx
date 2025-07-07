@@ -9,7 +9,7 @@ type HeaderItem = {
   title: string;
 };
 
-export function Menu({ title }: HeaderItem) {
+export default function Menu({ title }: HeaderItem) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -119,7 +119,7 @@ type ListItemProps = React.ComponentPropsWithoutRef<"li"> & {
   children?: React.ReactNode;
 };
 
-const ListItem: React.FC<ListItemProps> = ({
+export const  ListItem: React.FC<ListItemProps> = ({
   title,
   children,
   href,
@@ -144,4 +144,3 @@ const ListItem: React.FC<ListItemProps> = ({
   );
 };
 
-export default ListItem;

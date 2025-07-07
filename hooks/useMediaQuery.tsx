@@ -1,8 +1,8 @@
-"use client"
+"use client";
 import { useEffect, useState } from "react";
 
 export default function useMediaQuery(query: string) {
-  const [value, setValue] =useState(false);
+  const [value, setValue] = useState(false);
 
   useEffect(() => {
     function onChange(event: MediaQueryListEvent) {

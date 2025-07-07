@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { CartItemWithVariant } from "@/types/product";
-import { formatPrice } from "@/utils/formatPrice";
+import  formatPrice  from "@/utils/formatPrice";
 import React from "react";
 
 type Props = {

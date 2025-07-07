@@ -1,11 +1,11 @@
 "use client";
 import useMediaQuery from "@/hooks/useMediaQuery";
-import { formatPrice } from "@/utils/formatPrice";
+import  formatPrice  from "@/utils/formatPrice";
 import Image from "next/image";
 import React, { useState } from "react";
 import { FullProduct } from "@/types/product";
 import Link from "../Link/Link";
-import { slugifyAdvanced } from "@/utils/slugify";
+import  slugifyAdvanced  from "@/utils/slugify";
 
 type CardProps = {
   productData: FullProduct;

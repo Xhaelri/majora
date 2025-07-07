@@ -1,6 +1,6 @@
 import { headerData } from "@/constants/constants";
 import React from "react";
-import { Menu } from "./Menu";
+import  Menu  from "./Menu";
 
 export default function HeaderMenu() {
   return (
