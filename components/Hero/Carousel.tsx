@@ -19,7 +19,7 @@ export default function CarouselWithPagination() {
   const [current, setCurrent] = React.useState(0);
   const [count, setCount] = React.useState(0);
   const plugin = React.useRef(
-    Autoplay({ delay: 3000, stopOnInteraction: false })
+    Autoplay({ delay: 4500, stopOnInteraction: false })
   );
 
   React.useEffect(() => {
@@ -41,7 +41,6 @@ export default function CarouselWithPagination() {
         onMouseLeave={plugin.current.reset}
         opts={{ loop: true }}
       >
-        {/* Progress indicators */}
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-50 flex">
           {Array.from({ length: count }).map((_, index) => (
             <button
@@ -53,7 +52,6 @@ export default function CarouselWithPagination() {
             />
           ))}
         </div>
-
         <CarouselContent>
           {heroImages.map((image, index) => (
             <CarouselItem key={index}>
@@ -67,7 +65,7 @@ export default function CarouselWithPagination() {
                     priority={index === 0}
                   />
                   <AnimatePresence mode="wait">
-                    <div className="container relative z-10 h-full w-full"> {/* <-- Add container here */}
+                    <div className="container relative z-10 h-full w-full">
                       <HeroData
                         key={current}
                         button={heroData[index]?.button || "SHOP"}

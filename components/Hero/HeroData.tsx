@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { motion, easeOut } from "framer-motion";
 
 interface HeroDataProps {
   button: string;
@@ -41,7 +41,7 @@ function HeroData({ button, title, desc, variant }: HeroDataProps) {
       opacity: 1,
       transition: {
         duration: 0.6,
-        ease: "easeOut",
+        ease: easeOut,
       },
     },
     exit: {
@@ -55,7 +55,7 @@ function HeroData({ button, title, desc, variant }: HeroDataProps) {
 
   const buttonVariants = {
     hidden: {
-      scale: 0.8,
+      scale: 1,
       opacity: 0,
     },
     visible: {
@@ -63,8 +63,8 @@ function HeroData({ button, title, desc, variant }: HeroDataProps) {
       opacity: 1,
       transition: {
         duration: 0.5,
-        ease: "easeOut",
-        delay: 0.7, 
+        ease: easeOut,
+        delay: 0.8, 
       },
     },
     exit: {
