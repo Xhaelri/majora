@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Meow_Script } from "next/font/google";
 import "./globals.css";
 import ThemeContextProvider from "../context/Theme";
-import Header from "@/components/Header/Header";
-import Footer from "@/components/Footer/Footer";
+// import Header from "@/components/Header/Header";
+// import Footer from "@/components/Footer/Footer";
 import { Toaster } from "@/components/ui/sonner";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
@@ -43,7 +43,7 @@ export default async function RootLayout({
         <SessionProvider session={session}>
           <CartProvider>
               <ThemeContextProvider>
-                <Header />
+                {/* <Header /> */}
                 <Toaster
                   position="top-right"
                   expand={false}
@@ -54,7 +54,7 @@ export default async function RootLayout({
                   theme="light"
                 />
                 {children}
-                <Footer />
+                {/* <Footer /> */}
               </ThemeContextProvider>
           </CartProvider>
         </SessionProvider>
