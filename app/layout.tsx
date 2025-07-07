@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Libre_Franklin, Meow_Script } from "next/font/google";
+import { Meow_Script } from "next/font/google";
 import "./globals.css";
 import ThemeContextProvider from "../context/Theme";
 import Header from "@/components/Header/Header";
@@ -10,12 +10,12 @@ import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
 import { CartProvider } from "@/context/CartContext";
 
-const libre = Libre_Franklin({
-  subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-  variable: "--font-libre-franklin",
-  display: "swap",
-});
+// const libre = Libre_Franklin({
+//   subsets: ["latin"],
+//   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+//   variable: "--font-libre-franklin",
+//   display: "swap",
+// });
 
 const corinthia = Meow_Script({
   subsets: ["latin"],
@@ -39,7 +39,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${libre.variable} ${corinthia.variable} ${libre.className} antialiased`}
+        className={` ${corinthia.variable}  antialiased`}
       >
         <SessionProvider session={session}>
           <CartProvider>

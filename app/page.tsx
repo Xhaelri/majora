@@ -5,8 +5,7 @@ import Hero from "@/components/Hero/Hero";
 import Kimonos from "@/components/Kimonos-Kaftans/Kimonos-Kaftans";
 import Tops from "@/components/Tops-Shirts/Tops-Shirts";
 export default async function Home() {
-  // const session = await auth();
-  // if (!session) redirect("/signin");
+
   return (
     <>
       <Hero />
