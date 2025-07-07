@@ -1,7 +1,7 @@
 import React from "react";
-import SectionTitle from "../ui custom/SectionTitle";
+import SectionTitle from "../ui-custom/SectionTitle";
 import { Button } from "../ui/button";
-import CardGrid from "../ui custom/CardGrid";
+import CardGrid from "../ui-custom/CardGrid";
 import { getAllProducts } from "@/server/db/prisma";
 
 const BestSellers = async () => {

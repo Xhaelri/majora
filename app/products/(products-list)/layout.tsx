@@ -1,4 +1,4 @@
-import ProductsSectionHeader from "@/components/ui custom/ProductsSectionHeader";
+import ProductsSectionHeader from "@/components/ui-custom/ProductsSectionHeader";
 import { heroImages } from "@/constants/constants";
 import React from "react";
 type Props = {

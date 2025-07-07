@@ -1,10 +1,9 @@
-
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import AvailabilityPing from "@/components/ui custom/Availability";
+import AvailabilityPing from "@/components/ui-custom/Availability";
 import { FullProduct } from "@/types/product"; // Ensure this type is correct
 import { formatPrice } from "@/utils/formatPrice";
 import ProductDetailsCarousel from "./components/ProductDetailsCarousel";
@@ -65,8 +64,11 @@ const ProductDetails = ({ product }: Props) => {
   }, [selectedVariant, router, searchParams]);
 
   // Memoize derived values for performance
-  const uniqueSizes = useMemo(() =>
-    Array.from(new Map(product.variants.map((v) => [v.size.id, v.size])).values()),
+  const uniqueSizes = useMemo(
+    () =>
+      Array.from(
+        new Map(product.variants.map((v) => [v.size.id, v.size])).values()
+      ),
     [product.variants]
   );
 
@@ -107,7 +109,9 @@ const ProductDetails = ({ product }: Props) => {
 
   // Derive images and price from the current state
   const imagesForCarousel = selectedVariant?.images ?? [];
-  const discountAmount = product.salePrice ? product.price - product.salePrice : 0;
+  const discountAmount = product.salePrice
+    ? product.price - product.salePrice
+    : 0;
 
   return (
     <section className="container pt-0 md:pt-20">
@@ -154,7 +158,11 @@ const ProductDetails = ({ product }: Props) => {
                       variant="stock"
                       size="stock"
                       onClick={() => handleSizeClick(size.id)}
-                      className={selectedVariant?.size.id === size.id ? "bg-foreground text-secondary" : ""}
+                      className={
+                        selectedVariant?.size.id === size.id
+                          ? "bg-foreground text-secondary"
+                          : ""
+                      }
                       disabled={isDisabled}
                     >
                       {size.name}
@@ -170,26 +178,32 @@ const ProductDetails = ({ product }: Props) => {
                   Color
                 </h1>
                 <div className="space-x-3">
-                  {getAvailableColorsForSize(selectedVariant.size.id).map((color) => {
-                    const isDisabled = !product.variants.some(
-                      (v) =>
-                        v.size.id === selectedVariant.size.id &&
-                        v.color.id === color.id &&
-                        v.stock > 0
-                    );
-                    return (
-                      <Button
-                        key={color.id}
-                        variant="color"
-                        size="color"
-                        onClick={() => handleColorClick(color.id)}
-                        className={selectedVariant?.color.id === color.id ? "bg-foreground text-secondary" : ""}
-                        disabled={isDisabled}
-                      >
-                        {color.name}
-                      </Button>
-                    );
-                  })}
+                  {getAvailableColorsForSize(selectedVariant.size.id).map(
+                    (color) => {
+                      const isDisabled = !product.variants.some(
+                        (v) =>
+                          v.size.id === selectedVariant.size.id &&
+                          v.color.id === color.id &&
+                          v.stock > 0
+                      );
+                      return (
+                        <Button
+                          key={color.id}
+                          variant="color"
+                          size="color"
+                          onClick={() => handleColorClick(color.id)}
+                          className={
+                            selectedVariant?.color.id === color.id
+                              ? "bg-foreground text-secondary"
+                              : ""
+                          }
+                          disabled={isDisabled}
+                        >
+                          {color.name}
+                        </Button>
+                      );
+                    }
+                  )}
                 </div>
               </div>
             )}
@@ -199,12 +213,15 @@ const ProductDetails = ({ product }: Props) => {
                 {selectedVariant.stock < 5 && selectedVariant.stock > 0 ? (
                   <span className="flex items-center gap-2 text-primary">
                     <AvailabilityPing available={false} />
-                    Low Stock – {selectedVariant.stock} item{selectedVariant.stock === 1 ? "" : "s"} left
+                    Low Stock – {selectedVariant.stock} item
+                    {selectedVariant.stock === 1 ? "" : "s"} left
                   </span>
                 ) : selectedVariant.stock > 0 ? (
                   <div className="flex items-center gap-2">
                     <AvailabilityPing available={true} />
-                    <span className="text-primary">In stock, ready to ship</span>
+                    <span className="text-primary">
+                      In stock, ready to ship
+                    </span>
                   </div>
                 ) : null}
               </div>
@@ -212,15 +229,15 @@ const ProductDetails = ({ product }: Props) => {
           </div>
 
           {/* Action Buttons */}
-      <div className="pt-5">
-        {(selectedVariant?.stock ?? 0) > 0 ? (
-          <AddToCartButton productVariantId={selectedVariant?.id || ""} />
-        ) : (
-          <Button variant={"cartAdd"} size={"cartAdd"} disabled>
-            SOLD OUT
-          </Button>
-        )}
-      </div>
+          <div className="pt-5">
+            {(selectedVariant?.stock ?? 0) > 0 ? (
+              <AddToCartButton productVariantId={selectedVariant?.id || ""} />
+            ) : (
+              <Button variant={"cartAdd"} size={"cartAdd"} disabled>
+                SOLD OUT
+              </Button>
+            )}
+          </div>
           <div className="pt-5">
             {(selectedVariant?.stock ?? 0) > 0 && (
               <Button variant={"cartBuyNow"} size={"cartBuyNow"}>

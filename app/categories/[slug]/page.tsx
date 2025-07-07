@@ -1,4 +1,4 @@
-import CardGrid from "@/components/ui custom/CardGrid";
+import CardGrid from "@/components/ui-custom/CardGrid";
 import { getProductsByCategory } from "@/server/db/prisma";
 import {
   processProducts,
@@ -51,9 +51,9 @@ const page = async ({
 
   return (
     <div className="mt-4 flex container">
-        <span className="hidden lg:inline-flex">
-      <Filtering />
-        </span>
+      <span className="hidden lg:inline-flex">
+        <Filtering />
+      </span>
       <CardGrid products={processedProducts} isProductsPage={true} />
     </div>
   );

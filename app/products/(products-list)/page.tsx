@@ -1,4 +1,4 @@
-import CardGrid from "@/components/ui custom/CardGrid";
+import CardGrid from "@/components/ui-custom/CardGrid";
 import { getAllProducts } from "@/server/db/prisma";
 import React from "react";
 

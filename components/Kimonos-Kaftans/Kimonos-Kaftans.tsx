@@ -1,8 +1,8 @@
 import React from "react";
-import SectionTitle from "../ui custom/SectionTitle";
+import SectionTitle from "../ui-custom/SectionTitle";
 import { Button } from "../ui/button";
-import CardGrid from "../ui custom/CardGrid";
-import {getProductsByCategory } from "@/server/db/prisma";
+import CardGrid from "../ui-custom/CardGrid";
+import { getProductsByCategory } from "@/server/db/prisma";
 
 const Kimonos = async () => {
   const products = (await getProductsByCategory("kimonos-kaftans")) ?? [];

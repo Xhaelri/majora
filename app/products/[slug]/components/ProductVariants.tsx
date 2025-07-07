@@ -5,7 +5,7 @@
 import { Button } from "@/components/ui/button";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import AvailabilityPing from "@/components/ui custom/Availability";
+import AvailabilityPing from "@/components/ui-custom/Availability";
 import { AddToCartButton } from "./AddToCartButton";
 
 type Image = {
