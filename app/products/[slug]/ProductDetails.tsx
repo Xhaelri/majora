@@ -7,7 +7,7 @@ import AvailabilityPing from "@/components/ui-custom/Availability";
 import { FullProduct } from "@/types/product"; // Ensure this type is correct
 import { formatPrice } from "@/utils/formatPrice";
 import ProductDetailsCarousel from "./components/ProductDetailsCarousel";
-import { AddToCartButton } from "./components/AddToCartButton";
+import  AddToCartButton  from "./components/AddToCartButton";
 
 type Image = {
   url: string;
