@@ -9,7 +9,7 @@ import { removeFromCart, updateCartItemQuantity } from "@/server/actions/cart";
 import { useCart } from "@/context/CartContext";
 import { toast } from "sonner";
 import Check from "@/assets/check.svg";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import useMediaQuery from "@/hooks/useMediaQuery";
 
 type Props = {
   item: CartItemWithVariant;
@@ -54,81 +54,79 @@ const CartItemCard = ({ item }: Props) => {
   return (
     <>
       {isDesktop ? (
-    <div key={item.id} className="relative w-full max-w-xs flex flex-col">
-      {/* Image container */}
-      <div className="relative w-full aspect-[2/3]">
-        {img && (
-          <Image
-            src={img.url.trimStart()}
-            alt={img.altText}
-            fill
-            className="object-cover"
-          />
-        )}
-        <button
-          className="cursor-pointer absolute top-2 right-2 bg-white/90 p-1"
-          onClick={handleRemoveFromCart}
-        >
-          <Close />
-        </button>
-      </div>
+        <div key={item.id} className="relative w-full max-w-xs flex flex-col">
+          {/* Image container */}
+          <div className="relative w-full aspect-[2/3]">
+            {img && (
+              <Image
+                src={img.url.trimStart()}
+                alt={img.altText}
+                fill
+                className="object-cover"
+              />
+            )}
+            <button
+              className="cursor-pointer absolute top-2 right-2 bg-white/90 p-1"
+              onClick={handleRemoveFromCart}
+            >
+              <Close />
+            </button>
+          </div>
 
-      {/* Info container */}
-      <div className="flex flex-col p-3">
-        <p className="text-sm font-medium">
-          {item.productVariant.product.name}
-        </p>
-
-        <div className="flex gap-3 text-sm mt-1">
-          <p
-            className={`${
-              item.productVariant.product.salePrice && "line-through"
-            }`}
-          >
-            {formatPrice(item.productVariant.product.price)}
-          </p>
-          {item.productVariant.product.salePrice && (
-            <p className="text-red-500">
-              {formatPrice(item.productVariant.product.salePrice)}
+          {/* Info container */}
+          <div className="flex flex-col p-3">
+            <p className="text-sm font-medium">
+              {item.productVariant.product.name}
             </p>
-          )}
-        </div>
 
-        {/* Bottom row for controls and details */}
-        <div className="flex items-center justify-between mt-2">
-          {/* Quantity Selector */}
-          <div className="flex gap-4 items-center">
-            <button
-              disabled={loading}
-              className={`${
-                loading ? "cursor-not-allowed opacity-50" : "cursor-pointer"
-              }`}
-              onClick={handleReduceQuantity}
-            >
-              <Reduce />
-            </button>
-            <span className="text-sm text-center w-4">{item.quantity}</span>
-            <button
-              disabled={loading}
-              className={`${
-                loading ? "cursor-not-allowed opacity-50" : "cursor-pointer"
-              }`}
-              onClick={handleAddQuantity}
-            >
-              <Add />
-            </button>
+            <div className="flex gap-3 text-sm mt-1">
+              <p
+                className={`${
+                  item.productVariant.product.salePrice && "line-through"
+                }`}
+              >
+                {formatPrice(item.productVariant.product.price)}
+              </p>
+              {item.productVariant.product.salePrice && (
+                <p className="text-red-500">
+                  {formatPrice(item.productVariant.product.salePrice)}
+                </p>
+              )}
+            </div>
+
+            {/* Bottom row for controls and details */}
+            <div className="flex items-center justify-between mt-2">
+              {/* Quantity Selector */}
+              <div className="flex gap-4 items-center">
+                <button
+                  disabled={loading}
+                  className={`${
+                    loading ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+                  }`}
+                  onClick={handleReduceQuantity}
+                >
+                  <Reduce />
+                </button>
+                <span className="text-sm text-center w-4">{item.quantity}</span>
+                <button
+                  disabled={loading}
+                  className={`${
+                    loading ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+                  }`}
+                  onClick={handleAddQuantity}
+                >
+                  <Add />
+                </button>
+              </div>
+
+              {/* Size and Color */}
+              <div className="flex gap-3 text-sm text-muted-foreground">
+                <p>{item.productVariant.size.name}</p>
+                <p>{item.productVariant.color.name}</p>
+              </div>
+            </div>
           </div>
-          
-          {/* Size and Color */}
-          <div className="flex gap-3 text-sm text-muted-foreground">
-            <p>{item.productVariant.size.name}</p>
-            <p>{item.productVariant.color.name}</p>
-          </div>
         </div>
-      </div>
-    </div>
-
-
       ) : (
         <div key={item.id} className="w-full flex gap-4 relative">
           {/* Image container */}

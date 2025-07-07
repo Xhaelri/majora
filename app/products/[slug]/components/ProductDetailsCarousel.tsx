@@ -9,8 +9,7 @@ import {
 } from "@/components/ui/carouselProduct";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
-
+import useMediaQuery from "@/hooks/useMediaQuery";
 
 type ProductVariantImage = {
   url: string;
@@ -21,15 +20,14 @@ type ProductDetailsCarouselProps = {
   images: ProductVariantImage[];
 };
 
-export default function ProductDetailsCarousel({images}:ProductDetailsCarouselProps) {
-
-
-
+export default function ProductDetailsCarousel({
+  images,
+}: ProductDetailsCarouselProps) {
   const [api, setApi] = React.useState<CarouselApi>();
   const [current, setCurrent] = React.useState(0);
   const [count, setCount] = React.useState(0);
 
-console.log(images)
+  console.log(images);
   const isDesktop = useMediaQuery("(min-width:768px)");
   React.useEffect(() => {
     if (!api) {
@@ -48,7 +46,6 @@ console.log(images)
     [api]
   );
 
-  
   return isDesktop ? (
     <div className="flex flex-col md:flex-row gap-4 w-full justify-center items-start">
       <div className="md:w-1/5 w-full order-2 md:order-1 flex justify-center md:justify-start">

@@ -5,7 +5,7 @@ import { addToCart } from "@/server/actions/cart";
 import { useCart } from "@/context/CartContext";
 import { useTransition } from "react";
 import { toast } from "sonner";
-export function AddToCartButton({
+export default function AddToCartButton({
   productVariantId,
   quantity = 1,
 }: {

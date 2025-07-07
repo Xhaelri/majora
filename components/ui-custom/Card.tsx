@@ -1,5 +1,5 @@
 "use client";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import useMediaQuery from "@/hooks/useMediaQuery";
 import { formatPrice } from "@/utils/formatPrice";
 import Image from "next/image";
 import React, { useState } from "react";

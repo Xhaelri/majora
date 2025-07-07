@@ -10,14 +10,10 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import useMediaQuery from "@/hooks/useMediaQuery";
 import Link from "../Link/Link";
 import { mobileMenue } from "@/constants/constants";
-import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger2,
-} from "../ui/accordion";
+import { Accordion, AccordionItem, AccordionTrigger2 } from "../ui/accordion";
 import UserIcon from "./UserIcon";
 import Mobile from "@/assets/mobile.svg";
 import { useSession } from "next-auth/react";
@@ -51,10 +47,11 @@ export default function MobileMenu() {
                 className="flex flex-col w-full px-5"
               >
                 <AccordionItem value={`${item?.title}`}>
-                    <AccordionTrigger2 className="text-lg font-light tracking-widest uppercase">
-                      <Link href={`/categories/${item?.href}`}>{item?.title}</Link>
-                    </AccordionTrigger2>
-
+                  <AccordionTrigger2 className="text-lg font-light tracking-widest uppercase">
+                    <Link href={`/categories/${item?.href}`}>
+                      {item?.title}
+                    </Link>
+                  </AccordionTrigger2>
 
                   {/* <AccordionContent className="flex flex-col gap-1 text-balance ps-2 ">
                     {item.items &&

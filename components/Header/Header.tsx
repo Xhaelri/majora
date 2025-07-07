@@ -6,8 +6,8 @@ import SearchBar from "./SearchBar";
 import CartIcon from "./CartIcon";
 import WhishList from "./WhishList";
 import UserIcon from "./UserIcon";
-import { HeaderMenu } from "./HeaderMenu";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import HeaderMenu from "./HeaderMenu";
+import useMediaQuery from "@/hooks/useMediaQuery";
 
 export default function Header() {
   const [headerState, setHeaderState] = useState("visible");

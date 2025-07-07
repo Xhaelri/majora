@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { useCart } from "@/context/CartContext"
 import { signOut } from "next-auth/react"
 
-export function SignOut() {
+export default function SignOut() {
     const { clearClientCart } = useCart()
 
     const handleLogout = async () => {

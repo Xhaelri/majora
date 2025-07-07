@@ -7,7 +7,7 @@ import Footer from "@/components/Footer/Footer";
 import { Toaster } from "@/components/ui/sonner";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
-import { CartProvider } from "@/context/CartContext";
+import  CartProvider  from "@/context/CartContext";
 
 // const libre = Libre_Franklin({
 //   subsets: ["latin"],

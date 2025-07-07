@@ -8,7 +8,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import useMediaQuery from "@/hooks/useMediaQuery";
 import { Accordion, AccordionItem } from "../../../components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import FilterIcon from "@/assets/filter-alt-2-svgrepo-com.svg";

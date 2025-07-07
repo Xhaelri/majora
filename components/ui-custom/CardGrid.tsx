@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import Card from "./Card";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import useMediaQuery from "@/hooks/useMediaQuery";
 
 import {
   Carousel,
@@ -24,10 +24,7 @@ const CardGrid = ({ products, isProductsPage = false }: CardGridProps) => {
     <div className="overflow-x-hidden container">
       {isDesktop ? (
         <div className="overflow-x-hidden ">
-          <div
-            className="grid grid-cols-5 sm:gap-3 lg:gap-3 xl:gap-6 2xl:gap-12 w-full "
-           
-          >
+          <div className="grid grid-cols-5 sm:gap-3 lg:gap-3 xl:gap-6 2xl:gap-12 w-full ">
             {products.map((product) => (
               <Card key={product.id} productData={product} />
             ))}

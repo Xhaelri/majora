@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import Image from "next/image";
 import React from "react";
-import { SignOut } from "./SignOut";
+import  SignOut  from "./SignOut";
 const page = async () => {
   const session = await auth();
   console.log("session:",session)

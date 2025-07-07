@@ -3,9 +3,9 @@
 import { useCart } from "@/context/CartContext";
 import CartItemCard from "./_components/CartItemCard";
 import CheckOut from "./_components/CheckOut";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import useMediaQuery from "@/hooks/useMediaQuery";
 
-export function CartPage() {
+export default function CartPage() {
   const { items: cartItems, count } = useCart();
   const isDesktop = useMediaQuery("(min-width:1024px)");
 

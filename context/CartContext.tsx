@@ -23,7 +23,7 @@ type CartContextType = {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export function CartProvider({ children }: { children: ReactNode }) {
+export default function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartData["items"]>([]);
   const [count, setCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
