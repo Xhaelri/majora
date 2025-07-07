@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../lib/generated/prisma"
@@ -14,25 +8,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// =====================================================================
-// NextAuth.js Prisma Adapter Models
-// =====================================================================
-
 model Account {
   id                String  @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -53,11 +42,6 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-
-// =====================================================================
-// Core Application Models
-// =====================================================================
-
 model User {
   id            String    @id @default(uuid())
   email         String?   @unique
@@ -71,16 +55,13 @@ model User {
   phone         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-
-  // NEW: Fields for guest user management
   isGuest       Boolean   @default(true)
-  anonymousId   String?   @unique // To link guest users to their cookie
-
-  accounts Account[]
-  sessions Session[]
-  orders   Order[]
-  cart     Cart?
-  reviews  Review[]
+  anonymousId   String?   @unique
+  accounts      Account[]
+  cart          Cart?
+  orders        Order[]
+  reviews       Review[]
+  sessions      Session[]
 }
 
 model Product {
@@ -93,51 +74,46 @@ model Product {
   isLimitedEdition Boolean          @default(false)
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
-  category         Category?        @relation(fields: [categoryId], references: [id])
   categoryId       String?
-  // REMOVED
-  // images        ProductImage[]
+  category         Category?        @relation(fields: [categoryId], references: [id])
   variants         ProductVariant[]
   reviews          Review[]
 }
 
 model ProductVariant {
-  id          String         @id @default(uuid())
-  productId   String
-  product     Product        @relation(fields: [productId], references: [id])
-  sizeId      String
-  size        Size           @relation(fields: [sizeId], references: [id])
-  colorId     String
-  color       Color          @relation(fields: [colorId], references: [id])
-  stock       Int
-  sku         String?        @unique
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  cartItems   CartItem[]
-  orderItems  OrderItem[]
-  // ADDED
-  images      ProductImage[]
+  id         String         @id @default(uuid())
+  productId  String
+  sizeId     String
+  colorId    String
+  stock      Int
+  sku        String?        @unique
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+  images     ProductImage[]
+  color      Color          @relation(fields: [colorId], references: [id])
+  product    Product        @relation(fields: [productId], references: [id])
+  size       Size           @relation(fields: [sizeId], references: [id])
 
   @@unique([productId, sizeId, colorId])
 }
 
 model ProductImage {
-  id        String   @id @default(uuid())
+  id        String         @id @default(uuid())
   url       String
   altText   String
-  // ADDED
   variantId String
   variant   ProductVariant @relation(fields: [variantId], references: [id])
-
 }
+
 model Category {
   id        String    @id @default(uuid())
   name      String    @unique
-  products  Product[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  products  Product[]
 }
-
 
 model Size {
   id              String           @id @default(uuid())
@@ -151,42 +127,31 @@ model Color {
   productVariants ProductVariant[]
 }
 
-
-// =====================================================================
-// Shopping Cart Functionality
-// =====================================================================
-
 model Cart {
   id        String     @id @default(uuid())
-  // MODIFIED: Every cart must have a user (guest or registered)
   userId    String     @unique
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   items     CartItem[]
 }
 
 model CartItem {
   id               String         @id @default(uuid())
   cartId           String
-  cart             Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
   productVariantId String
-  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
   quantity         Int            @default(1)
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
+  cart             Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
 
   @@unique([cartId, productVariantId])
 }
 
-// =====================================================================
-// Order and Transaction Models
-// =====================================================================
-
 model Order {
   id              String        @id @default(uuid())
   userId          String
-  user            User          @relation(fields: [userId], references: [id])
   orderDate       DateTime      @default(now())
   status          OrderStatus   @default(PENDING)
   subtotal        Float
@@ -196,44 +161,36 @@ model Order {
   shippingAddress String?
   paymentMethod   String?
   discountCodeId  String?
-  discountCode    DiscountCode? @relation(fields: [discountCodeId], references: [id])
   governorate     String?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
+  discountCode    DiscountCode? @relation(fields: [discountCodeId], references: [id])
+  user            User          @relation(fields: [userId], references: [id])
   orderItems      OrderItem[]
 }
 
 model OrderItem {
   id               String         @id @default(uuid())
   orderId          String
-  order            Order          @relation(fields: [orderId], references: [id])
   productVariantId String
-  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
   quantity         Int
   priceAtPurchase  Float
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
-}
-
-enum OrderStatus {
-  PENDING
-  PROCESSING
-  SHIPPED
-  DELIVERED
-  CANCELLED
-  RETURNED
+  order            Order          @relation(fields: [orderId], references: [id])
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
 }
 
 model Review {
   id        String   @id @default(uuid())
   productId String
-  product   Product  @relation(fields: [productId], references: [id])
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
   rating    Int
   comment   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model DiscountCode {
@@ -249,11 +206,6 @@ model DiscountCode {
   orders         Order[]
 }
 
-enum DiscountType {
-  PERCENTAGE
-  FIXED_AMOUNT
-}
-
 model ShippingRate {
   id          String   @id @default(uuid())
   governorate String   @unique
@@ -266,4 +218,18 @@ model NewsletterSubscription {
   id        String   @id @default(uuid())
   email     String   @unique
   createdAt DateTime @default(now())
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  RETURNED
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
 }
