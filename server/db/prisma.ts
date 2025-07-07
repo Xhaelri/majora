@@ -1,6 +1,5 @@
 // @/server/db/prisma.ts
 
-// import { auth } from "@/auth";
 import { db } from "@/lib/prisma";
 import { FullProduct } from "@/types/product";
 
@@ -8,7 +7,6 @@ export const getAllProducts = async () => {
   try {
     const products: FullProduct[] = await db.product.findMany({
       include: {
-        // images: true, // REMOVED
         category: true,
         reviews: true,
         variants: {
@@ -28,8 +26,6 @@ export const getAllProducts = async () => {
   }
 };
 
-// ... (getProductBySlug remains the same as the last step)
-
 export async function getProductBySlug(slug: string) {
   return db.product.findUnique({
     where: { slug },
@@ -48,48 +44,105 @@ export async function getProductBySlug(slug: string) {
   });
 }
 
-// // ... (getCart remains the same)
-// export async function getCart() {
-//   const session = await auth()
+// Get products by category
+export async function getProductsByCategory(categorySlug: string) {
+  try {
+    const products = await db.product.findMany({
+      where: {
+        category: {
+          name: {
+            equals: categorySlug,
+            mode: 'insensitive'
+          }
+        }
+      },
+      include: {
+        category: true,
+        reviews: true,
+        variants: {
+          include: {
+            size: true,
+            color: true,
+            images: true,
+            product: true,
+          },
+        },
+      },
+    });
+    return products;
+  } catch (error) {
+    console.error("Error fetching products by category:", error);
+    return [];
+  }
+}
 
-//   if (!session?.user?.id) {
-//     throw new Error('Not authenticated')
-//   }
+// Sorting products
+export type SortOption =
+  | "featured"
+  | "name-asc"
+  | "name-desc"
+  | "price-asc"
+  | "price-desc"
+  | "date-desc"
+  | "date-asc";
 
-//   const user = await db.user.findUnique({
-//     where: { id: session.user.id },
-//     include: {
-//       cart: {
-//         include: {
-//           items: {
-//             include: {
-//               productVariant: {
-//                 include: {
-//                   product: true,
-//                   size: true,
-//                   color: true,
-//                 },
-//               },
-//             },
-//           },
-//         },
-//       },
-//     },
-//   })
+export async function getSortedProducts(sort: SortOption) {
+  let orderBy: Array<Record<string, "asc" | "desc">> = [];
 
-//   if (!user?.cart) {
-//     return { items: [], cartId: null }
-//   }
+  switch (sort) {
+    case "name-asc":
+      orderBy = [{ name: "asc" }];
+      break;
+    case "name-desc":
+      orderBy = [{ name: "desc" }];
+      break;
+    case "price-asc":
+      orderBy = [{ price: "asc" }];
+      break;
+    case "price-desc":
+      orderBy = [{ price: "desc" }];
+      break;
+    case "date-desc":
+      orderBy = [{ createdAt: "desc" }];
+      break;
+    case "date-asc":
+      orderBy = [{ createdAt: "asc" }];
+      break;
+    case "featured":
+      orderBy = [{ isLimitedEdition: "desc" }, { createdAt: "desc" }];
+      break;
+    default:
+      orderBy = [{ createdAt: "desc" }];
+      break;
+  }
 
-//   return {
-//     items: user.cart.items.map((item) => ({
-//       id: item.id,
-//       quantity: item.quantity,
-//       product: item.productVariant.product,
-//       size: item.productVariant.size,
-//       color: item.productVariant.color,
-//       stock: item.productVariant.stock,
-//     })),
-//     cartId: user.cart.id,
-//   }
-// }
+  const products = await db.product.findMany({
+    orderBy,
+    include: {
+      category: true,
+      variants: {
+        include: {
+          size: true,
+          color: true,
+          images: true,
+          product: true,
+        },
+      },
+      reviews: true,
+    },
+  });
+
+  return products;
+}
+
+// Helper function to get category by slug
+export async function getCategoryBySlug(slug: string) {
+  return db.category.findFirst({
+    where: {
+      name: {
+        equals: slug,
+        mode: 'insensitive'
+      }
+    }
+  });
+}

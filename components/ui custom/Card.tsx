@@ -63,7 +63,7 @@ const Card = ({ productData }: CardProps) => {
             {productData.name}
           </h1>
           <div className="text-md font-extralight tracking-widest flex flex-col items-center">
-            <div className="flex flex-col lg:flex-row gap-0 lg:gap-2 ">
+            <div className="flex flex-col xl:flex-row gap-0 lg:gap-2 ">
               {isOnSale ? (
                 <h2 className="line-through text-nowrap text-sm">
                   {formatPrice(originalPrice)}

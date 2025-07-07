@@ -47,7 +47,7 @@ export function Menu({ title }: HeaderItem) {
       // onMouseLeave={handleMouseLeave}
       onClick={handleclick}
     >
-      <div className="inline-flex h-0 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm xl:text-lg font-light hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer transition-colors duration-200">
+      <div className="inline-flex h-0 w-max items-center justify-center rounded-md bg-background px-1 py-2 text-sm  font-light hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer transition-colors duration-200">
         {title}
         <ChevronDownIcon
           className={`relative top-[1px] ml-1 size-3 transition duration-300 ${

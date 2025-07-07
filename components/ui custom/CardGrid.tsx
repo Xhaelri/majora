@@ -26,7 +26,7 @@ const CardGrid = ({ products, isProductsPage = false }: CardGridProps) => {
         <div className="overflow-x-hidden ">
           <div
             className="grid grid-cols-5 sm:gap-3 lg:gap-3 xl:gap-6 2xl:gap-12 w-full "
-            style={{ gridTemplateColumns: "repeat(5, minmax(0, 1fr))" }}
+           
           >
             {products.map((product) => (
               <Card key={product.id} productData={product} />

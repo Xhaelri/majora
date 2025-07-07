@@ -15,12 +15,10 @@ import Link from "../Link/Link";
 import { mobileMenue } from "@/constants/constants";
 import {
   Accordion,
-  AccordionContent,
   AccordionItem,
   AccordionTrigger,
   AccordionTrigger2,
 } from "../ui/accordion";
-import { Separator } from "../ui/separator";
 import UserIcon from "./UserIcon";
 import Mobile from "@/assets/mobile.svg";
 import { useSession } from "next-auth/react";
@@ -42,7 +40,9 @@ export default function MobileMenu() {
 
           <SheetContent side="left" className="text-primary overflow-y-auto">
             <SheetHeader>
-              <SheetTitle className="text-2xl">Menu</SheetTitle>
+              <SheetTitle className="text-2xl tracking-widest uppercase font-light">
+                Menu
+              </SheetTitle>
             </SheetHeader>
             {mobileMenue.map((item) => (
               <Accordion
@@ -53,16 +53,16 @@ export default function MobileMenu() {
               >
                 <AccordionItem value={`${item?.title}`}>
                   {item?.items ? (
-                    <AccordionTrigger className="text-md uppercase">
-                      {item?.title}
+                    <AccordionTrigger className="text-lg font-light uppercase">
+                      <Link href={`/categories/${item?.href}`}>{item?.title}</Link>
                     </AccordionTrigger>
                   ) : (
-                    <AccordionTrigger2 className="text-md uppercase">
-                      {item?.title}
+                    <AccordionTrigger2 className="text-lg font-light tracking-widest uppercase">
+                      <Link href={`/categories/${item?.href}`}>{item?.title}</Link>
                     </AccordionTrigger2>
                   )}
 
-                  <AccordionContent className="flex flex-col gap-1 text-balance ps-2 ">
+                  {/* <AccordionContent className="flex flex-col gap-1 text-balance ps-2 ">
                     {item.items &&
                       item.items.map((subItem) => (
                           <p
@@ -72,8 +72,8 @@ export default function MobileMenu() {
                             {subItem}
                           </p>
                       ))}
-                  </AccordionContent>
-                  <Separator className="bg-primary mt-[-10px]" />
+                  </AccordionContent> */}
+                  {/* <Separator className="bg-primary mt-[-10px]" /> */}
                 </AccordionItem>
               </Accordion>
 

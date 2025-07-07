@@ -5,24 +5,27 @@ import hero4 from "@/assets/ilya-mirnyy-FEQ5DMeB6Tc-unsplash.jpg";
 
 export const headerData = [
   // { title: "Home", href: "/" },
-  { title: "Women", href: "/collection" },
-  { title: "Men", href: "/new" },
-  { title: "Teen", href: "/modiweek" },
-  { title: "Kids", href: "/plus-size" },
+  { title: "New Arrivals", href: "new-arrivals" },
+  { title: "Tops & Shirts", href: "tops-shirts" },
+  { title: "Kimonos & kaftans", href: "kimonos-kaftans" },
+  // { title: "Sale", href: "/sale" },
 ];
 export const mobileMenue = [
   // { title: "Home", href: "/" },
-  { title: "NEW ARRIVALS", items: ["Women", "Men", "Kids"] },
-  { title: "Summer" },
-  { title: "MITCHA LABEL", items: ["Women", "Men", "Kids"] },
-  { title: "TRENDING" },
   {
-    title: "Women",
-    items: ["Clothing", "Footwear & Bags", "Jewelry & Accessories", "Beauty"],
+    title: "New Arrivals",
+    //  items: ["Women", "Men", "Kids"],
+    href: "new-arrivals",
   },
-  { title: "MEN", items: ["Clothing", "Footwear", "Accessories"] },
-  { title: "KIDS", items: ["Boys", "Girl"] },
-  { title: "SALE" },
+  { title: "Tops & Shirts", href: "tops-shirts" },
+  { title: "Kimonos & kaftans", href: "kimonos-kaftans" },
+  { title: "Sets", href: "sets" },
+  {
+    title: "Bottoms",
+    href: "bottoms",
+  },
+  { title: "Dresses", href: "dresses" },
+  { title: "Sale", href: "sale" },
 ];
 
 export const heroImages = [

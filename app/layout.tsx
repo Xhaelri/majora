@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Corinthia, Libre_Franklin, Meow_Script } from "next/font/google";
+import { Libre_Franklin, Meow_Script } from "next/font/google";
 import "./globals.css";
 import ThemeContextProvider from "../context/Theme";
 import Header from "@/components/Header/Header";

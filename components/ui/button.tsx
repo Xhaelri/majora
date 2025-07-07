@@ -18,7 +18,7 @@ const buttonVariants = cva(
         secondary:
           "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
         ghost:
-          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
+          "hover:bg-accent hover:text-accent-foreground cursor-pointer dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
         hero: "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
         section:
@@ -31,6 +31,8 @@ const buttonVariants = cva(
           "bg-transparent text-primary text-sm font-normal shadow-xs border-1 border-primary disabled:pointer-events-none  disabled:opacity-50 [&_svg]:pointer-events-none cursor-pointer tracking-widest uppercase",
           cartBuyNow:
           "bg-primary text-secondary text-sm font-normal shadow-xs border-1 border-primary disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none cursor-pointer tracking-widest uppercase",
+          filter:
+          "bg-transparent text-primary flex w-full font-light items-center justify-start whitespace-nowrap cursor-pointer border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
@@ -44,6 +46,7 @@ const buttonVariants = cva(
         cartAdd: "h-12 px-4 w-full",
         cartBuyNow: "h-12 px-4 w-full",
         login: "h-12 px-4 w-full",
+        filter: "h-9 w-44",
       },
     },
     defaultVariants: {
