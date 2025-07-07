@@ -4,7 +4,6 @@ import "./globals.css";
 import ThemeContextProvider from "../context/Theme";
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
-import { Providers } from "@/redux/storeProvider";
 import { Toaster } from "@/components/ui/sonner";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
@@ -43,7 +42,6 @@ export default async function RootLayout({
       >
         <SessionProvider session={session}>
           <CartProvider>
-            <Providers>
               <ThemeContextProvider>
                 <Header />
                 <Toaster
@@ -58,7 +56,6 @@ export default async function RootLayout({
                 {children}
                 <Footer />
               </ThemeContextProvider>
-            </Providers>
           </CartProvider>
         </SessionProvider>
       </body>
