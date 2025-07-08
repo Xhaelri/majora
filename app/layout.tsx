@@ -43,7 +43,7 @@ export default async function RootLayout({
         <SessionProvider session={session}>
           <CartProvider>
               <ThemeContextProvider>
-                {/* <Header /> */}
+                {/* <Header /> */} 
                 <Toaster
                   position="top-right"
                   expand={false}
