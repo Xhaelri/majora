@@ -6,7 +6,7 @@ import SearchBar from "./SearchBar";
 import CartIcon from "./CartIcon";
 import WhishList from "./WhishList";
 import UserIcon from "./UserIcon";
-import HeaderMenu from "./HeaderMenu";
+// import HeaderMenu from "./HeaderMenu";
 import useMediaQuery from "@/hooks/useMediaQuery";
 
 export default function Header() {
@@ -59,7 +59,10 @@ export default function Header() {
     <header className={getHeaderClasses()}>
       {isDesktop ? (
         <div className="container grid grid-cols-[1fr_1fr_1fr] items-center text-primary">
-          <HeaderMenu />
+          {/*// uncomment after implementing the header menue */}
+          {/* <HeaderMenu /> */}
+          <MobileMenu />
+
           <Logo>Sekra</Logo>
           <div className="text-right flex justify-end">
             <div className="flex gap-3 items-center">
