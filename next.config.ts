@@ -11,21 +11,9 @@ const nextConfig: NextConfig = {
     ],
   },
   webpack(config) {
-    // Find the default rule that handles SVGs
-    const fileLoaderRule = config.module.rules.find(
-      (rule) => rule.test instanceof RegExp && rule.test.test(".svg")
-    );
-
-    if (fileLoaderRule) {
-      // Exclude SVGs from the default rule
-      fileLoaderRule.exclude = /\.svg$/i;
-    }
-    
-    // Add a new rule for SVGs to be handled by @svgr/webpack
     config.module.rules.push({
-      test: /\.svg$/i,
-      issuer: /\.[jt]sx?$/,
-      use: ["@svgr/webpack"],
+      test: /\.svg$/,
+      use: ["@svgr/webpack"]
     });
 
     return config;
