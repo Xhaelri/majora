@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
   images: {
     remotePatterns: [
@@ -10,9 +10,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
     ],
   },
-  // Enable Turbopack for development
-  experimental: {
-    turbo: {
+  turbopack: {
       rules: {
         '*.svg': {
           loaders: ['@svgr/webpack'],
@@ -20,15 +18,15 @@ const nextConfig: NextConfig = {
         },
       },
     },
-  },
-  webpack(config) {
-    config.module.rules.push({
-      test: /\.svg$/,
-      use: ["@svgr/webpack"]
-    });
+    webpack(config) {
+      config.module.rules.push({
+        test: /\.svg$/,
+        use: ["@svgr/webpack"]
+      });
+  
+      return config;
+    },
+  };
 
-    return config;
-  },
-};
 
 export default nextConfig;

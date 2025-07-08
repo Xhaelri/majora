@@ -1,5 +1,5 @@
 "use client";
-import Check from "@/assets/check.svg"
+import Check from "@/public/assets/check.svg"
 import { Button } from "@/components/ui/button";
 import { addToCart } from "@/server/actions/cart";
 import { useCart } from "@/context/CartContext";

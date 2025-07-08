@@ -1,6 +1,6 @@
 import { signIn } from "@/auth";
 import { Button } from "@/components/ui/button";
-import Google from "@/assets/google.svg"
+import Google from "@/public/assets/google.svg";
 export default function GoogleSign() {
   return (
     <form
@@ -9,9 +9,9 @@ export default function GoogleSign() {
         await signIn("google", { redirectTo: "/" });
       }}
     >
-      <Button 
-        type="submit" 
-        variant="outline" 
+      <Button
+        type="submit"
+        variant="outline"
         size="login"
         className="w-full cursor-pointer flex items-center justify-center gap-2"
       >

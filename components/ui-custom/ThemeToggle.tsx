@@ -1,8 +1,8 @@
 "use client";
 import { useTheme } from "@/context/Theme";
 import React from "react";
-import Sun from "@/assets/sun.svg";
-import Moon from "@/assets/moon.svg";
+import Sun from "@/public/assets/sun.svg";
+import Moon from "@/public/assets/moon.svg";
 
 export default function ThemeToggle() {
   const { theme, themeToggle } = useTheme();

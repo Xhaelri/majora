@@ -15,8 +15,8 @@ import Link from "../Link/Link";
 import { mobileMenue } from "@/constants/constants";
 import { Accordion, AccordionItem, AccordionTrigger2 } from "../ui/accordion";
 import UserIcon from "./UserIcon";
-import Mobile from "@/assets/mobile.svg";
 import { useSession } from "next-auth/react";
+import Image from "next/image";
 
 export default function MobileMenu() {
   const [open, setOpen] = useState(false);
@@ -26,11 +26,23 @@ export default function MobileMenu() {
   return (
     <div>
       {isDesktop ? (
-        <Mobile className="w-5 h-5 hover:text-gray-700 hoverEffect lg:hidden" />
+        <Image
+          src={"/assets/mobile.svg"}
+          alt="Mobile-icon"
+          width={20}
+          height={10}
+          className=" hover:text-gray-700 hoverEffect lg:hidden"
+        />
       ) : (
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
-            <Mobile className="w-5 h-5 hover:text-gray-700 hoverEffect lg:hidden" />
+            <Image
+              src={"/assets/mobile.svg"}
+              alt="Mobile-icon"
+              width={20}
+              height={10}
+              className=" hover:text-gray-700 hoverEffect lg:hidden"
+            />
           </SheetTrigger>
 
           <SheetContent side="left" className="text-primary overflow-y-auto">

@@ -11,7 +11,7 @@ import {
 import useMediaQuery from "@/hooks/useMediaQuery";
 import { Accordion, AccordionItem } from "../../../components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import FilterIcon from "@/assets/filter-alt-2-svgrepo-com.svg";
+import FilterIcon from "@/public/assets/filter-alt-2-svgrepo-com.svg";
 import FilterOptions from "./FilterOptions";
 
 export default function FilterList() {

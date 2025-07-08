@@ -1,14 +1,14 @@
 import { CartItemWithVariant } from "@/types/product";
-import  formatPrice  from "@/utils/formatPrice";
+import formatPrice from "@/utils/formatPrice";
 import Image from "next/image";
 import React, { useState } from "react";
-import Close from "@/assets/close.svg";
-import Add from "@/assets/plus.svg";
-import Reduce from "@/assets/minus.svg";
+import Close from "@/public/assets/close.svg";
+import Add from "@/public/assets/plus.svg";
+import Reduce from "@/public/assets/minus.svg";
 import { removeFromCart, updateCartItemQuantity } from "@/server/actions/cart";
 import { useCart } from "@/context/CartContext";
 import { toast } from "sonner";
-import Check from "@/assets/check.svg";
+import Check from "@/public/assets/check.svg";
 import useMediaQuery from "@/hooks/useMediaQuery";
 
 type Props = {

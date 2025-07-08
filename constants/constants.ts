@@ -1,7 +1,7 @@
-import hero1 from "@/assets/corey-saldana-pIKQbdSzF_k-unsplash.jpg";
-import hero2 from "@/assets/jon-ly-Xn7GvimQrk8-unsplash.jpg";
-import hero3 from "@/assets/mike-von-2UTk-Nip5aM-unsplash.jpg";
-import hero4 from "@/assets/ilya-mirnyy-FEQ5DMeB6Tc-unsplash.jpg";
+import hero1 from "@/public/assets/corey-saldana-pIKQbdSzF_k-unsplash.jpg";
+import hero2 from "@/public/assets/jon-ly-Xn7GvimQrk8-unsplash.jpg";
+import hero3 from "@/public/assets/mike-von-2UTk-Nip5aM-unsplash.jpg";
+import hero4 from "@/public/assets/jon-ly-Xn7GvimQrk8-unsplash.jpg";
 
 export const headerData = [
   // { title: "Home", href: "/" },

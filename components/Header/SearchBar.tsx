@@ -1,9 +1,8 @@
-"use client"
-import Search from "@/assets/172546_search_icon.svg";
+"use client";
 import React, { useEffect, useRef, useState } from "react";
 
 import { AnimatePresence, motion } from "framer-motion";
-
+import Image from "next/image";
 
 export default function SearchBar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -37,7 +36,11 @@ export default function SearchBar() {
     <>
       <div className="relative group h-full flex items-center" ref={searchRef}>
         <div>
-          <Search
+          <Image
+            src={"/assets/172546_search_icon.svg"}
+            alt="Search-icon"
+            width={20}
+            height={10}
             className=" hover:text-gray-700 hoverEffect"
             onClick={handleclick}
           />
