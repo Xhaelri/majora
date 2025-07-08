@@ -2,8 +2,6 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
   images: {
@@ -13,6 +11,17 @@ const nextConfig: NextConfig = {
     ],
   },
   webpack(config) {
+    // Find the default rule that handles SVGs
+    const fileLoaderRule = config.module.rules.find(
+      (rule) => rule.test instanceof RegExp && rule.test.test(".svg")
+    );
+
+    if (fileLoaderRule) {
+      // Exclude SVGs from the default rule
+      fileLoaderRule.exclude = /\.svg$/i;
+    }
+    
+    // Add a new rule for SVGs to be handled by @svgr/webpack
     config.module.rules.push({
       test: /\.svg$/i,
       issuer: /\.[jt]sx?$/,
@@ -22,4 +31,5 @@ const nextConfig: NextConfig = {
     return config;
   },
 };
+
 export default nextConfig;
