@@ -1,3 +1,4 @@
+"use client"
 import Search from "@/assets/172546_search_icon.svg";
 import React, { useEffect, useRef, useState } from "react";
 

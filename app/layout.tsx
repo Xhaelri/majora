@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Meow_Script } from "next/font/google";
 import "./globals.css";
 import ThemeContextProvider from "../context/Theme";
-// import Header from "@/components/Header/Header";
+ import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
 import { Toaster } from "@/components/ui/sonner";
 import { SessionProvider } from "next-auth/react";
@@ -43,7 +43,7 @@ export default async function RootLayout({
         <SessionProvider session={session}>
           <CartProvider>
               <ThemeContextProvider>
-                {/* <Header /> */} 
+               <Header /> 
                 <Toaster
                   position="top-right"
                   expand={false}
