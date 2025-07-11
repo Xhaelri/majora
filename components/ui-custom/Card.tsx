@@ -12,10 +12,8 @@ type CardProps = {
 };
 
 const Card = ({ productData }: CardProps) => {
-  // Use the first variant as the default
   const primaryVariant = productData.variants?.[0];
 
-  // Use the images from the primary variant
   const primaryImageUrl = primaryVariant?.images?.[0]?.url || "";
 
   const hoverImageUrl = primaryVariant?.images?.[1]?.url || primaryImageUrl;
@@ -48,7 +46,7 @@ const Card = ({ productData }: CardProps) => {
             onMouseLeave={() => setImageSrc(primaryImageUrl)}
           >
             {isOnSale ? (
-              <div className="bg-foreground text-secondary absolute top-0 right-0 h-8 w-15 z-20 flex items-center justify-center">
+              <div className="bg-foreground text-secondary absolute top-0 right-0 h-8 w-15 z-5 flex items-center justify-center">
                 <p>Sale</p>
               </div>
             ) : null}
@@ -87,7 +85,7 @@ const Card = ({ productData }: CardProps) => {
         >
           <div className="w-full aspect-[2/3] relative cursor-pointer">
             {isOnSale ? (
-              <div className="bg-foreground text-secondary absolute top-0 right-0 h-5 w-11 text-sm  md:h-7 md:w-14 md:text-md z-20 flex items-center justify-center">
+              <div className="bg-foreground text-secondary absolute top-0 right-0 h-5 w-11 text-sm  md:h-7 md:w-14 md:text-md z-5 flex items-center justify-center">
                 <p>Sale</p>
               </div>
             ) : null}
@@ -98,11 +96,11 @@ const Card = ({ productData }: CardProps) => {
               className="object-cover"
             />
           </div>
-          <h1 className="text-lg font-extralight tracking-[2px] text-center h-12 overflow-hidden break-all uppercase">
+          <h1 className="text-lg font-extralight tracking-[2px] text-center h-15 overflow-hidden break-all uppercase ">
             {productData.name}
           </h1>
           <div className="text-md font-extralight tracking-widest flex flex-col items-center">
-            <div className="flex flex-row  gap-3  ">
+            <div className="flex flex-col sm:flex-row  sm:gap-3  ">
               {isOnSale ? (
                 <h2 className="line-through text-nowrap text-sm">
                   {formatPrice(originalPrice)}

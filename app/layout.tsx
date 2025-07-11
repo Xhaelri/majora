@@ -37,22 +37,25 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body
-        className={` ${corinthia.variable}  antialiased light`}
+        className={`${corinthia.variable} antialiased light min-h-screen flex flex-col`}
       >
         <SessionProvider session={session}>
           <CartProvider>
-               <Header /> 
-                <Toaster
-                  position="top-right"
-                  expand={false}
-                  offset={60}
-                  mobileOffset={60}
-                  duration={2000}
-                  invert
-                  theme="light"
-                />
-                {children}
-                <Footer />
+            <Header />
+            <Toaster
+              position="top-right"
+              expand={false}
+              offset={60}
+              mobileOffset={60}
+              duration={2000}
+              invert
+              theme="light"
+            />
+
+            {/* 🔧 Wrap main content to expand and push footer down */}
+            <main className="flex-grow">{children}</main>
+
+            <Footer />
           </CartProvider>
         </SessionProvider>
       </body>

@@ -1,70 +1,57 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
 
-import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
+import SearchInput from "../Search/SearchInput";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+
+import { Button } from "../ui/button";
 
 export default function SearchBar() {
-  const [isOpen, setIsOpen] = useState(false);
-  const searchRef = useRef<HTMLDivElement>(null);
-  const handleclick = () => {
-    setIsOpen((prev) => !prev);
-  };
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        searchRef.current &&
-        !searchRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    };
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isOpen]);
-
-  const dropdownTopOffset = "50px";
-
   return (
     <>
-      <div className="relative group h-full flex items-center" ref={searchRef}>
+      <div className="relative group h-full flex items-center">
         <div>
-          <Image
-            src={"/assets/172546_search_icon.svg"}
-            alt="Search-icon"
-            width={20}
-            height={10}
-            className=" hover:text-gray-700 hoverEffect"
-            onClick={handleclick}
-          />
-        </div>
-
-        <AnimatePresence mode="wait">
-          {isOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
-              className="fixed h-[100px] left-0 right-0 z-40 bg-white shadow-[0px_250px_200px_100px_rgba(1,_0,_0,_0.6)] border-b border-gray-200 py-6 opacity-0 transition-opacity duration-300 ease-out group-hover:opacity-100 "
-              style={{ top: dropdownTopOffset }}
+          <Dialog>
+            <DialogTrigger asChild>
+              <Image
+                src={"/assets/172546_search_icon.svg"}
+                alt="Search-icon"
+                width={20}
+                height={10}
+                className=" hover:text-gray-700 hoverEffect"
+              />
+            </DialogTrigger>
+            <DialogContent
+              showCloseButton={false}
+              className="fixed top-0 mt-10 max-w-screen! w-screen  rounded-none shadow-none z-50 border-b bg-white xl:px-70!"
             >
-              <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex">
-                <input
-                  type="text"
-                  className="w-[300px] border-2 border-gray-400"
-                />
+              <DialogHeader>
+                <DialogTitle></DialogTitle>
+              </DialogHeader>
+              <div className="flex items-center justify-center">
+                <SearchInput isSearchPage={false}/>
+                <DialogClose asChild className="">
+                  <Button type="button" variant="secondary" className="p-0">
+                    <Image
+                      src={"/assets/close.svg"}
+                      alt="Search-icon"
+                      width={30}
+                      height={10}
+                      className=" hover:text-gray-700 hoverEffect"
+                    />
+                  </Button>
+                </DialogClose>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
     </>
   );

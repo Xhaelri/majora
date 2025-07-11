@@ -6,8 +6,7 @@ import SearchBar from "./SearchBar";
 import CartIcon from "./CartIcon";
 import WhishList from "./WhishList";
 import UserIcon from "./UserIcon";
-// import HeaderMenu from "./HeaderMenu";
-import useMediaQuery from "@/hooks/useMediaQuery";
+
 
 export default function Header() {
   const [headerState, setHeaderState] = useState("visible");
@@ -54,10 +53,8 @@ export default function Header() {
     }
   };
 
-  const isDesktop = useMediaQuery("(min-width:1024px)");
   return (
     <header className={getHeaderClasses()}>
-      {isDesktop ? (
         <div className="container grid grid-cols-[1fr_1fr_1fr] items-center text-primary">
           {/*// uncomment after implementing the header menue */}
           {/* <HeaderMenu /> */}
@@ -73,22 +70,7 @@ export default function Header() {
             </div>
           </div>
         </div>
-      ) : (
-        <div className="container grid grid-cols-[1fr_1fr] items-center justify-between text-primary">
-          <div className="flex items-center gap-3">
-            <MobileMenu />
-            <Logo>Sekra</Logo>
-          </div>
-          <div className="text-right flex justify-end">
-            <div className="flex gap-3 items-center">
-              <SearchBar />
-              <UserIcon />
-              <WhishList />
-              <CartIcon />
-            </div>
-          </div>
-        </div>
-      )}
+
     </header>
   );
 }
