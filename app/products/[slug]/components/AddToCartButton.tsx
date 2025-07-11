@@ -1,5 +1,5 @@
 "use client";
-import Check from "@/public/assets/check.svg"
+import Check from "@/public/assets/check.svg";
 import { Button } from "@/components/ui/button";
 import { addToCart } from "@/server/actions/cart";
 import { useCart } from "@/context/CartContext";
@@ -20,13 +20,15 @@ export default function AddToCartButton({
       try {
         const result = await addToCart(productVariantId, quantity);
         if (result.success) {
+          refreshCart();
           toast.custom(() => (
             <div className="bg-black text-white w-full px-4 py-3 text-sm rounded-none flex items-center justify-center gap-2">
-              <Check/>
-              <p className="font-semibold uppercase">Item added to shopping bag</p>
+              <Check />
+              <p className="font-semibold uppercase">
+                Item added to shopping bag
+              </p>
             </div>
           ));
-          refreshCart(); 
         } else {
           toast.error("Failed to add item. Please try again.");
         }

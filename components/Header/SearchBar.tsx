@@ -42,10 +42,9 @@ export default function SearchBar() {
               onSearchComplete={() => closeButtonRef.current?.click()}
             />
             <DialogClose asChild>
-              <Button
+              <button
                 type="button"
-                variant="secondary"
-                className="p-0"
+                className="p-0 bg-transparent"
                 ref={closeButtonRef}
               >
                 <Image
@@ -55,7 +54,7 @@ export default function SearchBar() {
                   height={10}
                   className=" hover:text-gray-700 hoverEffect"
                 />
-              </Button>
+              </button>
             </DialogClose>
           </div>
         </DialogContent>

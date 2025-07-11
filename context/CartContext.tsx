@@ -35,12 +35,12 @@ export default function CartProvider({ children }: { children: ReactNode }) {
       const cartRes = await fetch("/api/cart");
       const { items, count } = await cartRes.json();
 
-      setItems(items || []);
       setCount(count || 0);
+      setItems(items || []);
     } catch (error) {
       console.error("Failed to fetch cart:", error);
-      setItems([]);
       setCount(0);
+      setItems([]);
     } finally {
       setIsLoading(false);
     }
@@ -56,12 +56,10 @@ export default function CartProvider({ children }: { children: ReactNode }) {
       fetchCart();
     }
     if (status === "unauthenticated") {
-      // When user logs out, clear the client-side cart immediately
       clearClientCart();
-      // Also fetch the guest cart
       fetchCart();
     }
-  }, [status, session, fetchCart]); // Depend on session object as well
+  }, [status, session, fetchCart]);
 
   return (
     <CartContext.Provider

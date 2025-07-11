@@ -4,7 +4,6 @@ import Logo from "./Logo";
 import MobileMenu from "./MobileMenu";
 import SearchBar from "./SearchBar";
 import CartIcon from "./CartIcon";
-import WhishList from "./WhishList";
 import UserIcon from "./UserIcon";
 
 
@@ -65,7 +64,7 @@ export default function Header() {
             <div className="flex gap-3 items-center">
               <SearchBar />
               <UserIcon />
-              <WhishList />
+              {/* <WhishList /> */}
               <CartIcon />
             </div>
           </div>
