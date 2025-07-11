@@ -1,11 +1,10 @@
 import { CartItemWithVariant } from "@/types/product";
 import formatPrice from "@/utils/formatPrice";
 import Image from "next/image";
-import React, { useState } from "react";
+import React from "react";
 import Close from "@/public/assets/close.svg";
 import Add from "@/public/assets/plus.svg";
 import Reduce from "@/public/assets/minus.svg";
-import { removeFromCart, updateCartItemQuantity } from "@/server/actions/cart";
 import { useCart } from "@/context/CartContext";
 import { toast } from "sonner";
 import Check from "@/public/assets/check.svg";
@@ -16,28 +15,35 @@ type Props = {
 };
 
 const CartItemCard = ({ item }: Props) => {
-  const { refreshCart } = useCart();
+  const { removeFromCartOptimistic, updateQuantityOptimistic, isMutating } =
+    useCart();
   const isDesktop = useMediaQuery("(min-width:1024px)");
-  const [loading, setLoading] = useState(false);
 
   const img = item.productVariant.images?.[0];
 
   const handleRemoveFromCart = async () => {
-    await removeFromCart(item.productVariantId);
-    refreshCart();
-    toast.custom(() => (
-      <div className="bg-black lg text-white w-full px-4 py-3 text-sm rounded-none flex items-center justify-center gap-2">
-        <Check />
-        <p className="font-semibold uppercase">Item deleted</p>
-      </div>
-    ));
+    try {
+      await removeFromCartOptimistic(item.productVariantId);
+      toast.custom(() => (
+        <div className="bg-black text-white w-full px-4 py-3 text-sm rounded-none flex items-center justify-center gap-2">
+          <Check />
+          <p className="font-semibold uppercase">Item deleted</p>
+        </div>
+      ));
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to remove item. Please try again.");
+    }
   };
 
   const handleAddQuantity = async () => {
-    setLoading(true);
-    await updateCartItemQuantity(item.productVariantId, item.quantity + 1);
-    await refreshCart();
-    setLoading(false);
+    try {
+      await updateQuantityOptimistic(item.productVariantId, item.quantity + 1);
+    } catch (error) {
+      console.log(error);
+
+      toast.error("Failed to update quantity. Please try again.");
+    }
   };
 
   const handleReduceQuantity = async () => {
@@ -45,10 +51,14 @@ const CartItemCard = ({ item }: Props) => {
       handleRemoveFromCart();
       return;
     }
-    setLoading(true);
-    await updateCartItemQuantity(item.productVariantId, item.quantity - 1);
-    await refreshCart();
-    setLoading(false);
+
+    try {
+      await updateQuantityOptimistic(item.productVariantId, item.quantity - 1);
+    } catch (error) {
+      console.log(error);
+
+      toast.error("Failed to update quantity. Please try again.");
+    }
   };
 
   return (
@@ -68,6 +78,7 @@ const CartItemCard = ({ item }: Props) => {
             <button
               className="cursor-pointer absolute top-2 right-2 bg-white/90 p-1"
               onClick={handleRemoveFromCart}
+              disabled={isMutating}
             >
               <Close />
             </button>
@@ -99,9 +110,11 @@ const CartItemCard = ({ item }: Props) => {
               {/* Quantity Selector */}
               <div className="flex gap-4 items-center">
                 <button
-                  disabled={loading}
+                  disabled={isMutating}
                   className={`${
-                    loading ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+                    isMutating
+                      ? "cursor-not-allowed opacity-50"
+                      : "cursor-pointer"
                   }`}
                   onClick={handleReduceQuantity}
                 >
@@ -109,9 +122,11 @@ const CartItemCard = ({ item }: Props) => {
                 </button>
                 <span className="text-sm text-center w-4">{item.quantity}</span>
                 <button
-                  disabled={loading}
+                  disabled={isMutating}
                   className={`${
-                    loading ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+                    isMutating
+                      ? "cursor-not-allowed opacity-50"
+                      : "cursor-pointer"
                   }`}
                   onClick={handleAddQuantity}
                 >
@@ -153,6 +168,7 @@ const CartItemCard = ({ item }: Props) => {
                 <button
                   className="cursor-pointer absolute top-0 right-0"
                   onClick={handleRemoveFromCart}
+                  disabled={isMutating}
                 >
                   <Close />
                 </button>
@@ -173,9 +189,11 @@ const CartItemCard = ({ item }: Props) => {
               </div>
               <div className="flex gap-5 items-center mt-4">
                 <button
-                  disabled={loading}
+                  disabled={isMutating}
                   className={`${
-                    loading ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+                    isMutating
+                      ? "cursor-not-allowed opacity-50"
+                      : "cursor-pointer"
                   }`}
                   onClick={handleReduceQuantity}
                 >
@@ -183,9 +201,11 @@ const CartItemCard = ({ item }: Props) => {
                 </button>
                 <span className="text-sm text-center w-6">{item.quantity}</span>
                 <button
-                  disabled={loading}
+                  disabled={isMutating}
                   className={`${
-                    loading ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+                    isMutating
+                      ? "cursor-not-allowed opacity-50"
+                      : "cursor-pointer"
                   }`}
                   onClick={handleAddQuantity}
                 >

@@ -1,5 +1,7 @@
 "use client";
 import { Input } from "@/components/ui/input";
+import Check from "@/public/assets/check.svg";
+
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { useActionState, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -8,7 +10,7 @@ import { useFormStatus } from "react-dom";
 import { loginAction, type LoginState } from "@/server/actions/auth";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useCart } from "@/context/CartContext"; 
+import { useCart } from "@/context/CartContext";
 
 const initialState: LoginState = { message: "", errors: {} };
 
@@ -16,7 +18,7 @@ function Form() {
   const [showPassword, setShowPassword] = useState(false);
   const [state, dispatch] = useActionState(loginAction, initialState);
   const { pending } = useFormStatus();
-  const { refreshCart } = useCart(); 
+  const { refreshCart } = useCart();
   const router = useRouter();
 
   const togglePasswordVisibility = () => {
@@ -24,8 +26,13 @@ function Form() {
   };
 
   useEffect(() => {
-    if (state.success) { 
-      toast.success(state.message || "Login successful!");
+    if (state.success) {
+      toast.custom(() => (
+        <div className="bg-black text-white w-full px-4 py-3 text-sm rounded-none flex items-center justify-center gap-2">
+          <Check />
+          <p className="font-semibold uppercase">Login successful!</p>
+        </div>
+      ));
       refreshCart();
       if (state.redirect) {
         router.push(state.redirect);
@@ -33,7 +40,14 @@ function Form() {
     } else if (state.message && state.toastType === "error") {
       toast.error(state.message);
     }
-  }, [state, router, refreshCart]);
+  }, [
+    state.success,
+    state.message,
+    state.toastType,
+    state.redirect,
+    router,
+    refreshCart,
+  ]);
 
   return (
     <div className="w-full lg:px-20">
