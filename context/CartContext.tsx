@@ -7,6 +7,7 @@ import React, {
   ReactNode,
   useCallback,
   useEffect,
+  useRef,
 } from "react";
 import { getCartData } from "@/server/actions/cart";
 import { useSession } from "next-auth/react";
@@ -19,6 +20,12 @@ type CartContextType = {
   isLoading: boolean;
   refreshCart: () => void;
   clearClientCart: () => void;
+  optimisticAddToCart: (productVariantId: string, quantity: number) => void;
+  optimisticUpdateQuantity: (
+    productVariantId: string,
+    quantity: number
+  ) => void;
+  optimisticRemoveFromCart: (productVariantId: string) => void;
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -28,21 +35,42 @@ export default function CartProvider({ children }: { children: ReactNode }) {
   const [count, setCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const { data: session, status } = useSession();
+  const abortControllerRef = useRef<AbortController | null>(null);
 
-  const fetchCart = useCallback(async () => {
-    setIsLoading(true);
+  const fetchCart = useCallback(async (force = false) => {
+    // Cancel previous request if it's still pending
+    if (abortControllerRef.current && !force) {
+      abortControllerRef.current.abort();
+    }
+
+    abortControllerRef.current = new AbortController();
+
+    if (force) setIsLoading(true);
+
     try {
-      const cartRes = await fetch("/api/cart");
+      const cartRes = await fetch("/api/cart", {
+        signal: abortControllerRef.current.signal,
+        // Add cache headers for better performance
+        headers: {
+          "Cache-Control": "no-cache",
+        },
+      });
+
+      if (!cartRes.ok) throw new Error("Failed to fetch cart");
+
       const { items, count } = await cartRes.json();
 
       setCount(count || 0);
       setItems(items || []);
     } catch (error) {
-      console.error("Failed to fetch cart:", error);
-      setCount(0);
-      setItems([]);
+      if (error instanceof Error && error.name !== "AbortError") {
+        console.error("Failed to fetch cart:", error);
+        // Only reset on actual errors, not aborts
+        setCount(0);
+        setItems([]);
+      }
     } finally {
-      setIsLoading(false);
+      if (force) setIsLoading(false);
     }
   }, []);
 
@@ -51,15 +79,101 @@ export default function CartProvider({ children }: { children: ReactNode }) {
     setCount(0);
   };
 
+  // Optimistic update functions
+  const optimisticAddToCart = useCallback(
+    (productVariantId: string, quantity: number) => {
+      setItems((prevItems) => {
+        const existingItemIndex = prevItems.findIndex(
+          (item) => item.productVariantId === productVariantId
+        );
+
+        if (existingItemIndex >= 0) {
+          // Update existing item
+          const newItems = [...prevItems];
+          newItems[existingItemIndex] = {
+            ...newItems[existingItemIndex],
+            quantity: newItems[existingItemIndex].quantity + quantity,
+          };
+          return newItems;
+        } else {
+          // For new items, we can't show full details without the product data
+          // So we'll just update the count and refresh after server response
+          return prevItems;
+        }
+      });
+
+      setCount((prevCount) => prevCount + quantity);
+    },
+    []
+  );
+
+  const optimisticUpdateQuantity = useCallback(
+    (productVariantId: string, quantity: number) => {
+      setItems((prevItems) => {
+        const existingItemIndex = prevItems.findIndex(
+          (item) => item.productVariantId === productVariantId
+        );
+
+        if (existingItemIndex >= 0) {
+          const oldQuantity = prevItems[existingItemIndex].quantity;
+
+          if (quantity <= 0) {
+            // Remove item
+            const newItems = prevItems.filter(
+              (item) => item.productVariantId !== productVariantId
+            );
+            setCount((prevCount) => prevCount - oldQuantity);
+            return newItems;
+          } else {
+            // Update quantity
+            const newItems = [...prevItems];
+            newItems[existingItemIndex] = {
+              ...newItems[existingItemIndex],
+              quantity,
+            };
+            setCount((prevCount) => prevCount - oldQuantity + quantity);
+            return newItems;
+          }
+        }
+        return prevItems;
+      });
+    },
+    []
+  );
+
+  const optimisticRemoveFromCart = useCallback((productVariantId: string) => {
+    setItems((prevItems) => {
+      const existingItem = prevItems.find(
+        (item) => item.productVariantId === productVariantId
+      );
+      if (existingItem) {
+        setCount((prevCount) => prevCount - existingItem.quantity);
+        return prevItems.filter(
+          (item) => item.productVariantId !== productVariantId
+        );
+      }
+      return prevItems;
+    });
+  }, []);
+
   useEffect(() => {
     if (status === "authenticated") {
-      fetchCart();
+      fetchCart(true);
     }
     if (status === "unauthenticated") {
       clearClientCart();
-      fetchCart();
+      fetchCart(true);
     }
   }, [status, session, fetchCart]);
+
+  // Cleanup abort controller on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   return (
     <CartContext.Provider
@@ -67,8 +181,11 @@ export default function CartProvider({ children }: { children: ReactNode }) {
         items,
         count,
         isLoading,
-        refreshCart: fetchCart,
+        refreshCart: () => fetchCart(true),
         clearClientCart,
+        optimisticAddToCart,
+        optimisticUpdateQuantity,
+        optimisticRemoveFromCart,
       }}
     >
       {children}

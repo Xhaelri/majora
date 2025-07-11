@@ -12,6 +12,12 @@ export type GuestCartItem = {
   quantity: number;
 };
 
+// Helper function to handle errors consistently
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return String(error);
+}
+
 async function getCartUser() {
   const session = await auth();
 
@@ -50,7 +56,7 @@ async function getCartUser() {
 async function getOrCreateCart(userId: string) {
   let cart = await db.cart.findUnique({
     where: { userId },
-    include: { items: true }, // MODIFIED: Include items
+    include: { items: true },
   });
 
   if (!cart) {
@@ -63,175 +69,199 @@ async function getOrCreateCart(userId: string) {
 }
 
 export async function addToCart(productVariantId: string, quantity = 1) {
-  const user = await getCartUser();
-  if (!user) throw new Error("Could not identify user.");
+  try {
+    const user = await getCartUser();
+    if (!user) throw new Error("Could not identify user.");
 
-  const cart = await getOrCreateCart(user.id);
+    const cart = await getOrCreateCart(user.id);
 
-  const existingItem = await db.cartItem.findUnique({
-    where: {
-      cartId_productVariantId: {
-        cartId: cart.id,
-        productVariantId,
+    // Use upsert for better performance and atomicity
+    await db.cartItem.upsert({
+      where: {
+        cartId_productVariantId: {
+          cartId: cart.id,
+          productVariantId,
+        },
       },
-    },
-  });
-
-  if (existingItem) {
-    await db.cartItem.update({
-      where: { id: existingItem.id },
-      data: { quantity: existingItem.quantity + quantity },
-    });
-  } else {
-    await db.cartItem.create({
-      data: {
+      update: {
+        quantity: {
+          increment: quantity,
+        },
+      },
+      create: {
         cartId: cart.id,
         productVariantId,
         quantity,
       },
     });
-  }
 
-  revalidatePath("/cart");
-  return { success: true };
+    // Revalidate paths for better cache management
+    revalidatePath("/cart");
+    revalidatePath("/api/cart");
+    
+    return { success: true };
+  } catch (error) {
+    console.error("Add to cart error:", error);
+    return { success: false, error: getErrorMessage(error) };
+  }
 }
 
 export async function updateCartItemQuantity(
   productVariantId: string,
   quantity: number
 ) {
-  const user = await getCartUser();
-  if (!user) throw new Error("Could not identify user.");
+  try {
+    const user = await getCartUser();
+    if (!user) throw new Error("Could not identify user.");
 
-  const cart = await db.cart.findUnique({ where: { userId: user.id } });
-  if (!cart) throw new Error("Cart not found.");
+    const cart = await db.cart.findUnique({ where: { userId: user.id } });
+    if (!cart) throw new Error("Cart not found.");
 
-  if (quantity <= 0) {
-    await db.cartItem.deleteMany({
-      where: { cartId: cart.id, productVariantId },
-    });
-  } else {
-    await db.cartItem.updateMany({
-      where: { cartId: cart.id, productVariantId },
-      data: { quantity },
-    });
+    if (quantity <= 0) {
+      await db.cartItem.deleteMany({
+        where: { cartId: cart.id, productVariantId },
+      });
+    } else {
+      await db.cartItem.updateMany({
+        where: { cartId: cart.id, productVariantId },
+        data: { quantity },
+      });
+    }
+
+    revalidatePath("/cart");
+    revalidatePath("/api/cart");
+    
+    return { success: true };
+  } catch (error) {
+    console.error("Update cart item error:", error);
+    return { success: false, error: getErrorMessage(error) };
   }
-
-  revalidatePath("/cart");
-  return { success: true };
 }
 
 export async function removeFromCart(productVariantId: string) {
-  const user = await getCartUser();
-  if (!user) throw new Error("Could not identify user.");
+  try {
+    const user = await getCartUser();
+    if (!user) throw new Error("Could not identify user.");
 
-  const cart = await db.cart.findUnique({ where: { userId: user.id } });
-  if (!cart) return { success: true };
+    const cart = await db.cart.findUnique({ where: { userId: user.id } });
+    if (!cart) return { success: true };
 
-  await db.cartItem.deleteMany({
-    where: { cartId: cart.id, productVariantId },
-  });
+    await db.cartItem.deleteMany({
+      where: { cartId: cart.id, productVariantId },
+    });
 
-  revalidatePath("/cart");
-  return { success: true };
+    revalidatePath("/cart");
+    revalidatePath("/api/cart");
+    
+    return { success: true };
+  } catch (error) {
+    console.error("Remove from cart error:", error);
+    return { success: false, error: getErrorMessage(error) };
+  }
 }
 
 export async function mergeGuestCartWithUserCart(authenticatedUserId: string) {
-  const anonymousId = (await cookies()).get("guest_cart_id")?.value;
-  if (!anonymousId) return { success: true };
+  try {
+    const anonymousId = (await cookies()).get("guest_cart_id")?.value;
+    if (!anonymousId) return { success: true };
 
-  const guestUser = await db.user.findUnique({
-    where: { anonymousId, isGuest: true },
-    include: { cart: { include: { items: true } } },
-  });
+    const guestUser = await db.user.findUnique({
+      where: { anonymousId, isGuest: true },
+      include: { cart: { include: { items: true } } },
+    });
 
-  const guestCart = guestUser?.cart;
-  if (!guestCart || guestCart.items.length === 0) {
-    if (guestUser)
-      await db.user
-        .delete({ where: { id: guestUser.id } })
-        .catch(console.error);
-    (await cookies()).delete("guest_cart_id");
-    return { success: true };
-  }
+    const guestCart = guestUser?.cart;
+    if (!guestCart || guestCart.items.length === 0) {
+      if (guestUser)
+        await db.user
+          .delete({ where: { id: guestUser.id } })
+          .catch(console.error);
+      (await cookies()).delete("guest_cart_id");
+      return { success: true };
+    }
 
-  // **MODIFIED LOGIC**
-  await db.$transaction(async (tx) => {
-    // 1. Get the authenticated user's cart (or create it) and lock it for the transaction
-    const authUserCart =
-      (await tx.cart.findUnique({
-        where: { userId: authenticatedUserId },
-        include: { items: true },
-      })) ||
-      (await tx.cart.create({
-        data: { userId: authenticatedUserId },
-        include: { items: true },
-      }));
+    // Use transaction for atomicity
+    await db.$transaction(async (tx) => {
+      const authUserCart =
+        (await tx.cart.findUnique({
+          where: { userId: authenticatedUserId },
+          include: { items: true },
+        })) ||
+        (await tx.cart.create({
+          data: { userId: authenticatedUserId },
+          include: { items: true },
+        }));
 
-    // 2. Merge guest items into the authenticated user's cart
-    for (const guestItem of guestCart.items) {
-      const existingAuthItem = authUserCart.items.find(
-        (item) => item.productVariantId === guestItem.productVariantId
-      );
-
-      if (existingAuthItem) {
-        // Update quantity if item already exists in auth cart
-        await tx.cartItem.update({
-          where: { id: existingAuthItem.id },
-          data: { quantity: existingAuthItem.quantity + guestItem.quantity },
-        });
-      } else {
-        // Create new item in auth cart if it doesn't exist
-        await tx.cartItem.create({
-          data: {
+      // Use upsert for better performance
+      for (const guestItem of guestCart.items) {
+        await tx.cartItem.upsert({
+          where: {
+            cartId_productVariantId: {
+              cartId: authUserCart.id,
+              productVariantId: guestItem.productVariantId,
+            },
+          },
+          update: {
+            quantity: {
+              increment: guestItem.quantity,
+            },
+          },
+          create: {
             cartId: authUserCart.id,
             productVariantId: guestItem.productVariantId,
             quantity: guestItem.quantity,
           },
         });
       }
-    }
 
-    // 3. Clean up the guest user, which will cascade and delete their cart and items
-    await tx.user.delete({ where: { id: guestUser.id } });
-  });
+      await tx.user.delete({ where: { id: guestUser.id } });
+    });
 
-  (await cookies()).delete("guest_cart_id");
+    (await cookies()).delete("guest_cart_id");
+    revalidatePath("/cart");
+    revalidatePath("/");
+    revalidatePath("/api/cart");
 
-  revalidatePath("/cart");
-  revalidatePath("/");
-
-  return { success: true };
+    return { success: true };
+  } catch (error) {
+    console.error("Merge cart error:", error);
+    return { success: false, error: getErrorMessage(error) };
+  }
 }
 
 export async function getCartData(): Promise<GetCartDataResult> {
   unstable_noStore();
 
-  const user = await getCartUser();
-  if (!user) return { items: [], count: 0 };
+  try {
+    const user = await getCartUser();
+    if (!user) return { items: [], count: 0 };
 
-  const cart = await db.cart.findUnique({
-    where: { userId: user.id },
-    include: {
-      items: {
-        include: {
-          productVariant: {
-            include: {
-              color: true,
-              size: true,
-              images: true,
-              product: true,
+    const cart = await db.cart.findUnique({
+      where: { userId: user.id },
+      include: {
+        items: {
+          include: {
+            productVariant: {
+              include: {
+                color: true,
+                size: true,
+                images: true,
+                product: true,
+              },
             },
           },
-        },
-        orderBy: {
-          createdAt: "asc",
+          orderBy: {
+            createdAt: "asc",
+          },
         },
       },
-    },
-  });
+    });
 
-  const items = cart?.items || [];
-  const count = items.reduce((sum, item) => sum + item.quantity, 0);
-  return { items, count };
+    const items = cart?.items || [];
+    const count = items.reduce((sum, item) => sum + item.quantity, 0);
+    return { items, count };
+  } catch (error) {
+    console.error("Get cart data error:", error);
+    return { items: [], count: 0 };
+  }
 }

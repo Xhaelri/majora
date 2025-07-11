@@ -1,21 +1,24 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { getCartData } from '@/server/actions/cart'
+// app/api/cart/route.ts
+import { NextResponse } from "next/server";
+import { getCartData } from "@/server/actions/cart";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const { items, count } = await getCartData()
-
-    return NextResponse.json({
-      items: items.map(item => ({
-        id: item.id,
-        productVariantId: item.productVariantId,
-        quantity: item.quantity,
-        productVariant: item.productVariant
-      })),
-      count: count
-    })
+    const cartData = await getCartData();
+    
+    return NextResponse.json(cartData, {
+      headers: {
+        // Add cache headers for better performance
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      },
+    });
   } catch (error) {
-    console.error('Error fetching cart:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error("Cart API error:", error);
+    return NextResponse.json(
+      { items: [], count: 0 },
+      { status: 500 }
+    );
   }
 }
