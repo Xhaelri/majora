@@ -31,8 +31,10 @@ type SearchResults = {
 
 export default function SearchInput({
   isSearchPage,
+  onSearchComplete
 }: {
   isSearchPage: boolean;
+  onSearchComplete?: () => void;
 }) {
   const inputRef = useRef<HTMLDivElement>(null);
 
@@ -63,6 +65,8 @@ export default function SearchInput({
     e.preventDefault();
     if (query.trim()) {
       router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+      setIsOpen(false)
+      onSearchComplete?.();
     }
   };
 
@@ -233,7 +237,12 @@ export default function SearchInput({
                 ))}
               </div>
 
-              <h1 className="absolute left-0 bottom-0 p-3" onClick={handleSubmit}>Show all results for “{query}” →</h1>
+              <h1
+                className="absolute left-0 bottom-0 p-3 hover:text-gray-700 hoverEffect cursor-pointer"
+                onClick={handleSubmit}
+              >
+                Show all results for “{query}” →
+              </h1>
             </div>
           ) : null}
         </div>
