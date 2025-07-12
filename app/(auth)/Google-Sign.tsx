@@ -11,9 +11,9 @@ export default function GoogleSign() {
     >
       <Button
         type="submit"
-        variant="outline"
+        variant="ghost"
         size="login"
-        className="w-full cursor-pointer flex items-center justify-center gap-2"
+        className="w-full cursor-pointer flex items-center justify-center gap-2 mt-2"
       >
         <Google />
         Continue with Google

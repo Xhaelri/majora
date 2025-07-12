@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import Check from "@/public/assets/check.svg";
 
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import React from "react";
 import { useFormStatus } from "react-dom";
@@ -11,42 +11,68 @@ import { loginAction, type LoginState } from "@/server/actions/auth";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useCart } from "@/context/CartContext";
+import { useSession } from "next-auth/react";
 
 const initialState: LoginState = { message: "", errors: {} };
 
 function Form() {
-  const [showPassword, setShowPassword] = useState(false);
+   const [showPassword, setShowPassword] = useState(false);
   const [state, dispatch] = useActionState(loginAction, initialState);
   const { pending } = useFormStatus();
   const { refreshCart } = useCart();
   const router = useRouter();
+  const { update } = useSession();
+  
+  // Use ref to track if we've already handled this success
+  const processedSuccess = useRef(false);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
   useEffect(() => {
-    if (state.success) {
-      toast.custom(() => (
-        <div className="bg-black text-white w-full px-4 py-3 text-sm rounded-none flex items-center justify-center gap-2">
-          <Check />
-          <p className="font-semibold uppercase">Login successful!</p>
-        </div>
-      ));
-      refreshCart();
-      if (state.redirect) {
-        router.push(state.redirect);
+    const handleLoginSuccess = async () => {
+      if (state.success && !processedSuccess.current) {
+        processedSuccess.current = true;
+        
+        toast.custom(() => (
+          <div className="bg-black text-white w-full px-4 py-3 text-sm rounded-none flex items-center justify-center gap-2">
+            <Check />
+            <p className="font-semibold uppercase">Login successful!</p>
+          </div>
+        ));
+        
+        refreshCart();
+        
+        try {
+          await update();
+        } catch (error) {
+          console.error('Session update failed:', error);
+        }
+        
+        if (state.redirect) {
+          router.push(state.redirect);
+        }
       }
+    };
+
+    if (state.success) {
+      handleLoginSuccess();
     } else if (state.message && state.toastType === "error") {
       toast.error(state.message);
+    }
+    
+    if (!state.success) {
+      processedSuccess.current = false;
     }
   }, [
     state.success,
     state.message,
     state.toastType,
     state.redirect,
-    router,
-    refreshCart,
+    // Note: We don't include update, refreshCart, or router in deps
+    // because they're stable references and including them would cause
+    // unnecessary re-runs
   ]);
 
   return (

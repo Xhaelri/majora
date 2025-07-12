@@ -5,7 +5,6 @@ import "./globals.css";
 import Footer from "@/components/Footer/Footer";
 import { Toaster } from "@/components/ui/sonner";
 import { SessionProvider } from "next-auth/react";
-import { auth } from "@/auth";
 import  CartProvider  from "@/context/CartContext";
 
 // const libre = Libre_Franklin({
@@ -32,14 +31,13 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth();
 
   return (
     <html lang="en">
       <body
         className={`${corinthia.variable} antialiased light min-h-screen flex flex-col`}
       >
-        <SessionProvider session={session}>
+        <SessionProvider>
           <CartProvider>
             <Header />
             <Toaster
