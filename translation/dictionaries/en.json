@@ -1,0 +1,23 @@
+{
+  "nav": {
+    "newArrivals": "New Arrivals",
+    "topsShirts": "Tops & Shirts",
+    "kimonosKaftans": "Kimonos & kaftans",
+    "sets": "Sets",
+    "bottoms": "Bottoms",
+    "dresses": "Dresses",
+    "sale": "Sale",
+    "menu":"Menu"
+  },
+  "hero": {
+    "ss25": "SS'25",
+    "liveNow": "Live now",
+    "shopAll": "SHOP ALL",
+    "bestSeller": "BEST SELLER",
+    "winterSale": "WINTER SALE"
+  },
+  "common": {
+    "shop": "SHOP"
+  },
+  "menu":"Menu"
+}

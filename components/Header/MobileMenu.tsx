@@ -12,16 +12,18 @@ import {
 } from "@/components/ui/sheet";
 import useMediaQuery from "@/hooks/useMediaQuery";
 import Link from "../Link/Link";
-import { mobileMenue } from "@/constants/constants";
+import { Menu, mobileMenue } from "@/constants/constants";
 import { Accordion, AccordionItem, AccordionTrigger2 } from "../ui/accordion";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import { useLocale, useTranslations } from "next-intl";
 
 export default function MobileMenu() {
   const [open, setOpen] = useState(false);
   const isDesktop = useMediaQuery("(min-width:1024px)");
-const { data: session, status } = useSession();
-
+  const { status } = useSession();
+  const t = useTranslations();
+const locale = useLocale();
   return (
     <div>
       {isDesktop ? (
@@ -45,10 +47,10 @@ const { data: session, status } = useSession();
             />
           </SheetTrigger>
 
-          <SheetContent side="left" className="text-primary overflow-y-auto">
+          <SheetContent side={locale==="ar"?"right":"left"} className="text-primary overflow-y-auto">
             <SheetHeader>
               <SheetTitle className="text-2xl tracking-widest uppercase font-light">
-                Menu
+                {t(Menu[0].title)}
               </SheetTitle>
             </SheetHeader>
             {mobileMenue.map((item) => (
@@ -62,7 +64,7 @@ const { data: session, status } = useSession();
                   <AccordionTrigger2 className="text-lg font-light tracking-widest uppercase">
                     <SheetClose asChild>
                       <Link href={`/categories/${item?.href}`}>
-                        {item?.title}
+                        {t(item?.title)}
                       </Link>
                     </SheetClose>
                   </AccordionTrigger2>
@@ -122,10 +124,10 @@ const { data: session, status } = useSession();
             />
           </SheetTrigger>
 
-          <SheetContent side="left" className="text-primary overflow-y-auto">
+          <SheetContent side={locale==="ar"?"right":"left"} className="text-primary overflow-y-auto">
             <SheetHeader>
               <SheetTitle className="text-2xl tracking-widest uppercase font-light">
-                Menu
+                {t(Menu[0].title)}
               </SheetTitle>
             </SheetHeader>
             {mobileMenue.map((item) => (
@@ -139,7 +141,7 @@ const { data: session, status } = useSession();
                   <AccordionTrigger2 className="text-lg font-light tracking-widest uppercase">
                     <SheetClose asChild>
                       <Link href={`/categories/${item?.href}`}>
-                        {item?.title}
+                        {t(item?.title)}
                       </Link>
                     </SheetClose>
                   </AccordionTrigger2>

@@ -9,17 +9,18 @@ export default async function Layout({
   params,
 }: {
   children: React.ReactNode;
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string; locale: string }>;
 }) {
   const resolvedParams = await params;
   const headerImage = heroImages[3];
-
+  const { locale } = await params;
+  const isRTL = locale === "ar";
   // Get category details
   const category = await getCategoryBySlug(resolvedParams.slug);
 
   // Capitalize the category name for display
-  const displayName = category?.name || resolvedParams.slug;
-  const formattedName = displayName
+  const displayName = isRTL ? category?.nameAr : category?.name;
+  const formattedName = displayName!
     .split("-")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" & ");

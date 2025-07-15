@@ -1,4 +1,3 @@
-
 "use client";
 import * as React from "react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,11 +10,13 @@ import {
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import useMediaQuery from "@/hooks/useMediaQuery";
-import { ImageDialog } from "@/components/ui-custom/ImageDialog"; 
+import { ImageDialog } from "@/components/ui-custom/ImageDialog";
+import { useLocale } from "next-intl";
 
 type ProductVariantImage = {
   url: string;
   altText: string;
+  altTextAr?: string | null;
 };
 
 type ProductDetailsCarouselProps = {
@@ -32,6 +33,8 @@ export default function ProductDetailsCarousel({
   const [dialogCurrentIndex, setDialogCurrentIndex] = React.useState(0);
 
   const isDesktop = useMediaQuery("(min-width:768px)");
+  const locale = useLocale();
+  const isRTL = locale === "ar";
 
   React.useEffect(() => {
     if (!api) {
@@ -61,15 +64,23 @@ export default function ProductDetailsCarousel({
   };
 
   const handleDialogNext = () => {
-    const nextIndex = (dialogCurrentIndex + 1) % images.length;
+    const nextIndex = isRTL 
+      ? (dialogCurrentIndex - 1 + images.length) % images.length
+      : (dialogCurrentIndex + 1) % images.length;
     setDialogCurrentIndex(nextIndex);
     api?.scrollTo(nextIndex);
   };
 
   const handleDialogPrev = () => {
-    const prevIndex = (dialogCurrentIndex - 1 + images.length) % images.length;
+    const prevIndex = isRTL 
+      ? (dialogCurrentIndex + 1) % images.length
+      : (dialogCurrentIndex - 1 + images.length) % images.length;
     setDialogCurrentIndex(prevIndex);
     api?.scrollTo(prevIndex);
+  };
+
+  const getAltText = (image: ProductVariantImage) => {
+    return isRTL && image.altTextAr ? image.altTextAr : image.altText;
   };
 
   return isDesktop ? (
@@ -80,6 +91,7 @@ export default function ProductDetailsCarousel({
             orientation="vertical"
             opts={{
               align: "start",
+              direction: isRTL ? "rtl" : "ltr",
             }}
             className="w-full max-h-[500px]"
           >
@@ -99,7 +111,7 @@ export default function ProductDetailsCarousel({
                     <CardContent className="p-0 flex w-full h-full items-center justify-center relative">
                       <Image
                         src={image.url}
-                        alt={image.altText}
+                        alt={getAltText(image)}
                         fill
                         className="object-cover w-full h-full"
                       />
@@ -113,7 +125,13 @@ export default function ProductDetailsCarousel({
 
         {/* Main Product Image Carousel (horizontal) */}
         <div className=" w-full order-1 md:order-2 flex justify-center items-center">
-          <Carousel setApi={setApi} className="w-full">
+          <Carousel 
+            setApi={setApi} 
+            className="w-full"
+            opts={{
+              direction: isRTL ? "rtl" : "ltr",
+            }}
+          >
             <CarouselContent className="h-full w-full">
               {images.map((image, index) => (
                 <CarouselItem
@@ -125,7 +143,7 @@ export default function ProductDetailsCarousel({
                     <CardContent className="relative aspect-[4/5] w-full">
                       <Image
                         src={image.url}
-                        alt={image?.altText}
+                        alt={getAltText(image)}
                         fill
                         className="object-cover"
                       />
@@ -149,7 +167,13 @@ export default function ProductDetailsCarousel({
   ) : (
     <>
       <div className="mx-auto">
-        <Carousel setApi={setApi} className="w-full ">
+        <Carousel 
+          setApi={setApi} 
+          className="w-full"
+          opts={{
+            direction: isRTL ? "rtl" : "ltr",
+          }}
+        >
           <CarouselContent className="h-full w-full">
             {images.map((image, index) => (
               <CarouselItem
@@ -161,7 +185,7 @@ export default function ProductDetailsCarousel({
                   <CardContent className="relative aspect-[4/5] w-full">
                     <Image
                       src={image.url}
-                      alt={image.altText}
+                      alt={getAltText(image)}
                       fill
                       className="object-cover"
                     />

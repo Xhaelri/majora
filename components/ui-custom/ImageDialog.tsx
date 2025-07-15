@@ -30,12 +30,10 @@ export function ImageDialog({
   };
 
   return (
-
     <div
       className="fixed inset-0 bg-white z-50 flex items-center justify-center p-4"
       onClick={onClose}
     >
-
       <div className="relative" onClick={handleContentClick}>
         <Zoom>
           <Image
@@ -43,16 +41,15 @@ export function ImageDialog({
             alt={images[currentIndex].altText}
             width={500}
             height={1000}
-
             className="max-w-[calc(100vw-4rem)] max-h-[calc(100vh-10rem)] object-contain"
           />
         </Zoom>
       </div>
 
-
       <div
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center justify-center gap-4 bg-white/50 backdrop-blur-sm p-2 rounded-full"
         onClick={handleContentClick}
+        dir="ltr"
       >
         <button
           onClick={onPrev}

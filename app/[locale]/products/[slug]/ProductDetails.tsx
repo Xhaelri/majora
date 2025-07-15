@@ -5,20 +5,22 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import AvailabilityPing from "@/components/ui-custom/Availability";
 import { FullProduct } from "@/types/product"; // Ensure this type is correct
-import  formatPrice  from "@/utils/formatPrice";
+import formatPrice from "@/utils/formatPrice";
 import ProductDetailsCarousel from "./components/ProductDetailsCarousel";
-import  AddToCartButton  from "./components/AddToCartButton";
+import AddToCartButton from "./components/AddToCartButton";
+import { useLocale } from "next-intl";
 
 type Image = {
   url: string;
   altText: string;
+  altTextAr?: string | null;
 };
 
 type Variant = {
   id: string;
   stock: number;
-  size: { id: string; name: string };
-  color: { id: string; name: string };
+  size: { id: string; name: string; nameAr?: string | null };
+  color: { id: string; name: string; nameAr?: string | null };
   images: Image[];
 };
 
@@ -113,6 +115,9 @@ const ProductDetails = ({ product }: Props) => {
     ? product.price - product.salePrice
     : 0;
 
+  const locale = useLocale();
+  const isRTL = locale === "ar";
+
   return (
     <section className="container pt-0 md:pt-20">
       <div className="flex flex-col md:flex-row items-center md:items-start gap-15">
@@ -121,7 +126,7 @@ const ProductDetails = ({ product }: Props) => {
         </div>
         <div className="w-full md:w-1/2">
           <h1 className="text-4xl font-extralight tracking-widest text-center md:text-start">
-            {product.name}
+            {isRTL && product.nameAr ? product.nameAr : product.name}
           </h1>
           <div className="flex flex-col items-center md:items-start lg:flex-row gap-0 lg:gap-5 pt-5">
             <div className="flex gap-5">
@@ -159,13 +164,14 @@ const ProductDetails = ({ product }: Props) => {
                       size="stock"
                       onClick={() => handleSizeClick(size.id)}
                       className={
-                        selectedVariant?.size.id === size.id
+                        `${selectedVariant?.size.id === size.id
                           ? "bg-foreground text-secondary"
                           : ""
+                          } ${isRTL?"w-fit":""}`
                       }
                       disabled={isDisabled}
                     >
-                      {size.name}
+                      {isRTL && size.nameAr ? size.nameAr : size.name}
                     </Button>
                   );
                 })}
@@ -199,7 +205,7 @@ const ProductDetails = ({ product }: Props) => {
                           }
                           disabled={isDisabled}
                         >
-                          {color.name}
+                          {isRTL && color.nameAr ? color.nameAr : color.name}
                         </Button>
                       );
                     }

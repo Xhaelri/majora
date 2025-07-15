@@ -10,9 +10,10 @@ import {
 } from "@/components/ui/carousel";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import { heroImages, heroData } from "@/constants/constants"; // Import both
+import { heroImages, heroData } from "@/constants/constants";
 import HeroData from "./HeroData";
 import { AnimatePresence } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 export default function CarouselWithPagination() {
   const [api, setApi] = React.useState<CarouselApi>();
@@ -31,6 +32,7 @@ export default function CarouselWithPagination() {
       setCurrent(api.selectedScrollSnap());
     });
   }, [api]);
+  const t = useTranslations();
 
   return (
     <div>
@@ -40,6 +42,7 @@ export default function CarouselWithPagination() {
         plugins={[plugin.current]}
         onMouseLeave={plugin.current.reset}
         opts={{ loop: true }}
+        dir="ltr"
       >
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-50 flex">
           {Array.from({ length: count }).map((_, index) => (
@@ -68,9 +71,9 @@ export default function CarouselWithPagination() {
                     <div className="container relative z-10 h-full w-full">
                       <HeroData
                         key={current}
-                        button={heroData[index]?.button || "SHOP"}
-                        title={heroData[index]?.title}
-                        desc={heroData[index]?.desc}
+                        button={t(heroData[index]?.button) || "SHOP"}
+                        title={t(heroData[index]?.title)}
+                        desc={heroData[index]?.desc && t(heroData[index]?.desc)}
                         variant={heroData[index]?.variant}
                       />
                     </div>

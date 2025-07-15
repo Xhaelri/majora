@@ -2,7 +2,7 @@ import Link from "@/components/Link/Link";
 import { heroImages } from "@/constants/constants";
 import Image from "next/image";
 import React from "react";
-import Form from "./_components/Form";
+import Form from "./components/Form";
 import GoogleSign from "../Google-Sign";
 
 function SigninPage() {

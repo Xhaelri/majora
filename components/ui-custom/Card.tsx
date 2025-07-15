@@ -1,24 +1,30 @@
 "use client";
 import useMediaQuery from "@/hooks/useMediaQuery";
-import  formatPrice  from "@/utils/formatPrice";
+import formatPrice from "@/utils/formatPrice";
 import Image from "next/image";
 import React, { useState } from "react";
 import { FullProduct } from "@/types/product";
 import Link from "../Link/Link";
-import  slugifyAdvanced  from "@/utils/slugify";
+import slugifyAdvanced from "@/utils/slugify";
+import { useLocale } from "next-intl";
 
 type CardProps = {
   productData: FullProduct;
 };
 
 const Card = ({ productData }: CardProps) => {
+  const locale = useLocale();
+  const isRTL = locale === "ar"
   const primaryVariant = productData.variants?.[0];
 
   const primaryImageUrl = primaryVariant?.images?.[0]?.url || "";
 
   const hoverImageUrl = primaryVariant?.images?.[1]?.url || primaryImageUrl;
 
-  const imageAltText = primaryVariant?.images?.[0]?.altText || productData.name;
+  const imageAltText = isRTL
+    ? primaryVariant?.images?.[0]?.altTextAr
+    : primaryVariant?.images?.[0]?.altText ||
+      primaryVariant?.images?.[0]?.altText;
 
   const isOnSale =
     productData.salePrice !== null && productData.salePrice < productData.price;
@@ -32,7 +38,6 @@ const Card = ({ productData }: CardProps) => {
 
   const [imageSrc, setImageSrc] = useState(primaryImageUrl);
   const isDesktop = useMediaQuery("(min-width:768px)");
-
   return (
     <div>
       {isDesktop ? (
@@ -52,13 +57,13 @@ const Card = ({ productData }: CardProps) => {
             ) : null}
             <Image
               src={imageSrc}
-              alt={imageAltText}
+              alt={imageAltText!}
               fill
               className="object-cover "
             />
           </div>
           <h1 className="text-md font-light  md:tracking-[2px] text-center h-11 line-clamp-2 break-all uppercase">
-            {productData.name}
+            {isRTL ? productData.nameAr : productData.name}
           </h1>
           <div className="text-md font-extralight tracking-widest flex flex-col items-center">
             <div className="flex flex-col xl:flex-row gap-0 lg:gap-2 ">
@@ -91,13 +96,13 @@ const Card = ({ productData }: CardProps) => {
             ) : null}
             <Image
               src={imageSrc}
-              alt={imageAltText}
+              alt={imageAltText!}
               fill
               className="object-cover"
             />
           </div>
           <h1 className="text-lg font-extralight tracking-[2px] text-center h-15 overflow-hidden break-all uppercase ">
-            {productData.name}
+            {isRTL ? productData.nameAr : productData.name}
           </h1>
           <div className="text-md font-extralight tracking-widest flex flex-col items-center">
             <div className="flex flex-col sm:flex-row  sm:gap-3  ">

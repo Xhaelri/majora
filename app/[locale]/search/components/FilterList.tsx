@@ -9,7 +9,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import useMediaQuery from "@/hooks/useMediaQuery";
-import { Accordion, AccordionItem } from "../../../components/ui/accordion";
+import { Accordion, AccordionItem } from "../../../../components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import FilterIcon from "@/public/assets/filter-alt-2-svgrepo-com.svg";
 import FilterOptions from "./FilterOptions";

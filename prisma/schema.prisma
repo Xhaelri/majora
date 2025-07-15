@@ -67,8 +67,10 @@ model User {
 model Product {
   id               String           @id @default(uuid())
   name             String
+  nameAr           String?
   slug             String           @unique
   description      String?
+  descriptionAr    String?
   price            Float
   salePrice        Float?
   isLimitedEdition Boolean          @default(false)
@@ -103,6 +105,7 @@ model ProductImage {
   id        String         @id @default(uuid())
   url       String
   altText   String
+  altTextAr String?
   variantId String
   variant   ProductVariant @relation(fields: [variantId], references: [id])
 }
@@ -110,6 +113,7 @@ model ProductImage {
 model Category {
   id        String    @id @default(uuid())
   name      String    @unique
+  nameAr    String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   products  Product[]
@@ -118,12 +122,14 @@ model Category {
 model Size {
   id              String           @id @default(uuid())
   name            String           @unique
+  nameAr          String?
   productVariants ProductVariant[]
 }
 
 model Color {
   id              String           @id @default(uuid())
   name            String           @unique
+  nameAr          String?
   productVariants ProductVariant[]
 }
 
