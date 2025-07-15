@@ -13,17 +13,23 @@ export default async function Layout({
 }) {
   const resolvedParams = await params;
   const headerImage = heroImages[3];
-  const { locale } = await params;
+  const { locale } = resolvedParams; // Use resolvedParams instead of awaiting params again
   const isRTL = locale === "ar";
+  
   // Get category details
   const category = await getCategoryBySlug(resolvedParams.slug);
 
-  // Capitalize the category name for display
-  const displayName = isRTL ? category?.nameAr : category?.name;
-  const formattedName = displayName!
+  // Safely get display name with fallback to slug
+  const displayName = isRTL 
+    ? (category?.nameAr || category?.name || resolvedParams.slug)
+    : (category?.name || category?.nameAr || resolvedParams.slug);
+  
+  // Format the name safely
+  const formattedName = displayName
     .split("-")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" & ");
+    
   return (
     <>
       <ProductsSectionHeader image={headerImage}>
