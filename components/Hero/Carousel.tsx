@@ -66,6 +66,8 @@ export default function CarouselWithPagination() {
                     fill
                     className="object-cover"
                     priority={index === 0}
+                    quality={80}
+                    
                   />
                   <AnimatePresence mode="wait">
                     <div className="container relative z-10 h-full w-full">

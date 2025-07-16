@@ -4,12 +4,12 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import AvailabilityPing from "@/components/ui-custom/Availability";
-import { FullProduct } from "@/types/product"; 
+import { FullProduct } from "@/types/product";
 import formatPrice from "@/utils/formatPrice";
 import ProductDetailsCarousel from "./components/ProductDetailsCarousel";
 import AddToCartButton from "./components/AddToCartButton";
 import { useLocale, useTranslations } from "next-intl";
-
+import { motion } from "framer-motion";
 type Image = {
   url: string;
   altText: string;
@@ -121,9 +121,15 @@ const ProductDetails = ({ product }: Props) => {
   return (
     <section className="container pt-0 md:pt-20">
       <div className="flex flex-col md:flex-row items-center md:items-start gap-15">
-        <div className="w-full md:w-1/2">
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 100 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.2 }}
+          className="w-full md:w-1/2"
+        >
           <ProductDetailsCarousel images={imagesForCarousel} />
-        </div>
+        </motion.div>
         <div className="w-full md:w-1/2">
           <h1 className="text-4xl font-extralight tracking-widest text-center md:text-start">
             {isRTL && product.nameAr ? product.nameAr : product.name}
@@ -163,12 +169,11 @@ const ProductDetails = ({ product }: Props) => {
                       variant="stock"
                       size="stock"
                       onClick={() => handleSizeClick(size.id)}
-                      className={
-                        `${selectedVariant?.size.id === size.id
+                      className={`${
+                        selectedVariant?.size.id === size.id
                           ? "bg-foreground text-secondary"
                           : ""
-                          } ${isRTL?"w-fit":""}`
-                      }
+                      } ${isRTL ? "w-fit" : ""}`}
                       disabled={isDisabled}
                     >
                       {isRTL && size.nameAr ? size.nameAr : size.name}
@@ -219,8 +224,10 @@ const ProductDetails = ({ product }: Props) => {
                 {selectedVariant.stock < 5 && selectedVariant.stock > 0 ? (
                   <span className="flex items-center gap-2 text-primary">
                     <AvailabilityPing available={false} />
-                    {t("product.lowStock")} – {selectedVariant.stock} {t("product.item")}
-                    {selectedVariant.stock === 1 ? "" : t("product.items")} {t("product.left")}
+                    {t("product.lowStock")} – {selectedVariant.stock}{" "}
+                    {t("product.item")}
+                    {selectedVariant.stock === 1 ? "" : t("product.items")}{" "}
+                    {t("product.left")}
                   </span>
                 ) : selectedVariant.stock > 0 ? (
                   <div className="flex items-center gap-2">
