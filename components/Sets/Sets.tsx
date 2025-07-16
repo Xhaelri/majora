@@ -5,17 +5,19 @@ import CardGrid from "../ui-custom/CardGrid";
 import { getProductsByCategory } from "@/server/db/prisma";
 import { mobileMenue } from "@/constants/constants";
 import { getTranslations } from "next-intl/server";
+import Link from "next/link";
 
 const Sets = async () => {
   const products = (await getProductsByCategory("sets")) ?? [];
-  const t = await getTranslations()
+  const t = await getTranslations();
 
-  
   return (
     <section className="flex flex-col items-center gap-15">
       <div className="flex flex-col items-center justify-center space-y-5">
-      <SectionTitle>{t(mobileMenue[1].title)}</SectionTitle>
-        <Button variant={"section"}>{t("Common.viewAll")}</Button>
+        <SectionTitle>{t(mobileMenue[1].title)}</SectionTitle>
+        <Link href={`/categories/sets`}>
+          <Button variant={"section"}>{t("Common.viewAll")}</Button>
+        </Link>
       </div>
       <CardGrid products={products} isProductsPage={false} />
     </section>

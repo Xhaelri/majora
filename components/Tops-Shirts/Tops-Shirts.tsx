@@ -5,6 +5,7 @@ import CardGrid from "../ui-custom/CardGrid";
 import { getProductsByCategory } from "@/server/db/prisma";
 import { mobileMenue } from "@/constants/constants";
 import { getTranslations } from "next-intl/server";
+import Link from "next/link";
 
 const Tops = async () => {
   const products = (await getProductsByCategory("tops-shirts")) ?? [];
@@ -13,7 +14,11 @@ const Tops = async () => {
     <section className="flex flex-col items-center gap-15">
       <div className="flex flex-col items-center justify-center space-y-5">
         <SectionTitle>{t(mobileMenue[0].title)}</SectionTitle>
+                <Link href={`/categories/tops-shirts`}>
         <Button variant={"section"}>{t("Common.viewAll")}</Button>
+                
+                </Link>
+
       </div>
       <CardGrid products={products} isProductsPage={false} />
     </section>
