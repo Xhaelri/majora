@@ -1,6 +1,5 @@
 import CardGrid from "@/components/ui-custom/CardGrid";
 import {
-  getAllcategories,
   getCategoryBySlug,
   getProductsByCategory,
 } from "@/server/db/prisma";
@@ -12,12 +11,12 @@ import {
 import React from "react";
 import { default as Filtering } from "../components/FilterOptions";
 
-export async function generateStaticParams() {
-  const slugs = await getAllcategories();
-  return slugs.map((slug) => ({
-    slug,
-  }));
-}
+// export async function generateStaticParams() {
+//   const slugs = await getAllcategories();
+//   return slugs.map((slug) => ({
+//     slug,
+//   }));
+// }
 
 export async function generateMetadata({
   params,
