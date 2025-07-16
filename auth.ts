@@ -179,22 +179,3 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
 });
 
-// Add events for debugging
-// events: {
-//   async signIn({ user, account, profile }) {
-//     console.log("Sign in event:", { user, account, profile });
-//   },
-//   async signOut(event) {
-//     // event can be { session } or { token }
-//     if ("token" in event) {
-//       console.log("Sign out event (token):", { token: event.token });
-//     } else if ("session" in event) {
-//       console.log("Sign out event (session):", { session: event.session });
-//     } else {
-//       console.log("Sign out event: unknown event", event);
-//     }
-//   },
-//   async session({ session, token }) {
-//     console.log("Session event:", { session, token });
-//   },
-// },

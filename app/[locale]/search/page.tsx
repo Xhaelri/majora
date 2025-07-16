@@ -9,10 +9,25 @@ import {
   processProducts,
   SortOption,
 } from "@/lib/product-utils";
+import { Metadata } from "next";
 
 type SearchPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Record<string, string | string[] | undefined>;
+}): Promise<Metadata> {
+  const query = typeof searchParams.q === "string" ? searchParams.q.trim() : "";
+  const title = query ? `Search results for "${query}"` : "Search";
+
+  return {
+    title,
+    description: `Search results for: ${query}`,
+  };
+}
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const resolvedSearchParams = await searchParams;

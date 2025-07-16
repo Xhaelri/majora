@@ -23,8 +23,8 @@ type CartAction =
 type CartContextType = {
   items: CartData["items"];
   count: number;
-  isFetching: boolean; // Renamed from isLoading for cart fetching
-  isMutating: boolean; // New state for cart mutations
+  isFetching: boolean; 
+  isMutating: boolean; 
   refreshCart: () => void;
   clearClientCart: () => void;
   addToCartOptimistic: (productVariantId: string, quantity: number) => Promise<void>;
@@ -143,7 +143,6 @@ export default function CartProvider({ children }: { children: ReactNode }) {
     setCartData({ items: [], count: 0 });
   }, []);
 
-  // Optimistic server actions
   const addToCartOptimistic = useCallback(
     async (productVariantId: string, quantity: number) => {
       startTransition(async () => {
@@ -152,13 +151,11 @@ export default function CartProvider({ children }: { children: ReactNode }) {
         try {
           const result = await addToCart(productVariantId, quantity);
           if (result.success) {
-            // Update base state with fresh data
             const newCartData = await getCartData();
             setCartData(newCartData);
           }
         } catch (error) {
           console.error("Failed to add to cart:", error);
-          // On error, the optimistic update will automatically revert
           throw error;
         }
       });

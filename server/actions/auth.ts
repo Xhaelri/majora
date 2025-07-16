@@ -207,7 +207,6 @@ export async function loginAction(
       };
     }
 
-    // NEW: Merge guest cart before signing in
     await mergeGuestCartWithUserCart(user.id);
 
     await signIn("credentials", {
@@ -292,7 +291,7 @@ export async function signupAction(
         email,
         password: hashedPassword,
         name: `${firstName} ${lastName}`,
-        isGuest: false, // NEW: Mark as not a guest
+        isGuest: false, 
       },
     });
 
@@ -302,7 +301,6 @@ export async function signupAction(
       },
     });
 
-    // NEW: Attempt to merge any existing guest cart
     await mergeGuestCartWithUserCart(user.id);
 
     return {

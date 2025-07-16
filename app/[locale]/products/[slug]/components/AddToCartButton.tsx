@@ -11,7 +11,7 @@ export default function AddToCartButton({
   productVariantId: string;
   quantity?: number;
 }) {
-  const { addToCartOptimistic, isMutating } = useCart(); // Use isMutating instead of isLoading
+  const { addToCartOptimistic, isMutating } = useCart(); 
 
   const handleClick = async () => {
       try {
@@ -37,7 +37,7 @@ export default function AddToCartButton({
       variant={"cartAdd"}
       size={"cartAdd"}
       onClick={handleClick}
-      disabled={isMutating} // Use isMutating instead of isLoading
+      disabled={isMutating} 
     >
       {isMutating ? "Adding..." : "Add to Cart"}
     </Button>

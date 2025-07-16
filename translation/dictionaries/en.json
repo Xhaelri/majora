@@ -7,7 +7,7 @@
     "bottoms": "Bottoms",
     "dresses": "Dresses",
     "sale": "Sale",
-    "menu":"Menu"
+    "menu": "Menu"
   },
   "hero": {
     "ss25": "SS'25",
@@ -19,5 +19,12 @@
   "common": {
     "shop": "SHOP"
   },
-  "menu":"Menu"
+  "menu": "Menu",
+  "NotFound": {
+    "title": "Page Not Found",
+    "description": "The page you are looking for does not exist.",
+    "heading": "Oops",
+    "message": "This page is not available!",
+    "returnHome": "Return to Home"
+  }
 }

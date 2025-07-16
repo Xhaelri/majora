@@ -52,9 +52,9 @@ export async function getProductsByCategory(categorySlug: string) {
         category: {
           name: {
             equals: categorySlug,
-            mode: 'insensitive'
-          }
-        }
+            mode: "insensitive",
+          },
+        },
       },
       include: {
         category: true,
@@ -141,16 +141,33 @@ export async function getCategoryBySlug(slug: string) {
     where: {
       name: {
         equals: slug,
-        mode: 'insensitive'
-      }
-    }
+        mode: "insensitive",
+      },
+    },
   });
 }
 
 import { neon } from "@neondatabase/serverless";
 
 export async function getData() {
-    const sql = neon(process.env.DATABASE_URL!);
-    const data = await sql`...`;
-    return data;
+  const sql = neon(process.env.DATABASE_URL!);
+  const data = await sql`...`;
+  return data;
 }
+
+// In @/server/db/prisma.ts
+
+export async function getAllProductSlugs() {
+  const products = await db.product.findMany({
+    select: { slug: true },
+  });
+  return products.map((product) => product.slug);
+}
+
+export async function getAllcategories() {
+  const categories = await db.product.findMany({
+    select: { name: true },
+  });
+  return categories.map((category) => category.name);
+}
+
