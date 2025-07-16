@@ -5,6 +5,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import Credentials from "next-auth/providers/credentials";
 import { Environments } from "./constants/constants";
 import bcrypt from "bcryptjs";
+import { mergeGuestCartWithUserCart } from "./server/actions/cart";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(db),
@@ -61,7 +62,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return {
             id: user.id,
             email: user.email ?? "",
-            name: user.name ?? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim(),
+            name:
+              user.name ??
+              `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim(),
             firstName: user.firstName ?? "",
             lastName: user.lastName ?? "",
           };
@@ -75,7 +78,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async signIn({ user, account, profile }) {
       console.log("signIn callback", { user, account, profile });
-      
       if (account?.provider === "google") {
         try {
           const existingUser = await db.user.findUnique({
@@ -102,10 +104,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 userId: newUser.id,
               },
             });
-            
+
             user.id = newUser.id;
+            await mergeGuestCartWithUserCart(user.id);
           } else {
             user.id = existingUser.id;
+            await mergeGuestCartWithUserCart(user.id);
           }
         } catch (error) {
           console.error("Error creating user:", error);
@@ -114,14 +118,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return true;
     },
-    
-    async jwt({ token, user}) {
-      
+
+    async jwt({ token, user }) {
       if (user) {
         const dbUser = await db.user.findUnique({
           where: { email: user.email! },
         });
-        
+
         if (dbUser) {
           token.sub = dbUser.id;
           token.email = dbUser.email;
@@ -139,14 +142,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           token.image = user.image;
         }
       }
-      
 
       if (token.sub && !token.email) {
         try {
           const dbUser = await db.user.findUnique({
             where: { id: token.sub },
           });
-          
+
           if (dbUser) {
             token.email = dbUser.email;
             token.name = dbUser.name;
@@ -158,12 +160,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           console.error("Error refreshing token:", error);
         }
       }
-      
+
       return token;
     },
-    
+
     async session({ session, token }) {
-      
       if (token) {
         session.user.id = token.sub!;
         session.user.email = token.email!;
@@ -172,30 +173,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.lastName = token.lastName as string;
         session.user.image = token.image as string;
       }
-      
+
       return session;
     },
   },
-  
-  
 });
 
-  // Add events for debugging
-  // events: {
-  //   async signIn({ user, account, profile }) {
-  //     console.log("Sign in event:", { user, account, profile });
-  //   },
-  //   async signOut(event) {
-  //     // event can be { session } or { token }
-  //     if ("token" in event) {
-  //       console.log("Sign out event (token):", { token: event.token });
-  //     } else if ("session" in event) {
-  //       console.log("Sign out event (session):", { session: event.session });
-  //     } else {
-  //       console.log("Sign out event: unknown event", event);
-  //     }
-  //   },
-  //   async session({ session, token }) {
-  //     console.log("Session event:", { session, token });
-  //   },
-  // },
+// Add events for debugging
+// events: {
+//   async signIn({ user, account, profile }) {
+//     console.log("Sign in event:", { user, account, profile });
+//   },
+//   async signOut(event) {
+//     // event can be { session } or { token }
+//     if ("token" in event) {
+//       console.log("Sign out event (token):", { token: event.token });
+//     } else if ("session" in event) {
+//       console.log("Sign out event (session):", { session: event.session });
+//     } else {
+//       console.log("Sign out event: unknown event", event);
+//     }
+//   },
+//   async session({ session, token }) {
+//     console.log("Session event:", { session, token });
+//   },
+// },
