@@ -10,49 +10,48 @@ import {
   SortOption,
 } from "@/lib/product-utils";
 import { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
 type SearchPageProps = {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
+  searchParams: Record<string, string | string[] | undefined>;
 };
 
 export async function generateMetadata({
   searchParams,
-}: {
-  searchParams: Record<string, string | string[] | undefined>;
-}): Promise<Metadata> {
+}: SearchPageProps): Promise<Metadata> {
+  const t = await getTranslations("common"); 
   const query = typeof searchParams.q === "string" ? searchParams.q.trim() : "";
-  const title = query ? `Search results for "${query}"` : "Search";
+  const title = query ? `${t("searchResults")} "${query}"` : t("search");
 
   return {
     title,
-    description: `Search results for: ${query}`,
+    description: `${t("searchResults")}: ${query}`,
   };
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const resolvedSearchParams = await searchParams;
-
-  const rawQuery = resolvedSearchParams["q"];
+  const t = await getTranslations();
+  const rawQuery = searchParams["q"];
   const query = typeof rawQuery === "string" ? rawQuery.trim() : "";
 
   if (!query || query.length < 1) return notFound();
 
-  const sortOption = (resolvedSearchParams["sort"] as SortOption) || "featured";
+  const sortOption = (searchParams["sort"] as SortOption) || "featured";
   const filters: FilterOptions = {};
 
-  if (resolvedSearchParams["availability"]) {
-    filters.availability = resolvedSearchParams["availability"] as
+  if (searchParams["availability"]) {
+    filters.availability = searchParams["availability"] as
       | "in-stock"
       | "out-of-stock";
   }
 
-  if (resolvedSearchParams["priceFrom"] || resolvedSearchParams["priceTo"]) {
+  if (searchParams["priceFrom"] || searchParams["priceTo"]) {
     filters.priceRange = {
-      from: resolvedSearchParams["priceFrom"]
-        ? Number(resolvedSearchParams["priceFrom"])
+      from: searchParams["priceFrom"]
+        ? Number(searchParams["priceFrom"])
         : 0,
-      to: resolvedSearchParams["priceTo"]
-        ? Number(resolvedSearchParams["priceTo"])
+      to: searchParams["priceTo"]
+        ? Number(searchParams["priceTo"])
         : 3000,
     };
   }
@@ -83,13 +82,13 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   return (
     <section className="flex flex-col items-center m-6">
       <h1 className="text-3xl font-light mb-4">
-        Search results for: “{query}”
+        {t("searchResults")} “{query}”
       </h1>
 
       <SearchInput isSearchPage={true} />
       {processedProducts.length === 0 ? (
         <div className="flex justify-center items-center h-[50vh] w-full">
-          <p className="text-gray-500 text-xl">No products found.</p>
+          <p className="text-gray-500 text-xl">{t("noProductsFound")}</p>
         </div>
       ) : (
         <div className="flex flex-col gap-5 mt-5">
