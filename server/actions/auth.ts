@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { db } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import { signIn } from "@/auth";
+import { auth, signIn } from "@/auth";
 import { AuthError } from "next-auth";
 import { mergeGuestCartWithUserCart } from "./cart"; // Import the merge function
 
@@ -125,7 +125,6 @@ const signupSchema = z.object({
   }),
 });
 
-
 export type LoginState = {
   errors?: {
     email?: string[];
@@ -159,7 +158,6 @@ export type SignupState = {
   redirect?: string;
   success?: boolean;
 };
-
 
 export async function loginAction(
   prevState: LoginState,
@@ -217,14 +215,13 @@ export async function loginAction(
       password,
       redirect: false,
     });
-    
+
     return {
       success: true,
       message: "Login successful!",
       toastType: "success",
       redirect: "/account",
     };
-
   } catch (error) {
     console.error("Login error:", error);
     if (error instanceof AuthError) {
@@ -324,10 +321,12 @@ export async function signupAction(
   }
 }
 
-
 export async function handleGoogleSignIn() {
   await signIn("google", { redirectTo: "/" });
-  
+  const session = await auth();
+  if (session?.user) {
+    await mergeGuestCartWithUserCart(session?.user?.id);
+  }
 }
 
 import { signOut } from "@/auth";
