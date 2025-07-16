@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { useTranslations } from "next-intl";
 
 import {
   Sheet,
@@ -15,6 +16,7 @@ import FilterIcon from "@/public/assets/filter-alt-2-svgrepo-com.svg";
 import FilterOptions from "./FilterOptions";
 
 export default function FilterList() {
+  const t = useTranslations('filters');
   const [open, setOpen] = useState(false);
   const isDesktop = useMediaQuery("(min-width:1024px)");
 
@@ -27,14 +29,14 @@ export default function FilterList() {
               <span>
                 <FilterIcon />
               </span>
-              Filter
+              {t('filter')}
             </Button>
           </SheetTrigger>
 
           <SheetContent side="left" className="text-primary overflow-y-auto">
             <SheetHeader>
               <SheetTitle className="text-2xl tracking-widest uppercase font-light">
-                Filter
+                {t('filter')}
               </SheetTitle>
             </SheetHeader>
             <Accordion

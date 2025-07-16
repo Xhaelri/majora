@@ -4,11 +4,11 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import AvailabilityPing from "@/components/ui-custom/Availability";
-import { FullProduct } from "@/types/product"; // Ensure this type is correct
+import { FullProduct } from "@/types/product"; 
 import formatPrice from "@/utils/formatPrice";
 import ProductDetailsCarousel from "./components/ProductDetailsCarousel";
 import AddToCartButton from "./components/AddToCartButton";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 type Image = {
   url: string;
@@ -31,7 +31,7 @@ type Props = {
 const ProductDetails = ({ product }: Props) => {
   const router = useRouter();
   const searchParams = useSearchParams();
-
+  const t = useTranslations();
   const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
 
   // Effect to initialize state and sync FROM the URL (e.g., on load or back/forward)
@@ -141,7 +141,7 @@ const ProductDetails = ({ product }: Props) => {
             </div>
             {product.salePrice && (
               <h2 className="text-red-500 text-nowrap text-lg">
-                SAVE {formatPrice(discountAmount)}
+                {t("product.save")} {formatPrice(discountAmount)}
               </h2>
             )}
           </div>
@@ -150,7 +150,7 @@ const ProductDetails = ({ product }: Props) => {
           <div className="flex flex-col items-center md:items-start gap-5 pt-15">
             <div className="flex flex-col items-center md:items-start">
               <h1 className="text-lg tracking-widest font-extralight uppercase py-5">
-                Size
+                {t("product.size")}
               </h1>
               <div className="space-x-3">
                 {uniqueSizes.map((size) => {
@@ -181,7 +181,7 @@ const ProductDetails = ({ product }: Props) => {
             {selectedVariant?.size && (
               <div className="flex flex-col items-center md:items-start">
                 <h1 className="text-lg tracking-widest font-extralight uppercase py-5">
-                  Color
+                  {t("product.color")}
                 </h1>
                 <div className="space-x-3">
                   {getAvailableColorsForSize(selectedVariant.size.id).map(
@@ -219,14 +219,14 @@ const ProductDetails = ({ product }: Props) => {
                 {selectedVariant.stock < 5 && selectedVariant.stock > 0 ? (
                   <span className="flex items-center gap-2 text-primary">
                     <AvailabilityPing available={false} />
-                    Low Stock – {selectedVariant.stock} item
-                    {selectedVariant.stock === 1 ? "" : "s"} left
+                    {t("product.lowStock")} – {selectedVariant.stock} {t("product.item")}
+                    {selectedVariant.stock === 1 ? "" : t("product.items")} {t("product.left")}
                   </span>
                 ) : selectedVariant.stock > 0 ? (
                   <div className="flex items-center gap-2">
                     <AvailabilityPing available={true} />
                     <span className="text-primary">
-                      In stock, ready to ship
+                      {t("product.inStockReady")}
                     </span>
                   </div>
                 ) : null}
@@ -240,14 +240,14 @@ const ProductDetails = ({ product }: Props) => {
               <AddToCartButton productVariantId={selectedVariant?.id || ""} />
             ) : (
               <Button variant={"cartAdd"} size={"cartAdd"} disabled>
-                SOLD OUT
+                {t("product.soldOut")}
               </Button>
             )}
           </div>
           <div className="pt-5">
             {(selectedVariant?.stock ?? 0) > 0 && (
               <Button variant={"cartBuyNow"} size={"cartBuyNow"}>
-                BUY IT NOW
+                {t("product.buyItNow")}
               </Button>
             )}
           </div>

@@ -4,8 +4,11 @@ import Image from "next/image";
 import React from "react";
 import Form from "./Form";
 import GoogleSign from "../Google-Sign";
+import { getTranslations } from "next-intl/server";
 
-function SignupPage() {
+async function SignupPage() {
+  const t = await getTranslations('auth.signup');
+  
   return (
     <main className="container pt-0 md:pt-20">
       <section className="flex flex-col md:flex-row gap-15">
@@ -17,13 +20,13 @@ function SignupPage() {
           />
         </div>
         <div className="w-full md:w-1/2 flex flex-col items-center justify-center">
-          <h1 className="text-primary font-bold text-5xl tracking-widest p-10">Register</h1>
+          <h1 className="text-primary font-bold text-5xl tracking-widest p-10">{t('title')}</h1>
           <Form />
           <GoogleSign />
           <p className="mt-2 flex items-center justify-center text-primary text-sm gap-3">
-            <span>Already have an account?</span>
+            <span>{t('haveAccount')}</span>
             <Link href={"/signin"} className="underline">
-              Login
+              {t('login')}
             </Link>
           </p>
         </div>

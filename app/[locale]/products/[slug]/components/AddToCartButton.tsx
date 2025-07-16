@@ -3,6 +3,7 @@ import Check from "@/public/assets/check.svg";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 export default function AddToCartButton({
   productVariantId,
@@ -11,6 +12,7 @@ export default function AddToCartButton({
   productVariantId: string;
   quantity?: number;
 }) {
+  const t = useTranslations(); 
   const { addToCartOptimistic, isMutating } = useCart(); 
 
   const handleClick = async () => {
@@ -22,13 +24,13 @@ export default function AddToCartButton({
           <div className="bg-black text-white w-full px-4 py-3 text-sm rounded-none flex items-center justify-center gap-2">
             <Check />
             <p className="font-semibold uppercase">
-              Item added to shopping bag
+              {t("product.itemAddedToCart")}
             </p>
           </div>
         ));
       } catch (error) {
         console.log(error);
-        toast.error("Failed to add item to cart. Please try again.");
+        toast.error(t("product.addToCartError"));
       }
   };
 
@@ -39,7 +41,7 @@ export default function AddToCartButton({
       onClick={handleClick}
       disabled={isMutating} 
     >
-      {isMutating ? "Adding..." : "Add to Cart"}
+      {isMutating ? t("product.adding") : t("product.addToCart")}
     </Button>
   );
 }

@@ -26,5 +26,116 @@
     "heading": "عفواً",
     "message": "هذه الصفحة غير متوفرة!",
     "returnHome": "العودة إلى الصفحة الرئيسية"
+  },
+  "Footer": {
+    "socialMedia": {
+      "instagram": "انستجرام",
+      "facebook": "فيسبوك",
+      "tiktok": "تيك توك"
+    },
+    "legal": {
+      "termsAndConditions": "الشروط والأحكام",
+      "privacyPolicy": "سياسة الخصوصية"
+    },
+    "copyright": "جميع الحقوق محفوظة"
+  },
+  "MobileMenu": {
+    "account": "الحساب",
+    "login": "تسجيل الدخول",
+    "createAccount": "إنشاء حساب"
+  },
+  "Common": {
+    "viewAll": "عرض الكل"
+  },
+  "filters": {
+    "filter": "تصفية",
+    "price": "السعر",
+    "availability": "التوفر",
+    "inStock": "متوفر",
+    "outOfStock": "غير متوفر",
+    "minPrice": "الحد الأدنى",
+    "maxPrice": "الحد الأقصى"
+  },
+  "sort": {
+    "sortBy": "ترتيب حسب",
+    "sortingOptions": "خيارات الترتيب",
+    "featured": "مميز",
+    "nameAsc": "أبجدياً، أ-ي",
+    "nameDesc": "أبجدياً، ي-أ",
+    "priceAsc": "السعر، من الأقل إلى الأكثر",
+    "priceDesc": "السعر، من الأكثر إلى الأقل",
+    "dateDesc": "التاريخ، من الجديد إلى القديم",
+    "dateAsc": "التاريخ، من القديم إلى الجديد"
+  },
+  "product": {
+    "save": "وفر",
+    "size": "المقاس",
+    "color": "اللون",
+    "lowStock": "مخزون منخفض",
+    "item": "قطعة",
+    "items": "قطع",
+    "left": "متبقية",
+    "inStockReady": "متوفر، جاهز للشحن",
+    "soldOut": "نفد المخزون",
+    "addToCart": "أضف إلى حقيبة التسوق",
+    "adding": "جاري الإضافة...",
+    "buyItNow": "اشتري الآن",
+    "itemAddedToCart": "تم إضافة العنصر إلى حقيبة التسوق",
+    "addToCartError": "فشل في إضافة العنصر إلى العربة. يرجى المحاولة مرة أخرى."
+  },
+  "auth": {
+    "signin": {
+      "title": "تسجيل الدخول",
+      "email": "البريد الإلكتروني",
+      "password": "كلمة المرور",
+      "login": "تسجيل الدخول",
+      "loggingIn": "جاري تسجيل الدخول...",
+      "loginSuccessful": "تم تسجيل الدخول بنجاح!",
+      "noAccount": "ليس لديك حساب؟",
+      "signUp": "إنشاء حساب",
+      "continueWithGoogle": "المتابعة مع Google",
+      "accountCreated": "تم إنشاء الحساب بنجاح!",
+      "errors": {
+        "emailRequired": "البريد الإلكتروني مطلوب.",
+        "emailInvalid": "صيغة البريد الإلكتروني غير صحيحة. تأكد من أنها تبدو مثل 'example@domain.com'.",
+        "passwordRequired": "كلمة المرور مطلوبة.",
+        "passwordMinLength": "كلمة المرور يجب أن تكون على الأقل 6 أحرف.",
+        "invalidFields": "حقول مفقودة أو غير صحيحة. فشل في تسجيل الدخول.",
+        "invalidCredentials": "بيانات اعتماد غير صحيحة.",
+        "authFailed": "فشل في المصادقة.",
+        "somethingWrong": "حدث خطأ ما."
+      }
+    },
+    "signup": {
+      "title": "إنشاء حساب",
+      "firstName": "الاسم الأول",
+      "lastName": "اسم العائلة",
+      "email": "البريد الإلكتروني",
+      "password": "كلمة المرور",
+      "signUp": "إنشاء حساب",
+      "signingUp": "جاري إنشاء الحساب...",
+      "haveAccount": "لديك حساب بالفعل؟",
+      "login": "تسجيل الدخول",
+      "continueWithGoogle": "المتابعة مع Google",
+      "accountCreated": "تم إنشاء الحساب بنجاح!",
+      "errors": {
+        "firstNameMinLength": "الاسم الأول يجب أن يكون على الأقل حرفين.",
+        "firstNameMaxLength": "الاسم الأول يجب أن يكون أقل من 50 حرفاً.",
+        "firstNameLettersOnly": "الاسم الأول يمكن أن يحتوي على حروف فقط (a-z، A-Z).",
+        "lastNameMinLength": "اسم العائلة يجب أن يكون على الأقل حرفين.",
+        "lastNameMaxLength": "اسم العائلة يجب أن يكون أقل من 50 حرفاً.",
+        "lastNameLettersOnly": "اسم العائلة يمكن أن يحتوي على حروف فقط (a-z، A-Z).",
+        "emailRequired": "البريد الإلكتروني مطلوب.",
+        "emailInvalid": "صيغة البريد الإلكتروني غير صحيحة. مثال: 'yourname@example.com'.",
+        "passwordMinLength8": "كلمة المرور يجب أن تكون على الأقل 8 أحرف.",
+        "passwordLowercase": "كلمة المرور يجب أن تحتوي على حرف صغير واحد على الأقل.",
+        "passwordUppercase": "كلمة المرور يجب أن تحتوي على حرف كبير واحد على الأقل.",
+        "passwordNumber": "كلمة المرور يجب أن تحتوي على رقم واحد على الأقل.",
+        "passwordSpecialChar": "كلمة المرور يجب أن تحتوي على رمز خاص واحد على الأقل (مثل !@#$%^&*).",
+        "invalidFields": "حقول مفقودة أو غير صحيحة. فشل في إنشاء الحساب.",
+        "userExists": "يوجد مستخدم بهذا البريد الإلكتروني بالفعل.",
+        "dbError": "خطأ في قاعدة البيانات: فشل في إنشاء الحساب."
+      }
+    }
   }
 }

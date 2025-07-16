@@ -8,14 +8,13 @@ import { getTranslations } from "next-intl/server";
 
 const Bottoms = async () => {
   const products = (await getProductsByCategory("bottoms")) ?? [];
-  const t = await getTranslations()
+  const t = await getTranslations();
 
-  
   return (
     <section className="flex flex-col items-center gap-15">
       <div className="flex flex-col items-center justify-center space-y-5">
-      <SectionTitle>{t(mobileMenue[2].title)}</SectionTitle>
-        <Button variant={"section"}>View All</Button>
+        <SectionTitle>{t(mobileMenue[2].title)}</SectionTitle>
+        <Button variant={"section"}>{t("Common.viewAll")}</Button>
       </div>
       <CardGrid products={products} isProductsPage={false} />
     </section>

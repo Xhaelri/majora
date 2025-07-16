@@ -12,16 +12,18 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useCart } from "@/context/CartContext";
 import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 
 const initialState: LoginState = { message: "", errors: {} };
 
 function Form() {
-   const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [state, dispatch] = useActionState(loginAction, initialState);
   const { pending } = useFormStatus();
   const { refreshCart } = useCart();
   const router = useRouter();
   const { update } = useSession();
+  const t = useTranslations('auth.signin');
   
   // Use ref to track if we've already handled this success
   const processedSuccess = useRef(false);
@@ -38,7 +40,7 @@ function Form() {
         toast.custom(() => (
           <div className="bg-black text-white w-full px-4 py-3 text-sm rounded-none flex items-center justify-center gap-2">
             <Check />
-            <p className="font-semibold uppercase">Login successful!</p>
+            <p className="font-semibold uppercase">{t('loginSuccessful')}</p>
           </div>
         ));
         
@@ -70,6 +72,7 @@ function Form() {
     state.message,
     state.toastType,
     state.redirect,
+    t,
     // Note: We don't include update, refreshCart, or router in deps
     // because they're stable references and including them would cause
     // unnecessary re-runs
@@ -85,7 +88,7 @@ function Form() {
               id="email"
               name="email"
               type="email"
-              placeholder="Email"
+              placeholder={t('email')}
               className="border-0 focus-visible:ring-0 shadow-none"
               aria-describedby="email-error"
               defaultValue={state?.values?.email || ""}
@@ -108,7 +111,7 @@ function Form() {
               id="password"
               name="password"
               type={showPassword ? "text" : "password"}
-              placeholder="Password"
+              placeholder={t('password')}
               className="border-0 focus-visible:ring-0 shadow-none"
               aria-describedby="password-error"
               defaultValue={state?.values?.password || ""}
@@ -137,7 +140,7 @@ function Form() {
           size={"login"}
           disabled={pending}
         >
-          {pending ? "Logging in..." : "Login"}
+          {pending ? t('loggingIn') : t('login')}
         </Button>
       </form>
     </div>

@@ -8,6 +8,7 @@ import { useFormStatus } from "react-dom";
 import { signupAction, type SignupState } from "@/server/actions/auth";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 const initialState: SignupState = { message: "", errors: {} };
 
@@ -15,6 +16,7 @@ function Form() {
   const [showPassword, setShowPassword] = useState(false);
   const [state, dispatch] = useActionState(signupAction, initialState);
   const { pending } = useFormStatus();
+  const t = useTranslations('auth.signup');
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -46,7 +48,7 @@ function Form() {
                 id="firstName"
                 name="firstName"
                 type="text"
-                placeholder="First Name"
+                placeholder={t('firstName')}
                 className="border-0 focus-visible:ring-0 shadow-none"
                 aria-describedby="firstName-error"
                 defaultValue={state?.values?.firstName || ""}
@@ -69,7 +71,7 @@ function Form() {
                 id="lastName"
                 name="lastName"
                 type="text"
-                placeholder="Last Name"
+                placeholder={t('lastName')}
                 className="border-0 focus-visible:ring-0 shadow-none"
                 aria-describedby="lastName-error"
                 defaultValue={state?.values?.lastName || ""}
@@ -93,7 +95,7 @@ function Form() {
               id="email"
               name="email"
               type="email"
-              placeholder="Email"
+              placeholder={t('email')}
               className="border-0 focus-visible:ring-0 shadow-none"
               aria-describedby="email-error"
               defaultValue={state?.values?.email || ""}
@@ -116,7 +118,7 @@ function Form() {
               id="password"
               name="password"
               type={showPassword ? "text" : "password"}
-              placeholder="Password"
+              placeholder={t('password')}
               className="border-0 focus-visible:ring-0 shadow-none"
               aria-describedby="password-error"
               defaultValue={state?.values?.password || ""}
@@ -145,7 +147,7 @@ function Form() {
           size={"login"}
           disabled={pending}
         >
-          {pending ? "Signing up..." : "Sign Up"}
+          {pending ? t('signingUp') : t('signUp')}
         </Button>
       </div>
     </form>

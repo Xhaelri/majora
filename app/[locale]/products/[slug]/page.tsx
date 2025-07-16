@@ -2,10 +2,10 @@ import { getProductBySlug, getAllProductSlugs } from "@/server/db/prisma";
 import { notFound } from "next/navigation";
 import ProductDetails from "./ProductDetails";
 
-export const revalidate = 3600; // ISR: Revalidate every hour (3600 seconds)
+export const revalidate = 3600;
 
 export async function generateStaticParams() {
-  const slugs = await getAllProductSlugs(); // Fetch all slugs from the database
+  const slugs = await getAllProductSlugs(); 
   return slugs.map((slug) => ({
     slug,
   }));

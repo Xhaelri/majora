@@ -5,48 +5,50 @@ import { db } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { auth, signIn } from "@/auth";
 import { AuthError } from "next-auth";
-import { mergeGuestCartWithUserCart } from "./cart"; // Import the merge function
+import { mergeGuestCartWithUserCart } from "./cart";
+import { getTranslations } from "next-intl/server";
 
-// Validation schemas (keeping your existing ones)
-const loginSchema = z.object({
+
+type TranslationFunction = Awaited<ReturnType<typeof getTranslations>>;
+
+const createLoginSchema = (t: TranslationFunction) => z.object({
   email: z
     .string()
-    .min(1, "Email is required.")
+    .min(1, t("errors.emailRequired"))
     .superRefine((val, ctx) => {
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message:
-            "Email format is invalid. Make sure it looks like 'example@domain.com'.",
+          message: t("errors.emailInvalid"),
         });
       }
     }),
   password: z
     .string()
-    .min(1, "Password is required.")
-    .min(6, "Password must be at least 6 characters long."),
+    .min(1, t("errors.passwordRequired"))
+    .min(6, t("errors.passwordMinLength")),
 });
 
-const signupSchema = z.object({
+const createSignupSchema = (t: TranslationFunction) => z.object({
   firstName: z.string().superRefine((val, ctx) => {
     if (val.length < 2) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "First name must be at least 2 characters long.",
+        message: t("errors.firstNameMinLength"),
       });
       return;
     }
     if (val.length > 50) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "First name must be less than 50 characters long.",
+        message: t("errors.firstNameMaxLength"),
       });
       return;
     }
     if (!/^[a-zA-Z]+$/.test(val)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "First name can only contain letters (a-z, A-Z).",
+        message: t("errors.firstNameLettersOnly"),
       });
     }
   }),
@@ -55,33 +57,33 @@ const signupSchema = z.object({
     if (val.length < 2) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Last name must be at least 2 characters long.",
+        message: t("errors.lastNameMinLength"),
       });
       return;
     }
     if (val.length > 50) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Last name must be less than 50 characters long.",
+        message: t("errors.lastNameMaxLength"),
       });
       return;
     }
     if (!/^[a-zA-Z]+$/.test(val)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Last name can only contain letters (a-z, A-Z).",
+        message: t("errors.lastNameLettersOnly"),
       });
     }
   }),
 
   email: z
     .string()
-    .min(1, "Email is required.")
+    .min(1, t("errors.emailRequired"))
     .superRefine((val, ctx) => {
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "Email format is invalid. Example: 'yourname@example.com'.",
+          message: t("errors.emailInvalid"),
         });
       }
     }),
@@ -90,36 +92,35 @@ const signupSchema = z.object({
     if (val.length < 8) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Password must be at least 8 characters long.",
+        message: t("errors.passwordMinLength8"),
       });
       return;
     }
     if (!/[a-z]/.test(val)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Password must contain at least one lowercase letter.",
+        message: t("errors.passwordLowercase"),
       });
       return;
     }
     if (!/[A-Z]/.test(val)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Password must contain at least one uppercase letter.",
+        message: t("errors.passwordUppercase"),
       });
       return;
     }
     if (!/\d/.test(val)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Password must contain at least one number.",
+        message: t("errors.passwordNumber"),
       });
       return;
     }
     if (!/[@$!%*?&]/.test(val)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message:
-          "Password must contain at least one special character (e.g., !@#$%^&*).",
+        message: t("errors.passwordSpecialChar"),
       });
     }
   }),
@@ -163,6 +164,8 @@ export async function loginAction(
   prevState: LoginState,
   formData: FormData
 ): Promise<LoginState> {
+  const t = await getTranslations('auth.signin');
+  
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
@@ -171,6 +174,7 @@ export async function loginAction(
     password: password || "",
   };
 
+  const loginSchema = createLoginSchema(t);
   const validatedFields = loginSchema.safeParse({
     email,
     password,
@@ -180,7 +184,7 @@ export async function loginAction(
     return {
       errors: validatedFields.error.flatten().fieldErrors,
       values: formValues,
-      message: "Missing or invalid fields. Failed to login.",
+      message: t("errors.invalidFields"),
     };
   }
 
@@ -192,7 +196,7 @@ export async function loginAction(
     if (!user || !user.password || user.isGuest) {
       return {
         values: formValues,
-        message: "Invalid credentials.",
+        message: t("errors.invalidCredentials"),
         toastType: "error",
       };
     }
@@ -202,7 +206,7 @@ export async function loginAction(
     if (!passwordMatch) {
       return {
         values: formValues,
-        message: "Invalid credentials.",
+        message: t("errors.invalidCredentials"),
         toastType: "error",
       };
     }
@@ -217,7 +221,7 @@ export async function loginAction(
 
     return {
       success: true,
-      message: "Login successful!",
+      message: t("loginSuccessful"),
       toastType: "success",
       redirect: "/account",
     };
@@ -226,13 +230,13 @@ export async function loginAction(
     if (error instanceof AuthError) {
       return {
         values: formValues,
-        message: "Authentication failed.",
+        message: t("errors.authFailed"),
         toastType: "error",
       };
     }
     return {
       values: formValues,
-      message: "Something went wrong.",
+      message: t("errors.somethingWrong"),
       toastType: "error",
     };
   }
@@ -242,6 +246,8 @@ export async function signupAction(
   prevState: SignupState,
   formData: FormData
 ): Promise<SignupState> {
+  const t = await getTranslations('auth.signup');
+  
   const firstName = formData.get("firstName") as string;
   const lastName = formData.get("lastName") as string;
   const email = formData.get("email") as string;
@@ -254,6 +260,7 @@ export async function signupAction(
     password: password || "",
   };
 
+  const signupSchema = createSignupSchema(t);
   const validatedFields = signupSchema.safeParse({
     firstName,
     lastName,
@@ -265,7 +272,7 @@ export async function signupAction(
     return {
       errors: validatedFields.error.flatten().fieldErrors,
       values: formValues,
-      message: "Missing or invalid fields. Failed to create account.",
+      message: t("errors.invalidFields"),
     };
   }
 
@@ -277,7 +284,7 @@ export async function signupAction(
     if (existingUser && !existingUser.isGuest) {
       return {
         values: formValues,
-        message: "A user with this email already exists.",
+        message: t("errors.userExists"),
         toastType: "error",
       };
     }
@@ -305,7 +312,7 @@ export async function signupAction(
 
     return {
       success: true,
-      message: "Account created successfully!",
+      message: t("accountCreated"),
       toastType: "success",
       redirect: "/signin",
     };
@@ -313,7 +320,7 @@ export async function signupAction(
     console.error("Signup error:", error);
     return {
       values: formValues,
-      message: "Database error: Failed to create account.",
+      message: t("errors.dbError"),
       toastType: "error",
     };
   }

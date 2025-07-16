@@ -26,5 +26,116 @@
     "heading": "Oops",
     "message": "This page is not available!",
     "returnHome": "Return to Home"
+  },
+  "Footer": {
+    "socialMedia": {
+      "instagram": "INSTAGRAM",
+      "facebook": "FACEBOOK",
+      "tiktok": "TIKTOK"
+    },
+    "legal": {
+      "termsAndConditions": "TERMS AND CONDITIONS",
+      "privacyPolicy": "PRIVACY AND POLICY"
+    },
+    "copyright": "All rights reserved"
+  },
+  "MobileMenu": {
+    "account": "Account",
+    "login": "Login",
+    "createAccount": "Create Account"
+  },
+  "Common": {
+    "viewAll": "View All"
+  },
+  "filters": {
+    "filter": "Filter",
+    "price": "Price",
+    "availability": "Availability",
+    "inStock": "In Stock",
+    "outOfStock": "Out of Stock",
+    "minPrice": "Min",
+    "maxPrice": "Max"
+  },
+  "sort": {
+    "sortBy": "Sort by",
+    "sortingOptions": "Sorting Options",
+    "featured": "Featured",
+    "nameAsc": "Alphabetically, A-Z",
+    "nameDesc": "Alphabetically, Z-A",
+    "priceAsc": "Price, low to high",
+    "priceDesc": "Price, high to low",
+    "dateDesc": "Date, new to old",
+    "dateAsc": "Date, old to new"
+  },
+  "product": {
+    "save": "SAVE",
+    "size": "Size",
+    "color": "Color",
+    "lowStock": "Low Stock",
+    "item": "item",
+    "items": "items",
+    "left": "left",
+    "inStockReady": "In stock, ready to ship",
+    "soldOut": "SOLD OUT",
+    "addToCart": "Add to Cart",
+    "adding": "Adding...",
+    "buyItNow": "BUY IT NOW",
+    "itemAddedToCart": "Item added to shopping bag",
+    "addToCartError": "Failed to add item to cart. Please try again."
+  },
+  "auth": {
+    "signin": {
+      "title": "Log In",
+      "email": "Email",
+      "password": "Password",
+      "login": "Login",
+      "loggingIn": "Logging in...",
+      "loginSuccessful": "Login successful!",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign Up",
+      "continueWithGoogle": "Continue with Google",
+      "accountCreated": "Account created successfully!",
+      "errors": {
+        "emailRequired": "Email is required.",
+        "emailInvalid": "Email format is invalid. Make sure it looks like 'example@domain.com'.",
+        "passwordRequired": "Password is required.",
+        "passwordMinLength": "Password must be at least 6 characters long.",
+        "invalidFields": "Missing or invalid fields. Failed to login.",
+        "invalidCredentials": "Invalid credentials.",
+        "authFailed": "Authentication failed.",
+        "somethingWrong": "Something went wrong."
+      }
+    },
+    "signup": {
+      "title": "Register",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "password": "Password",
+      "signUp": "Sign Up",
+      "signingUp": "Signing up...",
+      "haveAccount": "Already have an account?",
+      "login": "Login",
+      "continueWithGoogle": "Continue with Google",
+      "accountCreated": "Account created successfully!",
+      "errors": {
+        "firstNameMinLength": "First name must be at least 2 characters long.",
+        "firstNameMaxLength": "First name must be less than 50 characters long.",
+        "firstNameLettersOnly": "First name can only contain letters (a-z, A-Z).",
+        "lastNameMinLength": "Last name must be at least 2 characters long.",
+        "lastNameMaxLength": "Last name must be less than 50 characters long.",
+        "lastNameLettersOnly": "Last name can only contain letters (a-z, A-Z).",
+        "emailRequired": "Email is required.",
+        "emailInvalid": "Email format is invalid. Example: 'yourname@example.com'.",
+        "passwordMinLength8": "Password must be at least 8 characters long.",
+        "passwordLowercase": "Password must contain at least one lowercase letter.",
+        "passwordUppercase": "Password must contain at least one uppercase letter.",
+        "passwordNumber": "Password must contain at least one number.",
+        "passwordSpecialChar": "Password must contain at least one special character (e.g., !@#$%^&*).",
+        "invalidFields": "Missing or invalid fields. Failed to create account.",
+        "userExists": "A user with this email already exists.",
+        "dbError": "Database error: Failed to create account."
+      }
+    }
   }
 }

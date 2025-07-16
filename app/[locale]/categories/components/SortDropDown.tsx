@@ -12,8 +12,10 @@ import * as SelectPrimitive from "@radix-ui/react-select";
 import { ChevronDown } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
+import { useTranslations } from "next-intl";
 
 export default function SortDropDown() {
+  const t = useTranslations('sort');
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -39,21 +41,21 @@ export default function SortDropDown() {
           "w-44"
         )}
       >
-        <SelectValue placeholder="Sort by" />
+        <SelectValue placeholder={t('sortBy')} />
         <SelectPrimitive.Icon asChild>
           <ChevronDown className="h-4 w-4 opacity-50" />
         </SelectPrimitive.Icon>
       </SelectPrimitive.Trigger>
       <SelectContent>
         <SelectGroup>
-          <SelectLabel>Sorting Options</SelectLabel>
-          <SelectItem value="featured">Featured</SelectItem>
-          <SelectItem value="name-asc">Alphabetically, A-Z</SelectItem>
-          <SelectItem value="name-desc">Alphabetically, Z-A</SelectItem>
-          <SelectItem value="price-asc">Price, low to high</SelectItem>
-          <SelectItem value="price-desc">Price, high to low</SelectItem>
-          <SelectItem value="date-desc">Date, new to old</SelectItem>
-          <SelectItem value="date-asc">Date, old to new</SelectItem>
+          <SelectLabel>{t('sortingOptions')}</SelectLabel>
+          <SelectItem value="featured">{t('featured')}</SelectItem>
+          <SelectItem value="name-asc">{t('nameAsc')}</SelectItem>
+          <SelectItem value="name-desc">{t('nameDesc')}</SelectItem>
+          <SelectItem value="price-asc">{t('priceAsc')}</SelectItem>
+          <SelectItem value="price-desc">{t('priceDesc')}</SelectItem>
+          <SelectItem value="date-desc">{t('dateDesc')}</SelectItem>
+          <SelectItem value="date-asc">{t('dateAsc')}</SelectItem>
         </SelectGroup>
       </SelectContent>
     </Select>

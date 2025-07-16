@@ -16,7 +16,7 @@ const Dresses = async () => {
     <section className="flex flex-col items-center gap-15">
       <div className="flex flex-col items-center justify-center space-y-5">
         <SectionTitle>{t(mobileMenue[3].title)}</SectionTitle>
-        <Button variant={"section"}>View All</Button>
+        <Button variant={"section"}>{t("Common.viewAll")}</Button>
       </div>
       <CardGrid products={products} isProductsPage={false} />
     </section>
