@@ -62,7 +62,7 @@ const Card = ({ productData }: CardProps) => {
               className="object-cover "
             />
           </div>
-          <h1 className="text-md font-light  md:tracking-[2px] text-center h-11 line-clamp-2 break-all uppercase">
+          <h1 className={`text-md font-light  ${isRTL?"font-medium":"md:tracking-[2px]"} text-center h-11 line-clamp-2 break-all uppercase`}>
             {isRTL ? productData.nameAr : productData.name}
           </h1>
           <div className="text-md font-extralight tracking-widest flex flex-col items-center">
@@ -101,7 +101,7 @@ const Card = ({ productData }: CardProps) => {
               className="object-cover"
             />
           </div>
-          <h1 className="text-lg font-extralight tracking-[2px] text-center h-15 overflow-hidden break-all uppercase ">
+          <h1 className={`text-lg font-extralight ${isRTL?" font-medium":"md:tracking-[2px]"} text-center h-15 overflow-hidden break-all uppercase`} >
             {isRTL ? productData.nameAr : productData.name}
           </h1>
           <div className="text-md font-extralight tracking-widest flex flex-col items-center">

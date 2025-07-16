@@ -2,17 +2,17 @@
 
 import { useCart } from "@/context/CartContext";
 import CartItemCard from "./components/CartItemCard";
-import CheckOut from "./components/CheckOut";
+import CartCheckOut from "./components/cart-checkout";
 import useMediaQuery from "@/hooks/useMediaQuery";
 
 export default function CartPage() {
   const { items: cartItems, count } = useCart();
   const isDesktop = useMediaQuery("(min-width:1024px)");
 
-  console.log(cartItems);
+  console.log("CartPage Cart Items:", cartItems); // Debugging log
   return (
     <div className="container">
-      <h1 className=" mb-6 text-sm font-bold uppercase pt-6">
+      <h1 className="mb-6 text-sm font-bold uppercase pt-6">
         Shopping Bag ({count})
       </h1>
 
@@ -29,7 +29,7 @@ export default function CartPage() {
           </div>
           <div className="w-1/4">
             <div className="sticky top-20">
-              <CheckOut cartItems={cartItems} />
+              <CartCheckOut cartItems={cartItems} />
             </div>
           </div>
         </div>
@@ -40,7 +40,7 @@ export default function CartPage() {
               <CartItemCard key={item.id} item={item} />
             ))}
           </div>
-          <CheckOut cartItems={cartItems} />
+          <CartCheckOut cartItems={cartItems} />
         </div>
       )}
     </div>

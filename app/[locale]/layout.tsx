@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Meow_Script } from "next/font/google";
+import { Meow_Script, Noto_Sans_Arabic } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
@@ -14,6 +14,12 @@ const corinthia = Meow_Script({
   subsets: ["latin"],
   weight: ["400"],
   variable: "--font-corinthia",
+  display: "swap",
+});
+const notoSans = Noto_Sans_Arabic({
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  subsets: ["arabic"],
+  variable: "--font-notoSans",
   display: "swap",
 });
 
@@ -42,7 +48,9 @@ export default async function RootLayout({
   return (
     <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
       <body
-        className={`${corinthia.variable} antialiased light min-h-screen flex flex-col`}
+        className={`${corinthia.variable} ${notoSans.variable} ${
+          locale === "ar" ? "font-notoSans" : ""
+        } antialiased light min-h-screen flex flex-col`}
       >
         <NextIntlClientProvider locale={locale} messages={messages}>
           <SessionProvider>

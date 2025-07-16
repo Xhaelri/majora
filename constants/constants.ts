@@ -1,7 +1,7 @@
 import hero1 from "@/public/assets/corey-saldana-pIKQbdSzF_k-unsplash.jpg";
-import hero2 from "@/public/assets/jon-ly-Xn7GvimQrk8-unsplash.jpg";
-import hero3 from "@/public/assets/mike-von-2UTk-Nip5aM-unsplash.jpg";
-import hero4 from "@/public/assets/jon-ly-Xn7GvimQrk8-unsplash.jpg";
+import hero2 from "@/public/assets/mike-von-2UTk-Nip5aM-unsplash.jpg";
+import hero3 from "@/public/assets/xZikpVW1h3o1aOv4qxQ7vSvzQsY7g8qU82IFXqvb.jpg";
+import hero4 from "@/public/assets/39A4817_f08c2cfe-ccd2-49ce-ba2e-d1f93e63ef11_1500x.webp";
 
 export const headerData = [
   { title: "nav.newArrivals", href: "new-arrivals" },
@@ -10,9 +10,7 @@ export const headerData = [
 ];
 
 export const mobileMenue = [
-  { title: "nav.newArrivals", href: "new-arrivals" },
   { title: "nav.topsShirts", href: "tops-shirts" },
-  { title: "nav.kimonosKaftans", href: "kimonos-kaftans" },
   { title: "nav.sets", href: "sets" },
   { title: "nav.bottoms", href: "bottoms" },
   { title: "nav.dresses", href: "dresses" },

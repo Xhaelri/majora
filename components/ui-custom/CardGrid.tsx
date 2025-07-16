@@ -23,7 +23,7 @@ const CardGrid = ({ products, isProductsPage = false }: CardGridProps) => {
   return (
     <div className="overflow-x-hidden container">
       {isDesktop ? (
-        <div className="overflow-x-hidden ">
+        <div className="overflow-hidden ">
           <div className="grid grid-cols-5 sm:gap-3 lg:gap-3 xl:gap-6 2xl:gap-12 w-full ">
             {products.map((product) => (
               <Card key={product.id} productData={product} />
@@ -33,7 +33,7 @@ const CardGrid = ({ products, isProductsPage = false }: CardGridProps) => {
       ) : (
         <>
           {isProductsPage ? (
-            <div className="overflow-x-hidden ">
+            <div className="overflow-hidden ">
               <div
                 className="grid grid-cols-2 gap-4 sm:gap-3 lg:gap-3 xl:gap-6 2xl:gap-12 w-full "
                 style={{ gridTemplateColumns: "repeat(2, minmax(0, 1fr))" }}
@@ -44,10 +44,11 @@ const CardGrid = ({ products, isProductsPage = false }: CardGridProps) => {
               </div>
             </div>
           ) : (
-            <div className="relative">
+            <div className="relative " dir="ltr">
               <Carousel
                 opts={{
                   align: "start",
+                  
                 }}
                 className="w-full"
               >

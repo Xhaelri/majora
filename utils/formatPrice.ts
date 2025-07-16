@@ -3,5 +3,5 @@ export default function formatPrice(price: number): string {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(price);
-  return `LE ${formatted}`;
+  return `EGP ${formatted}`;
 }

@@ -178,3 +178,6 @@ body{
 .font-corinthia {
   font-family: var(--font-corinthia);
 }
+.font-notoSans {
+  font-family: var(--font-notoSans);
+}

@@ -59,7 +59,7 @@ export default function CarouselWithPagination() {
           {heroImages.map((image, index) => (
             <CarouselItem key={index}>
               <Card>
-                <CardContent className="flex aspect-square max-h-[960px] items-center justify-center relative">
+                <CardContent className="flex aspect-square max-h-[900px] items-center justify-center relative">
                   <Image
                     src={image.src}
                     alt={image.alt}
