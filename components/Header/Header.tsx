@@ -5,6 +5,7 @@ import MobileMenu from "./MobileMenu";
 import SearchBar from "./SearchBar";
 import CartIcon from "./CartIcon";
 import UserIcon from "./UserIcon";
+import LanguageSelector from "../ui-custom/Languages";
 
 
 export default function Header() {
@@ -66,6 +67,7 @@ export default function Header() {
               <UserIcon />
               {/* <WhishList /> */}
               <CartIcon />
+              <LanguageSelector/>
             </div>
           </div>
         </div>
