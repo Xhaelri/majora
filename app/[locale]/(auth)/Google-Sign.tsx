@@ -1,12 +1,14 @@
-'use client';
-
-import { Button } from '@/components/ui/button';
-import Google from '@/public/assets/google.svg';
-import { handleGoogleSignIn } from '@/server/actions/auth';
-
+import { signIn } from "@/auth";
+import { Button } from "@/components/ui/button";
+import Google from "@/public/assets/google.svg";
 export default function GoogleSign() {
   return (
-    <form action={handleGoogleSignIn}>
+    <form
+      action={async () => {
+        "use server";
+        await signIn("google", { redirectTo: "/" });
+      }}
+    >
       <Button
         type="submit"
         variant="ghost"
