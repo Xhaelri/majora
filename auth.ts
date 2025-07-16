@@ -5,6 +5,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import Credentials from "next-auth/providers/credentials";
 import { Environments } from "./constants/constants";
 import bcrypt from "bcryptjs";
+import { mergeGuestCartWithUserCart } from "./server/actions/cart";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(db),
@@ -75,7 +76,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async signIn({ user, account, profile }) {
       console.log("signIn callback", { user, account, profile });
-      
+      await mergeGuestCartWithUserCart(user.id);
       if (account?.provider === "google") {
         try {
           const existingUser = await db.user.findUnique({

@@ -4,7 +4,7 @@ import { db } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { revalidatePath, unstable_noStore } from "next/cache";
 import { cookies } from "next/headers";
-import { randomUUID } from "crypto";
+import { nanoid } from "nanoid";
 import { GetCartDataResult } from "@/types/product";
 
 export type GuestCartItem = {
@@ -35,7 +35,7 @@ async function getCartUser() {
     if (guestUser) return guestUser;
   }
 
-  const newAnonymousId = randomUUID();
+  const newAnonymousId = nanoid();
   const guestUser = await db.user.create({
     data: {
       isGuest: true,
@@ -96,8 +96,8 @@ export async function addToCart(productVariantId: string, quantity = 1) {
     });
 
     // Revalidate paths for better cache management
-    revalidatePath("/cart");
-    revalidatePath("/api/cart");
+    // revalidatePath("/cart");
+    // revalidatePath("/api/cart");
     
     return { success: true };
   } catch (error) {

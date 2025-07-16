@@ -41,6 +41,7 @@
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.23.0",
     "lucide-react": "^0.513.0",
+    "nanoid": "^5.1.5",
     "next": "^15.3.2",
     "next-auth": "^5.0.0-beta.29",
     "next-intl": "^4.3.4",

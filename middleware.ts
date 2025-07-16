@@ -1,63 +1,63 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { auth } from "./auth"; // Adjust path to your auth config
-import createMiddleware from "next-intl/middleware";
-import { routing } from "./i18n/routing";
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { auth } from './auth';
+import createIntlMiddleware from 'next-intl/middleware';
+import { routing } from './i18n/routing';
+import { getLocale } from 'next-intl/server';
 
-const intlMiddleware = createMiddleware(routing);
+// Set up next-intl middleware
+const intlMiddleware = createIntlMiddleware(routing);
 
 export default async function middleware(request: NextRequest) {
-  // Get the pathname of the request
   const { pathname } = request.nextUrl;
-  if (pathname.startsWith("/api")) {
-    return NextResponse.next(); // Bypass middleware for /api/* routes
+
+  // Bypass middleware for API, static, and internal files
+  if (
+    pathname.startsWith('/api') ||
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/favicon') ||
+    pathname.includes('.') // static files
+  ) {
+    return NextResponse.next();
   }
-  // Define auth pages that should redirect authenticated users away
-  const authPages = ["/signin", "/signup", "/login", "/register"];
 
-  // Define protected pages that require authentication
-  const protectedPages = ["/account", "/dashboard", "/profile", "/settings"];
+  // Get locale from URL
+  const locale = await getLocale();
 
-  // Check if the current path is an auth page or protected page
-  const isAuthPage = authPages.some((page) => pathname.startsWith(page));
-  const isProtectedPage = protectedPages.some((page) =>
-    pathname.startsWith(page)
+  // Remove locale prefix from pathname
+  const pathWithoutLocale = pathname.replace(`/${locale}`, '');
+
+  const isAuthPage = ['/signin', '/signup', '/login', '/register'].some((page) =>
+    pathWithoutLocale.startsWith(page)
   );
 
-  if (isAuthPage || isProtectedPage) {
-    try {
-      // Get the session
-      const session = await auth();
+  const isProtectedPage = ['/account', '/dashboard', '/profile', '/settings', '/checkout'].some((page) =>
+    pathWithoutLocale.startsWith(page)
+  );
 
-      if (isAuthPage && session?.user) {
-        // If user is authenticated and trying to access auth pages, redirect to account
-        console.log(
-          `Authenticated user accessing ${pathname}, redirecting to /account`
-        );
-        return NextResponse.redirect(new URL("/account", request.url));
-      }
+  try {
+    const session = await auth();
 
-      if (isProtectedPage && !session?.user) {
-        // If user is not authenticated and trying to access protected pages, redirect to signin
-        console.log(
-          `Unauthenticated user accessing ${pathname}, redirecting to /signin`
-        );
-        const signinUrl = new URL("/signin", request.url);
-        // Add the original URL as a callback parameter
-        signinUrl.searchParams.set("callbackUrl", pathname);
-        return NextResponse.redirect(signinUrl);
-      }
-    } catch (error) {
-      console.error("Error in middleware:", error);
-      // If there's an error getting the session:
-      // - For auth pages: allow access (so users can still sign in)
-      // - For protected pages: redirect to signin for safety
-      if (isProtectedPage) {
-        return NextResponse.redirect(new URL("/signin", request.url));
-      }
+    if (isAuthPage && session?.user) {
+      // Authenticated user trying to access login/signup
+      return NextResponse.redirect(new URL(`/${locale}/account`, request.url));
+    }
+
+    if (isProtectedPage && !session?.user) {
+      // Unauthenticated user trying to access protected route
+      const redirectUrl = new URL(`/${locale}/signin`, request.url);
+      redirectUrl.searchParams.set('callbackUrl', pathname);
+      return NextResponse.redirect(redirectUrl);
+    }
+  } catch (error) {
+    console.error('Middleware error:', error);
+    if (isProtectedPage) {
+      const fallbackUrl = new URL(`/${locale}/signin`, request.url);
+      return NextResponse.redirect(fallbackUrl);
     }
   }
 
+  // Apply next-intl locale routing
   return intlMiddleware(request);
 }
 
@@ -77,5 +77,6 @@ export const config = {
     "/dashboard/:path*",
     "/profile/:path*",
     "/settings/:path*",
+    "/checkout/:path*",
   ],
 };

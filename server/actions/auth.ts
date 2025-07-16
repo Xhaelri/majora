@@ -325,6 +325,11 @@ export async function signupAction(
 }
 
 
+export async function handleGoogleSignIn() {
+  await signIn("google", { redirectTo: "/" });
+  
+}
+
 import { signOut } from "@/auth";
 
 export async function signOutAction() {
