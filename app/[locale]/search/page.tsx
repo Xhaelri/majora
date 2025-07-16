@@ -19,7 +19,7 @@ type SearchPageProps = {
 export async function generateMetadata({
   searchParams,
 }: SearchPageProps): Promise<Metadata> {
-  const t = await getTranslations("common"); 
+  const t = await getTranslations("common"); // Use 'common' namespace
   const query = typeof searchParams.q === "string" ? searchParams.q.trim() : "";
   const title = query ? `${t("searchResults")} "${query}"` : t("search");
 
@@ -30,7 +30,7 @@ export async function generateMetadata({
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const t = await getTranslations();
+  const t = await getTranslations("common"); // Use 'common' namespace
   const rawQuery = searchParams["q"];
   const query = typeof rawQuery === "string" ? rawQuery.trim() : "";
 
@@ -56,26 +56,37 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     };
   }
 
-  const products = await db.product.findMany({
-    where: {
-      name: {
-        contains: query,
-        mode: "insensitive",
-      },
-    },
-    include: {
-      category: true,
-      variants: {
-        include: {
-          size: true,
-          color: true,
-          images: true,
-          product: true,
+const products = await db.product.findMany({
+  where: {
+    OR: [
+      {
+        name: {
+          contains: query,
+          mode: "insensitive",
         },
       },
-      reviews: true,
+      {
+        nameAr: {
+          contains: query,
+          mode: "insensitive",
+        },
+      },
+    ],
+  },
+  include: {
+    category: true,
+    variants: {
+      include: {
+        size: true,
+        color: true,
+        images: true,
+        product: true,
+      },
     },
-  });
+    reviews: true,
+  },
+});
+
 
   const processedProducts = processProducts(products, sortOption, filters);
 

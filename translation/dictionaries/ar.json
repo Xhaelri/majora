@@ -16,8 +16,17 @@
     "bestSeller": "الأكثر مبيعًا",
     "winterSale": "تخفيضات الشتاء"
   },
+
   "common": {
-    "shop": "تسوق"
+    "shop": "تسوق",
+    "searchResults": "نتائج البحث عن",
+    "noProductsFound": "لم يتم العثور على منتجات",
+    "search": "بحث",
+    "searchIcon": "أيقونة البحث",
+    "closeIcon": "أيقونة الإغلاق",
+    "products": "المنتجات",
+    "categories": "الفئات",
+    "showAllResults": "إظهار جميع النتائج لـ"
   },
   "menu": "القائمة",
   "NotFound": {

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ReactNode, useState, useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
 
 type PriceRange = { from: number; to: number };
 
@@ -29,6 +30,7 @@ const MIN_PRICE = 0;
 const MAX_PRICE = 3000;
 
 function PriceRangeFilter() {
+  const t = useTranslations("filters"); // Use 'filters' namespace
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -87,7 +89,7 @@ function PriceRangeFilter() {
   };
 
   return (
-    <CollapsibleFilter title="Price" defaultOpen={false}>
+    <CollapsibleFilter title={t("price")} defaultOpen={false}>
       <div className="flex justify-between space-x-3 px-1">
         <Input
           type="number"
@@ -98,7 +100,7 @@ function PriceRangeFilter() {
           className="w-28 h-10 lg:w-20"
           min={MIN_PRICE}
           max={MAX_PRICE}
-          placeholder="Min"
+          placeholder={t("minPrice")}
         />
         <Input
           type="number"
@@ -109,7 +111,7 @@ function PriceRangeFilter() {
           className="w-28 h-10 lg:w-20"
           min={MIN_PRICE}
           max={MAX_PRICE}
-          placeholder="Max"
+          placeholder={t("maxPrice")}
         />
       </div>
       <Slider
@@ -125,6 +127,7 @@ function PriceRangeFilter() {
 }
 
 function AvailabilityFilter() {
+  const t = useTranslations("filters"); // Use 'filters' namespace
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -159,8 +162,8 @@ function AvailabilityFilter() {
   };
 
   return (
-    <CollapsibleFilter title="Availability" defaultOpen={false} >
-      <div className="mb-2 flex space-y-3 flex-col ms-5">
+    <CollapsibleFilter title={t("availability")} defaultOpen={false} >
+      <div className="mb-2 flex space.define-y-3 flex-col ms-5">
         <div className="flex items-center space-x-2">
           <Checkbox
             id="in-stock"
@@ -170,7 +173,7 @@ function AvailabilityFilter() {
             }
           />
           <label htmlFor="in-stock" className="text-sm font-light tracking-wider leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-            In Stock
+            {t("inStock")}
           </label>
         </div>
         <div className="flex items-center space-x-2">
@@ -182,7 +185,7 @@ function AvailabilityFilter() {
             }
           />
           <label htmlFor="out-of-stock" className="text-sm font-light tracking-wider leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-            Out of Stock
+            {t("outOfStock")}
           </label>
         </div>
       </div>

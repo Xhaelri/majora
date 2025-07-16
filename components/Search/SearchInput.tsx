@@ -1,20 +1,22 @@
-// components/SearchInput.tsx
 "use client";
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "../Link/Link";
+import { useLocale, useTranslations } from "next-intl";
 
 type SearchProduct = {
   id: string;
   name: string;
+  nameAr?: string | null;
   slug: string;
   variants: {
     id: string;
     images: {
       url: string;
       altText: string;
+      altTextAr?: string | null;
     }[];
   }[];
 };
@@ -22,6 +24,7 @@ type SearchProduct = {
 type SearchCategory = {
   id: string;
   name: string;
+  nameAr?: string | null;
 };
 
 type SearchResults = {
@@ -36,6 +39,9 @@ export default function SearchInput({
   isSearchPage: boolean;
   onSearchComplete?: () => void;
 }) {
+  const t = useTranslations("common"); // Use 'common' namespace
+  const locale = useLocale();
+  const isRTL = locale === "ar";
   const inputRef = useRef<HTMLDivElement>(null);
 
   const [isOpen, setIsOpen] = useState(true);
@@ -65,7 +71,7 @@ export default function SearchInput({
     e.preventDefault();
     if (query.trim()) {
       router.push(`/search?q=${encodeURIComponent(query.trim())}`);
-      setIsOpen(false)
+      setIsOpen(false);
       onSearchComplete?.();
     }
   };
@@ -94,7 +100,7 @@ export default function SearchInput({
               <form onSubmit={handleSubmit}>
                 <input
                   type="text"
-                  placeholder="Search"
+                  placeholder={t("search")}
                   className="w-full p-2 border focus:outline-black focus:outline-1 relative"
                   value={query}
                   onChange={(e) => {
@@ -105,10 +111,10 @@ export default function SearchInput({
                 />
                 <Image
                   src={"/assets/172546_search_icon.svg"}
-                  alt="Search-icon"
+                  alt={t("searchIcon")}
                   width={40}
                   height={10}
-                  className=" hover:text-gray-700 hoverEffect absolute right-0 top-1 px-2 py-1"
+                className= {`hover:text-gray-700 hoverEffect absolute ${isRTL?"left-0":"right-0"} top-1 px-2 py-1`}
                   onClick={handleSubmit}
                 />
               </form>
@@ -116,7 +122,7 @@ export default function SearchInput({
             {isOpen && (
               <Image
                 src={"/assets/close.svg"}
-                alt="Search-icon"
+                alt={t("closeIcon")}
                 width={30}
                 height={10}
                 className=" hover:text-gray-700 hoverEffect"
@@ -132,7 +138,7 @@ export default function SearchInput({
             <div className="absolute left-0 z-10 bg-white shadow-2xl backdrop-brightness-125 w-full md:w-full p-6  flex flex-col lg:flex-row-reverse md:absolute">
               <div className="w-full sm:w-2/3 mb-5 lg:mb-0">
                 <h1 className="font-light uppercase tracking-widest">
-                  Products
+                  {t("products")}
                 </h1>
                 {results.products.map((p) => (
                   <div
@@ -142,23 +148,23 @@ export default function SearchInput({
                   >
                     <Image
                       src={p.variants[0]?.images[0]?.url.trimStart()}
-                      alt={p.variants[0]?.images[0]?.altText}
+                      alt={isRTL && p.variants[0]?.images[0]?.altTextAr ? p.variants[0]?.images[0]?.altTextAr : p.variants[0]?.images[0]?.altText}
                       width={80}
                       height={80}
                     />
-                    <h1>{p.name}</h1>
+                    <h1>{isRTL && p.nameAr ? p.nameAr : p.name}</h1>
                   </div>
                 ))}
               </div>
               <div className="w-full sm:w-1/3 mb-5">
                 <h1 className="font-light uppercase tracking-widest">
-                  Categories
+                  {t("categories")}
                 </h1>
                 {results.categories.map((c) => (
                   <div key={c.id}>
                     <Link href={`/categories/${c.name}`}>
                       <h1 className="p-2 font-light text-sm uppercase ">
-                        {c.name
+                        {(isRTL && c.nameAr ? c.nameAr : c.name)
                           .split("-")
                           .map(
                             (word) =>
@@ -179,17 +185,17 @@ export default function SearchInput({
             <form onSubmit={handleSubmit}>
               <input
                 type="text"
-                placeholder="Search"
+                placeholder={t("search")}
                 className="w-full p-2 border focus:outline-black focus:outline-1 relative"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
               <Image
                 src={"/assets/172546_search_icon.svg"}
-                alt="Search-icon"
+                alt={t("searchIcon")}
                 width={40}
                 height={10}
-                className=" hover:text-gray-700 hoverEffect absolute right-0 top-1 px-2 py-1"
+                className= {`hover:text-gray-700 hoverEffect absolute ${isRTL?"left-0":"right-0"} top-1 px-2 py-1`}
                 onClick={handleSubmit}
               />
             </form>
@@ -198,7 +204,7 @@ export default function SearchInput({
             <div className="fixed left-[-1]  z-10 bg-white w-screen md:w-full p-6 shadow-md flex flex-col lg:flex-row-reverse md:absolute">
               <div className="w-full sm:w-2/3 mb-7 ">
                 <h1 className="font-light uppercase tracking-widest">
-                  Products
+                  {t("products")}
                 </h1>
                 {results.products.map((p) => (
                   <div
@@ -208,23 +214,23 @@ export default function SearchInput({
                   >
                     <Image
                       src={p.variants[0]?.images[0]?.url.trimStart()}
-                      alt={p.variants[0]?.images[0]?.altText}
+                      alt={isRTL && p.variants[0]?.images[0]?.altTextAr ? p.variants[0]?.images[0]?.altTextAr : p.variants[0]?.images[0]?.altText}
                       width={80}
                       height={80}
                     />
-                    {p.name}
+                    {isRTL && p.nameAr ? p.nameAr : p.name}
                   </div>
                 ))}
               </div>
               <div className="w-full sm:w-1/3 mb-5">
                 <h1 className="font-light uppercase tracking-widest">
-                  Categories
+                  {t("categories")}
                 </h1>
                 {results.categories.map((c) => (
                   <div key={c.id}>
                     <Link href={`/categories/${c.name}`}>
                       <h1 className="p-2 font-light text-sm uppercase ">
-                        {c.name
+                        {(isRTL && c.nameAr ? c.nameAr : c.name)
                           .split("-")
                           .map(
                             (word) =>
@@ -241,7 +247,7 @@ export default function SearchInput({
                 className="absolute left-0 bottom-0 p-3 hover:text-gray-700 hoverEffect cursor-pointer"
                 onClick={handleSubmit}
               >
-                Show all results for “{query}” →
+                {t("showAllResults")} “{query}” →
               </h1>
             </div>
           ) : null}

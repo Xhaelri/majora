@@ -16,8 +16,16 @@
     "bestSeller": "BEST SELLER",
     "winterSale": "WINTER SALE"
   },
-  "common": {
-    "shop": "SHOP"
+"common": {
+    "shop": "SHOP",
+    "searchResults": "Search results for",
+    "noProductsFound": "No products found",
+    "search": "Search",
+    "searchIcon": "Search icon",
+    "closeIcon": "Close icon",
+    "products": "Products",
+    "categories": "Categories",
+    "showAllResults": "Show all results for"
   },
   "menu": "Menu",
   "NotFound": {

@@ -12,44 +12,47 @@ export async function GET(req: NextRequest) {
   const safeQuery = query.replace(/[%_]/g, "\\$&");
 
   try {
-const [products, categories] = await Promise.all([
-  db.product.findMany({
-    where: {
-      name: {
-        contains: safeQuery,
-        mode: "insensitive",
-      },
-    },
-    take: 3,
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      variants: {
+    const [products, categories] = await Promise.all([
+      db.product.findMany({
+        where: {
+          OR: [
+            { name: { contains: safeQuery, mode: "insensitive" } },
+            { nameAr: { contains: safeQuery, mode: "insensitive" } },
+          ],
+        },
+        take: 3,
         select: {
           id: true,
-          images: {
-            take: 1,
-            orderBy: { id: "asc" },
+          name: true,
+          nameAr: true,
+          slug: true,
+          variants: {
             select: {
-              url: true,
-              altText: true,
+              id: true,
+              images: {
+                take: 1,
+                orderBy: { id: "asc" },
+                select: {
+                  url: true,
+                  altText: true,
+                  altTextAr: true,
+                },
+              },
             },
           },
         },
-      },
-    },
-  }),
-  db.category.findMany({
-    where: {
-      name: {
-        contains: safeQuery,
-        mode: "insensitive",
-      },
-    },
-    select: { id: true, name: true },
-  }),
-]);
+      }),
+      db.category.findMany({
+        where: {
+          OR: [
+            { name: { contains: safeQuery, mode: "insensitive" } },
+            { nameAr: { contains: safeQuery, mode: "insensitive" } },
+          ],
+        },
+        select: { id: true, name: true, nameAr: true },
+        take: 5, // Limit categories for performance
+      }),
+    ]);
 
     return NextResponse.json({ products, categories });
   } catch (error) {
