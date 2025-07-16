@@ -9,18 +9,18 @@ import {
   processProducts,
   SortOption,
 } from "@/lib/product-utils";
-import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
-type SearchPageProps = {
-  searchParams: Record<string, string | string[] | undefined>;
-};
 
 export async function generateMetadata({
   searchParams,
-}: SearchPageProps): Promise<Metadata> {
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+    const resolvedSearchParams = await searchParams;
+
   const t = await getTranslations("common"); // Use 'common' namespace
-  const query = typeof searchParams.q === "string" ? searchParams.q.trim() : "";
+  const query = typeof resolvedSearchParams.q === "string" ? resolvedSearchParams.q.trim() : "";
   const title = query ? `${t("searchResults")} "${query}"` : t("search");
 
   return {
@@ -29,29 +29,35 @@ export async function generateMetadata({
   };
 }
 
-export default async function SearchPage({ searchParams }: SearchPageProps) {
+export default async function SearchPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+      const resolvedSearchParams = await searchParams;
+
   const t = await getTranslations("common"); // Use 'common' namespace
-  const rawQuery = searchParams["q"];
+  const rawQuery = resolvedSearchParams["q"];
   const query = typeof rawQuery === "string" ? rawQuery.trim() : "";
 
   if (!query || query.length < 1) return notFound();
 
-  const sortOption = (searchParams["sort"] as SortOption) || "featured";
+  const sortOption = (resolvedSearchParams["sort"] as SortOption) || "featured";
   const filters: FilterOptions = {};
 
-  if (searchParams["availability"]) {
-    filters.availability = searchParams["availability"] as
+  if (resolvedSearchParams["availability"]) {
+    filters.availability = resolvedSearchParams["availability"] as
       | "in-stock"
       | "out-of-stock";
   }
 
-  if (searchParams["priceFrom"] || searchParams["priceTo"]) {
+  if (resolvedSearchParams["priceFrom"] || resolvedSearchParams["priceTo"]) {
     filters.priceRange = {
-      from: searchParams["priceFrom"]
-        ? Number(searchParams["priceFrom"])
+      from: resolvedSearchParams["priceFrom"]
+        ? Number(resolvedSearchParams["priceFrom"])
         : 0,
-      to: searchParams["priceTo"]
-        ? Number(searchParams["priceTo"])
+      to: resolvedSearchParams["priceTo"]
+        ? Number(resolvedSearchParams["priceTo"])
         : 3000,
     };
   }
