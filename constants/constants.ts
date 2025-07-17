@@ -1,7 +1,6 @@
-import hero1 from "@/public/assets/corey-saldana-pIKQbdSzF_k-unsplash.jpg";
-import hero2 from "@/public/assets/mike-von-2UTk-Nip5aM-unsplash.jpg";
-import hero3 from "@/public/assets/xZikpVW1h3o1aOv4qxQ7vSvzQsY7g8qU82IFXqvb.jpg";
-import hero4 from "@/public/assets/39A4817_f08c2cfe-ccd2-49ce-ba2e-d1f93e63ef11_1500x.webp";
+const hero1 = "https://res.cloudinary.com/dzdnady6n/image/upload/v1752776529/39A4817_f08c2cfe-ccd2-49ce-ba2e-d1f93e63ef11_1500x_sxraxn.webp";
+const hero2 = "https://res.cloudinary.com/dzdnady6n/image/upload/v1752776557/mike-von-2UTk-Nip5aM-unsplash_prj869.webp";
+const hero3 = "https://res.cloudinary.com/dzdnady6n/image/upload/v1752776532/xZikpVW1h3o1aOv4qxQ7vSvzQsY7g8qU82IFXqvb_llqqnh.webp";
 
 export const headerData = [
   { title: "nav.newArrivals", href: "new-arrivals" },
@@ -34,7 +33,7 @@ export const heroImages = [
   { src: hero1, alt: "hero1" },
   { src: hero2, alt: "hero2" },
   { src: hero3, alt: "hero3" },
-  { src: hero4, alt: "hero4" },
+  // { src: hero4, alt: "hero4" },
 ];
 export enum Environments {
   PROD = "production",

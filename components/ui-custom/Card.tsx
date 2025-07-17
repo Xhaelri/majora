@@ -14,7 +14,7 @@ type CardProps = {
 
 const Card = ({ productData }: CardProps) => {
   const locale = useLocale();
-  const isRTL = locale === "ar"
+  const isRTL = locale === "ar";
   const primaryVariant = productData.variants?.[0];
 
   const primaryImageUrl = primaryVariant?.images?.[0]?.url || "";
@@ -58,11 +58,17 @@ const Card = ({ productData }: CardProps) => {
             <Image
               src={imageSrc}
               alt={imageAltText!}
-              fill
+              width={"300"}
+              height={"500"}
               className="object-cover "
+              loading={"lazy"}
             />
           </div>
-          <h1 className={`text-md font-light  ${isRTL?"font-medium":"md:tracking-[2px]"} text-center h-11 line-clamp-2 break-all uppercase`}>
+          <h1
+            className={`text-md font-light  ${
+              isRTL ? "font-medium" : "md:tracking-[2px]"
+            } text-center h-11 line-clamp-2 break-all uppercase`}
+          >
             {isRTL ? productData.nameAr : productData.name}
           </h1>
           <div className="text-md font-extralight tracking-widest flex flex-col items-center">
@@ -97,11 +103,17 @@ const Card = ({ productData }: CardProps) => {
             <Image
               src={imageSrc}
               alt={imageAltText!}
-              fill
+              width={"300"}
+              height={"500"}
               className="object-cover"
+              loading={"eager"}
             />
           </div>
-          <h1 className={`text-lg font-extralight ${isRTL?" font-medium":"md:tracking-[2px]"} text-center h-15 overflow-hidden break-all uppercase`} >
+          <h1
+            className={`text-lg font-extralight ${
+              isRTL ? " font-medium" : "md:tracking-[2px]"
+            } text-center h-15 overflow-hidden break-all uppercase`}
+          >
             {isRTL ? productData.nameAr : productData.name}
           </h1>
           <div className="text-md font-extralight tracking-widest flex flex-col items-center">

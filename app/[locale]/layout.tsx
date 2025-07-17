@@ -9,7 +9,7 @@ import CartProvider from "@/context/CartContext";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { routing } from "@/i18n/routing";
 import { getMessages } from "next-intl/server";
-import NotFoundPage from "./not-found";
+import { notFound } from "next/navigation";
 
 const corinthia = Meow_Script({
   subsets: ["latin"],
@@ -67,10 +67,6 @@ export const metadata: Metadata = {
       "Shop the latest women's fashion at SEKRA. Discover dresses, tops, kimonos, and exclusive deals!",
     images: [""],
   },
-  robots: {
-    index: true,
-    follow: true,
-  },
   alternates: {
     canonical: "",
     languages: {
@@ -91,14 +87,11 @@ export default async function RootLayout({
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }>) {
+
   const { locale } = await params;
-
-  // Validate locale
   if (!hasLocale(routing.locales, locale)) {
-    return NotFoundPage()
+    notFound()
   }
-
-  // Get messages for the locale
   const messages = await getMessages();
 
   return (

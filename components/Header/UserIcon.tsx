@@ -8,8 +8,8 @@ const UserIcon = () => {
       <Image
         src={"/assets/user2.svg"}
         alt="User-icon"
-        width={20}
-        height={10}
+        width={"20"}
+        height={"10"}
         className=" hover:text-gray-700 hoverEffect"
       />
     </Link>

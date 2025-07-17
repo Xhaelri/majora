@@ -10,7 +10,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import useMediaQuery from "@/hooks/useMediaQuery";
+// import useMediaQuery from "@/hooks/useMediaQuery";
 import Link from "../Link/Link";
 import { Menu, mobileMenue } from "@/constants/constants";
 import { Accordion, AccordionItem, AccordionTrigger2 } from "../ui/accordion";
@@ -20,30 +20,30 @@ import { useLocale, useTranslations } from "next-intl";
 
 export default function MobileMenu() {
   const [open, setOpen] = useState(false);
-  const isDesktop = useMediaQuery("(min-width:1024px)");
+  // const isDesktop = useMediaQuery("(min-width:1024px)");
   const { status } = useSession();
   const t = useTranslations();
 const locale = useLocale();
   return (
     <div>
-      {isDesktop ? (
-        // uncomment after implementing the header menue
+      {/* {isDesktop ? (
+        uncomment after implementing the header menue
 
-        // <Image
-        //   src={"/assets/mobile.svg"}
-        //   alt="Mobile-icon"
-        //   width={20}
-        //   height={10}
-        //   className=" hover:text-gray-700 hoverEffect lg:hidden"
-        // />
+        <Image
+          src={"/assets/mobile.svg"}
+          alt="Mobile-icon"
+          width={20}
+          height={10}
+          className=" hover:text-gray-700 hoverEffect lg:hidden"
+        /> */}
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
             <Image
               src={"/assets/mobile.svg"}
               alt="Mobile-icon"
-              width={20}
-              height={10}
-              className=" hover:text-gray-700 hoverEffect "
+              width={"20"}
+              height={"20"}
+              className=" hover:text-gray-700 hoverEffect"
             />
           </SheetTrigger>
 
@@ -112,14 +112,14 @@ const locale = useLocale();
             )}
           </SheetContent>
         </Sheet>
-      ) : (
+      {/* ) : (
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
             <Image
               src={"/assets/mobile.svg"}
               alt="Mobile-icon"
-              width={20}
-              height={10}
+              width={"20"}
+              height={"10"}
               className=" hover:text-gray-700 hoverEffect lg:hidden"
             />
           </SheetTrigger>
@@ -169,8 +169,8 @@ const locale = useLocale();
                     <Image
                       src={"/assets/user2.svg"}
                       alt="User-icon"
-                      width={20}
-                      height={10}
+                      width={"20"}
+                      height={"10"}
                       className=" hover:text-gray-700 hoverEffect"
                     />{" "}
                     {t("MobileMenu.login")}
@@ -189,7 +189,7 @@ const locale = useLocale();
             )}
           </SheetContent>
         </Sheet>
-      )}
+      )} */}
     </div>
   );
 }

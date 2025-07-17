@@ -17,8 +17,8 @@ export default function CartIcon() {
         <Image
           src={"/assets/cart.svg"}
           alt="Cart-icon"
-          width={20}
-          height={10}
+          width={"20"}
+          height={"10"}
           className="hover:text-gray-700 hoverEffect cursor-pointer"
         />
       </Link>

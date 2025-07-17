@@ -119,7 +119,7 @@ const ProductDetails = ({ product }: Props) => {
   const isRTL = locale === "ar";
 
   return (
-    <section className="container pt-0 md:pt-20">
+    <section className="container pt-0 md:py-20">
       <div className="flex flex-col md:flex-row items-center md:items-start gap-15">
         <motion.div
           initial={{ y: 20, opacity: 0 }}

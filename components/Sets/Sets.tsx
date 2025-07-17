@@ -2,13 +2,16 @@ import React from "react";
 import SectionTitle from "../ui-custom/SectionTitle";
 import { Button } from "../ui/button";
 import CardGrid from "../ui-custom/CardGrid";
-import { getProductsByCategory } from "@/server/db/prisma";
 import { mobileMenue } from "@/constants/constants";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
+import { FullProduct } from "@/types/product";
 
-const Sets = async () => {
-  const products = (await getProductsByCategory("sets")) ?? [];
+interface SetsProps {
+  products: FullProduct[];
+}
+
+const Sets = async ({ products }: SetsProps) => {
   const t = await getTranslations();
 
   return (

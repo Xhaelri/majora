@@ -7,7 +7,6 @@ import CartIcon from "./CartIcon";
 import UserIcon from "./UserIcon";
 import LanguageSelector from "../ui-custom/Languages";
 
-
 export default function Header() {
   const [headerState, setHeaderState] = useState("visible");
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -55,23 +54,31 @@ export default function Header() {
 
   return (
     <header className={getHeaderClasses()}>
-        <div className="container grid grid-cols-[1fr_1fr_1fr] items-center text-primary">
-          {/*// uncomment after implementing the header menue */}
-          {/* <HeaderMenu /> */}
+      <div className="container grid grid-cols-[1fr_1fr] md:grid-cols-[1fr_1fr_1fr] items-center text-primary">
+        {/*// uncomment after implementing the header menue */}
+        {/* <HeaderMenu /> */}
+        
+        <div className="flex items-center gap-2 ">
           <MobileMenu />
-
-          <Logo>Sekra</Logo>
-          <div className="text-right flex justify-end">
-            <div className="flex gap-3 items-center">
-              <SearchBar />
-              <UserIcon />
-              {/* <WhishList /> */}
-              <CartIcon />
-              <LanguageSelector/>
-            </div>
+          <div className="md:hidden">
+            <Logo>Sekra</Logo>
           </div>
         </div>
 
+        <div className="hidden md:flex justify-center">
+          <Logo>Sekra</Logo>
+        </div>
+
+        <div className="flex justify-end">
+          <div className="flex gap-3 items-center">
+            <SearchBar />
+            <UserIcon />
+            {/* <WhishList /> */}
+            <CartIcon />
+            <LanguageSelector />
+          </div>
+        </div>
+      </div>
     </header>
   );
 }

@@ -11,9 +11,9 @@ import {
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { heroImages, heroData } from "@/constants/constants";
-import HeroData from "./HeroData";
 import { AnimatePresence } from "framer-motion";
 import { useTranslations } from "next-intl";
+import HeroData from "./HeroData";
 
 export default function CarouselWithPagination() {
   const [api, setApi] = React.useState<CarouselApi>();
@@ -67,17 +67,18 @@ export default function CarouselWithPagination() {
                     className="object-cover"
                     priority={index === 0}
                     quality={80}
-                    
                   />
                   <AnimatePresence mode="wait">
                     <div className="container relative z-10 h-full w-full">
-                      <HeroData
-                        key={current}
-                        button={t(heroData[index]?.button) || "SHOP"}
-                        title={t(heroData[index]?.title)}
-                        desc={heroData[index]?.desc && t(heroData[index]?.desc)}
-                        variant={heroData[index]?.variant}
-                      />
+                        <HeroData
+                          key={current}
+                          button={t(heroData[index]?.button) || "SHOP"}
+                          title={t(heroData[index]?.title)}
+                          desc={
+                            heroData[index]?.desc && t(heroData[index]?.desc)
+                          }
+                          variant={heroData[index]?.variant}
+                        /> 
                     </div>
                   </AnimatePresence>
                 </CardContent>

@@ -64,7 +64,7 @@ export default function ProductDetailsCarousel({
   };
 
   const handleDialogNext = () => {
-    const nextIndex = isRTL 
+    const nextIndex = isRTL
       ? (dialogCurrentIndex - 1 + images.length) % images.length
       : (dialogCurrentIndex + 1) % images.length;
     setDialogCurrentIndex(nextIndex);
@@ -72,7 +72,7 @@ export default function ProductDetailsCarousel({
   };
 
   const handleDialogPrev = () => {
-    const prevIndex = isRTL 
+    const prevIndex = isRTL
       ? (dialogCurrentIndex + 1) % images.length
       : (dialogCurrentIndex - 1 + images.length) % images.length;
     setDialogCurrentIndex(prevIndex);
@@ -85,7 +85,7 @@ export default function ProductDetailsCarousel({
 
   return isDesktop ? (
     <>
-      <div className="flex flex-col md:flex-row gap-4 w-full justify-center items-start">
+      <div className="flex flex-col md:flex-row gap-20 w-full justify-center items-start">
         <div className="md:w-1/5 w-full order-2 md:order-1 flex justify-center md:justify-start">
           <Carousel
             orientation="vertical"
@@ -125,8 +125,8 @@ export default function ProductDetailsCarousel({
 
         {/* Main Product Image Carousel (horizontal) */}
         <div className=" w-full order-1 md:order-2 flex justify-center items-center">
-          <Carousel 
-            setApi={setApi} 
+          <Carousel
+            setApi={setApi}
             className="w-full"
             opts={{
               direction: isRTL ? "rtl" : "ltr",
@@ -134,18 +134,17 @@ export default function ProductDetailsCarousel({
           >
             <CarouselContent className="h-full w-full">
               {images.map((image, index) => (
-                <CarouselItem
-                  key={index}
-                  onClick={() => handleMainImageClick(index)}
-                  className="cursor-pointer"
-                >
+                <CarouselItem key={index}>
                   <Card className="overflow-hidden w-full">
-                    <CardContent className="relative aspect-[4/5] w-full">
+                    <CardContent className="relative  w-full">
                       <Image
                         src={image.url}
                         alt={getAltText(image)}
-                        fill
-                        className="object-cover"
+                        height={"500"}
+                        width={"400"}
+                        className="object-cover cursor-pointer"
+                        loading="eager"
+                        onClick={() => handleMainImageClick(index)}
                       />
                     </CardContent>
                   </Card>
@@ -167,8 +166,8 @@ export default function ProductDetailsCarousel({
   ) : (
     <>
       <div className="mx-auto">
-        <Carousel 
-          setApi={setApi} 
+        <Carousel
+          setApi={setApi}
           className="w-full"
           opts={{
             direction: isRTL ? "rtl" : "ltr",
@@ -186,8 +185,10 @@ export default function ProductDetailsCarousel({
                     <Image
                       src={image.url}
                       alt={getAltText(image)}
-                      fill
+                      width={"400"}
+                      height={"300"}
                       className="object-cover"
+                      loading={index === 0 ? "eager" : "lazy"}
                     />
                   </CardContent>
                 </Card>

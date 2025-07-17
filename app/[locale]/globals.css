@@ -134,12 +134,6 @@ body{
   .container {
     @apply mx-auto  px-7 xl:px-5;
   }
-  .containerCart {
-    @apply  mx-5 px-24    ;
-  }
-  .navText {
-    @apply tracking-wider xl:text-xl;
-  }
 }
 
 @layer base {

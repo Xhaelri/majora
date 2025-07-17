@@ -11,7 +11,6 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 
-import { Button } from "../ui/button";
 import { useRef } from "react";
 
 export default function SearchBar() {
@@ -24,8 +23,8 @@ export default function SearchBar() {
           <Image
             src={"/assets/172546_search_icon.svg"}
             alt="Search-icon"
-            width={20}
-            height={10}
+            width={"20"}
+            height={"10"}
             className=" hover:text-gray-700 hoverEffect"
           />
         </DialogTrigger>
@@ -50,8 +49,8 @@ export default function SearchBar() {
                 <Image
                   src={"/assets/close.svg"}
                   alt="Close"
-                  width={30}
-                  height={10}
+                  width={"30"}
+                  height={"10"}
                   className=" hover:text-gray-700 hoverEffect"
                 />
               </button>
