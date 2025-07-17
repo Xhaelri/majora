@@ -12,7 +12,7 @@ export default async function Layout({
   params: Promise<{ slug: string; locale: string }>;
 }) {
   const resolvedParams = await params;
-  const headerImage = heroImages[3];
+  const headerImage = heroImages[2];
   const { locale } = resolvedParams; 
   const isRTL = locale === "ar";
   

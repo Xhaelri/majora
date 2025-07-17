@@ -1,11 +1,11 @@
 "use client"
-import Image, { StaticImageData } from "next/image";
+import Image from "next/image";
 import React from "react";
 
 type Props = {
   children: React.ReactNode;
   image: {
-    src: StaticImageData;
+    src: string;
     alt: string;
   };
 };
