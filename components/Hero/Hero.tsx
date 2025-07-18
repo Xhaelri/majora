@@ -1,6 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
-import CarouselWithPagination from "./Carousel";
+// import CarouselWithPagination from "./Carousel";
+import Hero2 from "./Hero2";
 
 function Hero() {
   return (
@@ -11,7 +12,8 @@ function Hero() {
       transition={{ delay: 0.1 }}
       className="relativ"
     >
-      <CarouselWithPagination />
+      {/* <CarouselWithPagination /> */}
+      <Hero2/>
     </motion.section>
   );
 }

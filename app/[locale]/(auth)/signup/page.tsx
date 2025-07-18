@@ -6,8 +6,19 @@ import Form from "./Form";
 import GoogleSign from "../Google-Sign";
 import { getTranslations } from "next-intl/server";
 
-async function SignupPage() {
+type Props = {
+  searchParams: Promise<{ callbackUrl?: string }>;
+};
+
+async function SignupPage({ searchParams }: Props) {
   const t = await getTranslations('auth.signup');
+  const params = await searchParams;
+  const callbackUrl = params.callbackUrl;
+  
+  // Build signin URL with callbackUrl if it exists
+  const signinUrl = callbackUrl 
+    ? `/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`
+    : "/signin";
   
   return (
     <main className="container pt-0 md:pt-20">
@@ -16,6 +27,8 @@ async function SignupPage() {
           <Image
             src={heroImages[2].src}
             alt={heroImages[2].alt}
+            width={"800"}
+            height={"500"}
             className="object-cover max-h-[700px]"
           />
         </div>
@@ -25,7 +38,7 @@ async function SignupPage() {
           <GoogleSign />
           <p className="mt-2 flex items-center justify-center text-primary text-sm gap-3">
             <span>{t('haveAccount')}</span>
-            <Link href={"/signin"} className="underline">
+            <Link href={signinUrl} className="underline">
               {t('login')}
             </Link>
           </p>

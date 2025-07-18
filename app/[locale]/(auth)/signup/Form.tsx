@@ -7,7 +7,7 @@ import React from "react";
 import { useFormStatus } from "react-dom";
 import { signupAction, type SignupState } from "@/server/actions/auth";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 const initialState: SignupState = { message: "", errors: {} };
@@ -17,29 +17,41 @@ function Form() {
   const [state, dispatch] = useActionState(signupAction, initialState);
   const { pending } = useFormStatus();
   const t = useTranslations('auth.signup');
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
-
-  const router = useRouter();
 
   useEffect(() => {
     if (state.message && state.toastType) {
       if (state.toastType === "success") {
         toast.success(state.message);
         if (state.redirect) {
-          router.push(state.redirect);
+          // Pass callbackUrl to signin page if it exists
+          const callbackUrl = searchParams.get('callbackUrl');
+          const redirectUrl = callbackUrl 
+            ? `${state.redirect}?callbackUrl=${encodeURIComponent(callbackUrl)}`
+            : state.redirect;
+          router.push(redirectUrl);
         }
       } else if (state.toastType === "error") {
         toast.error(state.message);
       }
     }
-  }, [state.message, state.toastType, state.redirect, router]);
+  }, [state.message, state.toastType, state.redirect, router, searchParams]);
 
   return (
     <form action={dispatch} noValidate className="w-full lg:px-20">
       <div className="w-full space-y-4">
+        {/* Hidden input to pass callbackUrl to server action */}
+        <input 
+          type="hidden" 
+          name="callbackUrl" 
+          value={searchParams.get('callbackUrl') || ''} 
+        />
+        
         <div className="flex w-full justify-center gap-2 items-start">
           <div className="w-full">
             <div className="relative flex gap-2 items-center rounded-md border focus-within:ring-1 focus-within:ring-ring pl-2">

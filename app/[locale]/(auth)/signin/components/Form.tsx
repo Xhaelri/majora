@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import React from "react";
 import { useFormStatus } from "react-dom";
 import { loginAction, type LoginState } from "@/server/actions/auth";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { useCart } from "@/context/CartContext";
 import { useSession } from "next-auth/react";
@@ -22,6 +22,7 @@ function Form() {
   const { pending } = useFormStatus();
   const { refreshCart } = useCart();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { update } = useSession();
   const t = useTranslations('auth.signin');
   
@@ -52,9 +53,10 @@ function Form() {
           console.error('Session update failed:', error);
         }
         
-        if (state.redirect) {
-          router.push(state.redirect);
-        }
+        // Check for callback URL first, then use state redirect, then default
+        const callbackUrl = searchParams.get('callbackUrl');
+        const redirectUrl = callbackUrl || state.redirect || '/account';
+        router.push(redirectUrl);
       }
     };
 
@@ -73,14 +75,22 @@ function Form() {
     state.toastType,
     state.redirect,
     t,
-    // Note: We don't include update, refreshCart, or router in deps
-    // because they're stable references and including them would cause
-    // unnecessary re-runs
+    searchParams,
+    router,
+    refreshCart,
+    update
   ]);
 
   return (
     <div className="w-full lg:px-20">
       <form action={dispatch} noValidate className="w-full space-y-4">
+        {/* Hidden input to pass callbackUrl to server action */}
+        <input 
+          type="hidden" 
+          name="callbackUrl" 
+          value={searchParams.get('callbackUrl') || ''} 
+        />
+        
         <div>
           <div className="relative flex gap-2 items-center rounded-md border focus-within:ring-1 focus-within:ring-ring pl-2">
             <Mail className="h-5 w-5 text-muted-foreground" />

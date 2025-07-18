@@ -1,6 +1,11 @@
 const hero1 = "https://res.cloudinary.com/dzdnady6n/image/upload/v1752776529/39A4817_f08c2cfe-ccd2-49ce-ba2e-d1f93e63ef11_1500x_sxraxn.webp";
 const hero2 = "https://res.cloudinary.com/dzdnady6n/image/upload/v1752776557/mike-von-2UTk-Nip5aM-unsplash_prj869.webp";
 const hero3 = "https://res.cloudinary.com/dzdnady6n/image/upload/v1752776532/xZikpVW1h3o1aOv4qxQ7vSvzQsY7g8qU82IFXqvb_llqqnh.webp";
+const hero4 = "https://res.cloudinary.com/dzdnady6n/image/upload/v1752821281/NN_URBAN_compressed_wpsziu.avif";
+const hero5 = "https://res.cloudinary.com/dzdnady6n/image/upload/v1752815320/17092536-11-01002_sa1uya.webp";
+const hero6 = "https://res.cloudinary.com/dzdnady6n/image/upload/v1752815319/LANDING_W_hxu1ie.avif";
+const hero7 = "https://res.cloudinary.com/dzdnady6n/image/upload/v1752815328/17032908-05-01008_ej5yi6.avif";
+const hero8 = "https://res.cloudinary.com/dzdnady6n/image/upload/v1752815322/LANDING_W_2_yqvjyw.avif";
 
 export const headerData = [
   { title: "nav.newArrivals", href: "new-arrivals" },
@@ -39,3 +44,12 @@ export enum Environments {
   PROD = "production",
   DEV = "development",
 }
+
+export const heroImages2 = [
+  { src: hero4, alt: "hero4"},
+  { src: hero5, alt: "hero5" },
+  { src: hero6, alt: "hero6" },
+  { src: hero7, alt: "hero7" },
+  { src: hero8, alt: "hero8" },
+  // { src: hero4, alt: "hero4" },
+];

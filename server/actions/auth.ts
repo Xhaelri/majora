@@ -168,6 +168,7 @@ export async function loginAction(
   
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
+  const callbackUrl = formData.get("callbackUrl") as string;
 
   const formValues = {
     email: email || "",
@@ -223,7 +224,7 @@ export async function loginAction(
       success: true,
       message: t("loginSuccessful"),
       toastType: "success",
-      redirect: "/account",
+      redirect: callbackUrl || "/account",
     };
   } catch (error) {
     console.error("Login error:", error);
@@ -252,6 +253,7 @@ export async function signupAction(
   const lastName = formData.get("lastName") as string;
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
+  const callbackUrl = formData.get("callbackUrl") as string;
 
   const formValues = {
     firstName: firstName || "",
@@ -310,11 +312,14 @@ export async function signupAction(
 
     await mergeGuestCartWithUserCart(user.id);
 
+    // If there's a callbackUrl, redirect to signin with it, otherwise just signin
+    const redirectUrl = callbackUrl ? `/signin?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/signin";
+
     return {
       success: true,
       message: t("accountCreated"),
       toastType: "success",
-      redirect: "/signin",
+      redirect: redirectUrl,
     };
   } catch (error) {
     console.error("Signup error:", error);
@@ -326,8 +331,13 @@ export async function signupAction(
   }
 }
 
-export async function handleGoogleSignIn() {
-  await signIn("google", { redirectTo: "/" });
+export async function handleGoogleSignIn(formData?: FormData) {
+  const callbackUrl = formData?.get("callbackUrl") as string;
+  
+  await signIn("google", { 
+    redirectTo: callbackUrl || "/" 
+  });
+  
   const session = await auth();
   if (session?.user) {
     await mergeGuestCartWithUserCart(session?.user?.id);
