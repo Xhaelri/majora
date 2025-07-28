@@ -171,3 +171,131 @@ export async function getAllcategories() {
   return categories.map((category) => category.name);
 }
 
+
+import { validate } from "uuid";
+
+export async function getAccountDetails(userId: string) {
+  if (!userId) {
+    throw new Error("User ID is required");
+  }
+  if (!validate(userId)) {
+    throw new Error("Invalid user ID format");
+  }
+
+  const userData = await db.user.findUnique({
+    where: { id: userId },
+    select: {
+      email: true,
+      firstName: true,
+      lastName: true,
+      address: true,
+      phone: true,
+      name: true,
+      orders: {
+        select: {
+          id: true,
+          status: true,
+          orderDate: true,
+          subtotal: true,
+          discountAmount: true,
+          shippingCost: true,
+          totalAmount: true,
+          shippingAddress: true,
+          paymentMethod: true,
+          governorate: true,
+          orderItems: {
+            select: {
+              id: true,
+              productVariantId: true,
+              quantity: true,
+              priceAtPurchase: true,
+              productVariant: {
+                select: {
+                  product: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                  size: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                  color: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        take: 10,
+        orderBy: { orderDate: "desc" },
+      },
+    },
+  });
+
+  if (!userData) {
+    throw new Error("User not found");
+  }
+
+  return userData;
+}
+
+
+
+export async function updateUserDetailsAction(userId: string, formData: FormData) {
+  if (!userId) {
+    return { error: "User ID is required" };
+  }
+  if (!validate(userId)) {
+    return { error: "Invalid user ID format" };
+  }
+
+  const data = {
+    firstName: formData.get("firstName")?.toString() || null,
+    lastName: formData.get("lastName")?.toString() || null,
+    address: formData.get("address")?.toString() || null,
+    phone: formData.get("phone")?.toString() || null,
+    email: formData.get("email")?.toString() || null,
+  };
+
+  if (data.email) {
+    const existingUser = await db.user.findFirst({
+      where: { email: data.email, NOT: { id: userId } },
+    });
+    if (existingUser) {
+      return { error: "Email is already in use" };
+    }
+  }
+
+  try {
+    const updatedUser = await db.user.update({
+      where: { id: userId },
+      data: {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        address: data.address,
+        phone: data.phone,
+        email: data.email,
+        updatedAt: new Date(),
+      },
+      select: {
+        email: true,
+        firstName: true,
+        lastName: true,
+        address: true,
+        phone: true,
+        name: true,
+      },
+    });
+
+    return { data: updatedUser, error: null };
+  } catch (error) {
+    console.error("Error updating user details:", error);
+    return { error: "Failed to update profile" };
+  }
+}
+
