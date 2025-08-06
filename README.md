@@ -48,6 +48,7 @@ It supports **authenticated users**, **guest shopping**, **serverless deployment
 * ✅ Clean and maintainable codebase with ESLint, TypeScript, and folder-based structure
 * ✅ **Search functionality** with instant filtering
 * ✅ **Checkout flow** with paymob gateway integrated
+* ✅ **Implemented internationalization (i18n) ** and localization for a multi-language user experience.
 
 ---
 
