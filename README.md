@@ -47,12 +47,12 @@ It supports **authenticated users**, **guest shopping**, **serverless deployment
 * ✅ **Product zoom** with `react-medium-image-zoom`
 * ✅ Clean and maintainable codebase with ESLint, TypeScript, and folder-based structure
 * ✅ **Search functionality** with instant filtering
+* ✅ **Checkout flow** with paymob gateway integrated
 
 ---
 
 ## 🔮 Planned Features (Coming Soon)
 
-* 💳 **Checkout flow** with payment gateway integration (Stripe/PayPal)
 * 📊 **Admin dashboard** for managing products and orders
 * ❤️ **Wishlist** feature per user
 * ⭐ **Review & rating system** with detailed feedback
