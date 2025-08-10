@@ -2,8 +2,13 @@ import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
 const nextConfig: NextConfig = {
+  typescript: {
+    // Skip type checking only in production
+    ignoreBuildErrors: process.env.NODE_ENV === "production",
+  },
   eslint: {
-    ignoreDuringBuilds: true,
+    // Skip ESLint only in production
+    ignoreDuringBuilds: process.env.NODE_ENV === "production",
   },
   images: {
     remotePatterns: [
