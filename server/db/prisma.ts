@@ -162,7 +162,6 @@ export async function getAllcategories() {
   return categories.map((category) => category.name);
 }
 
-
 import { validate } from "uuid";
 
 export async function getAccountDetails(userId: string) {
@@ -191,9 +190,12 @@ export async function getAccountDetails(userId: string) {
           discountAmount: true,
           shippingCost: true,
           totalAmount: true,
-          shippingAddress: true,
+          billingState: true,
+          billingCity: true,
+          billingBuilding: true,
+          billingFloor: true,
+          billingStreet: true,
           paymentMethod: true,
-          governorate: true,
           orderItems: {
             select: {
               id: true,
@@ -235,9 +237,10 @@ export async function getAccountDetails(userId: string) {
   return userData;
 }
 
-
-
-export async function updateUserDetailsAction(userId: string, formData: FormData) {
+export async function updateUserDetailsAction(
+  userId: string,
+  formData: FormData
+) {
   if (!userId) {
     return { error: "User ID is required" };
   }
@@ -289,4 +292,3 @@ export async function updateUserDetailsAction(userId: string, formData: FormData
     return { error: "Failed to update profile" };
   }
 }
-
