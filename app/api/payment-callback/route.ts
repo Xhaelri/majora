@@ -12,8 +12,7 @@ export async function GET(req: NextRequest) {
                 where: { id: orderId },
                 data: { status: 'PROCESSING' }
             });
-            // Optionally, you can clear the cart here as a fallback
-            // but it's better to do it when the order is created.
+
         } else {
             await db.order.update({
                 where: { id: orderId },

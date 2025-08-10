@@ -3,7 +3,7 @@
 import { db } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { getCartData } from "./cart";
-import { applyDiscount, clearCart } from "./cart";
+import { clearCart } from "./cart";
 
 interface BillingData {
   email: string;
@@ -20,6 +20,106 @@ interface BillingData {
   country: string;
 }
 
+interface AppliedDiscount {
+  code: string;
+  amount: number;
+  type: 'PERCENTAGE' | 'FIXED';
+  value: number;
+}
+
+interface DiscountValidationResult {
+  error?: string;
+  discount?: AppliedDiscount;
+}
+
+// Secure server-side discount validation
+export async function validateDiscountCode(
+  code: string, 
+  orderAmount: number
+): Promise<DiscountValidationResult> {
+  try {
+    if (!code || code.trim() === "") {
+      return { error: "Please enter a discount code" };
+    }
+
+    // Find the discount code in database
+    const discountCode = await db.discountCode.findUnique({
+      where: { code: code.toUpperCase() }
+    });
+
+    if (!discountCode) {
+      return { error: "Invalid discount code" };
+    }
+
+    if (!discountCode.isActive) {
+      return { error: "This discount code is no longer active" };
+    }
+
+    // Check expiration
+    if (discountCode.expiresAt && discountCode.expiresAt < new Date()) {
+      return { error: "This discount code has expired" };
+    }
+
+    // Check minimum order amount
+    if (discountCode.minOrderAmount && orderAmount < discountCode.minOrderAmount) {
+      return { 
+        error: `Minimum order amount of ${discountCode.minOrderAmount} EGP required for this discount` 
+      };
+    }
+
+    // Calculate discount amount
+    let discountAmount = 0;
+    if (discountCode.discountType === 'PERCENTAGE') {
+      discountAmount = Math.min(orderAmount * (discountCode.value / 100), orderAmount);
+    } else {
+      discountAmount = Math.min(discountCode.value, orderAmount);
+    }
+
+    // Round to 2 decimal places
+    discountAmount = Math.round(discountAmount * 100) / 100;
+
+    return {
+      discount: {
+        code: discountCode.code,
+        amount: discountAmount,
+        type: discountCode.discountType === "FIXED_AMOUNT"
+          ? "FIXED"
+          : discountCode.discountType === "PERCENTAGE"
+          ? "PERCENTAGE"
+          : "FIXED",
+        value: discountCode.value
+      }
+    };
+  } catch (error) {
+    console.error("Error validating discount code:", error);
+    return { error: "Failed to validate discount code" };
+  }
+}
+
+// Updated applyDiscount function for cart usage
+export async function applyDiscount(discountCode: string, orderAmount: number) {
+  try {
+    const result = await validateDiscountCode(discountCode, orderAmount);
+    
+    if (result.error) {
+      return { error: result.error };
+    }
+    
+    if (result.discount) {
+      return { 
+        success: `Discount code "${result.discount.code}" applied successfully!`,
+        discountAmount: result.discount.amount,
+        discountCode: result.discount.code
+      };
+    }
+    
+    return { error: "Invalid discount code" };
+  } catch (error) {
+    console.error("Error applying discount:", error);
+    return { error: "Failed to apply discount code" };
+  }
+}
+
 export async function createCheckoutSession(
   billingData: BillingData, 
   discountCode?: string,
@@ -33,7 +133,7 @@ export async function createCheckoutSession(
   }
 
   if (typeof shippingCost !== 'number') {
-      return { error: "Shipping cost is not determined." };
+    return { error: "Shipping cost is not determined." };
   }
 
   const { items: cartItems, count: cartCount } = await getCartData();
@@ -42,35 +142,53 @@ export async function createCheckoutSession(
     return { error: "Your cart is empty." };
   }
 
+  // Calculate subtotal from database prices (security: don't trust client)
   const subtotal = cartItems.reduce(
     (acc, item) =>
-      acc +
-      item.productVariant.product.price * item.quantity,
+      acc + item.productVariant.product.price * item.quantity,
     0
   );
 
+  // Calculate sale discount from database prices
   const saleDiscount = cartItems.reduce(
     (acc, item) => {
-        const {price, salePrice} = item.productVariant.product;
-        if(salePrice) {
-            return acc + (price - salePrice) * item.quantity;
-        }
-        return acc;
+      const { price, salePrice } = item.productVariant.product;
+      if (salePrice && salePrice < price) {
+        return acc + (price - salePrice) * item.quantity;
+      }
+      return acc;
     }, 0
   );
   
+  // Calculate order amount after sale discount
+  const orderAmount = subtotal - saleDiscount;
+  
+  // Re-validate discount code server-side (security: don't trust client)
   let couponDiscount = 0;
   let appliedDiscountCodeId: string | undefined = undefined;
-  if(discountCode) {
-      const discountResult = await applyDiscount(discountCode, subtotal);
-      if(!discountResult.error && discountResult.discountAmount) {
-          couponDiscount = discountResult.discountAmount;
-          const codeData = await db.discountCode.findUnique({where: {code: discountCode}});
-          appliedDiscountCodeId = codeData?.id;
-      }
+  
+  if (discountCode) {
+    const discountResult = await validateDiscountCode(discountCode, orderAmount);
+    
+    if (discountResult.error) {
+      return { error: `Discount error: ${discountResult.error}` };
+    }
+    
+    if (discountResult.discount) {
+      couponDiscount = discountResult.discount.amount;
+      const codeData = await db.discountCode.findUnique({
+        where: { code: discountCode }
+      });
+      appliedDiscountCodeId = codeData?.id;
+    }
   }
 
   const totalAmount = subtotal - saleDiscount - couponDiscount + shippingCost;
+
+  // Ensure total is not negative
+  if (totalAmount < 0) {
+    return { error: "Invalid order total calculated." };
+  }
 
   const order = await db.order.create({
     data: {
@@ -106,6 +224,7 @@ export async function createCheckoutSession(
   });
 
   try {
+    // Step 1: Get Paymob authentication token
     const authResponse = await fetch(
       "https://accept.paymob.com/api/auth/tokens",
       {
@@ -114,9 +233,15 @@ export async function createCheckoutSession(
         body: JSON.stringify({ api_key: process.env.PAYMOB_API_KEY }),
       }
     );
+
+    if (!authResponse.ok) {
+      throw new Error("Failed to authenticate with Paymob");
+    }
+
     const authData = await authResponse.json();
     const authToken = authData.token;
 
+    // Step 2: Create Paymob order
     const orderResponse = await fetch(
       "https://accept.paymob.com/api/ecommerce/orders",
       {
@@ -125,14 +250,15 @@ export async function createCheckoutSession(
         body: JSON.stringify({
           auth_token: authToken,
           delivery_needed: "false",
-          amount_cents: totalAmount * 100,
+          amount_cents: Math.round(totalAmount * 100), // Ensure integer
           currency: "EGP",
           merchant_order_id: order.id,
           items: cartItems.map((item) => ({
             name: item.productVariant.product.name,
-            amount_cents:
+            amount_cents: Math.round(
               (item.productVariant.product.salePrice ??
-                item.productVariant.product.price) * 100,
+                item.productVariant.product.price) * 100
+            ),
             description:
               item.productVariant.product.description ?? "No description",
             quantity: item.quantity,
@@ -140,30 +266,21 @@ export async function createCheckoutSession(
         }),
       }
     );
+
+    if (!orderResponse.ok) {
+      throw new Error("Failed to create Paymob order");
+    }
+
     const orderData = await orderResponse.json();
     const paymobOrderId = orderData.id;
 
+    // Update order with Paymob order ID
     await db.order.update({
       where: { id: order.id },
       data: { paymobOrderId: paymobOrderId.toString() },
     });
 
-    // Use billing data if provided, otherwise fallback to user data
-    const finalBillingData = billingData || {
-      email: user.email,
-      firstName: user.firstName || "NA",
-      lastName: user.lastName || "NA",
-      phoneNumber: "NA",
-      apartment: "NA",
-      floor: "NA",
-      street: "NA",
-      building: "NA",
-      city: "NA",
-      state: "NA",
-      postalCode: "NA",
-      country: "NA",
-    };
-
+    // Step 3: Create payment key
     const paymentKeyResponse = await fetch(
       "https://accept.paymob.com/api/acceptance/payment_keys",
       {
@@ -171,48 +288,64 @@ export async function createCheckoutSession(
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           auth_token: authToken,
-          amount_cents: totalAmount * 100,
+          amount_cents: Math.round(totalAmount * 100), // Ensure integer
           expiration: 3600,
           order_id: paymobOrderId,
           billing_data: {
-            email: finalBillingData.email,
-            first_name: finalBillingData.firstName,
-            last_name: finalBillingData.lastName,
-            phone_number: finalBillingData.phoneNumber,
-            apartment: finalBillingData.apartment || "NA",
-            floor: finalBillingData.floor || "NA",
-            street: finalBillingData.street || "NA",
-            building: finalBillingData.building || "NA",
+            email: billingData.email,
+            first_name: billingData.firstName,
+            last_name: billingData.lastName,
+            phone_number: billingData.phoneNumber,
+            apartment: billingData.apartment || "NA",
+            floor: billingData.floor || "NA",
+            street: billingData.street || "NA",
+            building: billingData.building || "NA",
             shipping_method: "NA",
-            postal_code: finalBillingData.postalCode || "NA",
-            city: finalBillingData.city || "NA",
-            country: finalBillingData.country || "NA",
-            state: finalBillingData.state || "NA",
+            postal_code: billingData.postalCode || "NA",
+            city: billingData.city || "NA",
+            country: billingData.country || "NA",
+            state: billingData.state || "NA",
           },
           currency: "EGP",
           integration_id: process.env.PAYMOB_INTEGRATION_ID,
         }),
       }
     );
+
+    if (!paymentKeyResponse.ok) {
+      throw new Error("Failed to create payment key");
+    }
+
     const paymentKeyData = await paymentKeyResponse.json();
     const paymentKey = paymentKeyData.token;
-await clearCart();
-    return { paymentKey };
+
+    // Clear cart only after successful payment session creation
+    await clearCart();
+
+    return { paymentKey, orderId: order.id };
   } catch (error) {
-    console.error(error);
+    console.error("Payment session creation error:", error);
+    
+    // Cancel the order if payment session creation fails
     await db.order.update({
       where: { id: order.id },
       data: { status: "CANCELLED" },
     });
-    return { error: "Failed to create payment session." };
+    
+    return { error: "Failed to create payment session. Please try again." };
   }
 }
 
 export async function getShippingRate(governorate: string) {
+  try {
     const rate = await db.shippingRate.findUnique({
-        where: { governorate }
+      where: { governorate }
     });
     return rate?.cost ?? null;
+  } catch (error) {
+    console.error("Error fetching shipping rate:", error);
+    return null;
+  }
 }
 
 export async function getUserData(userId: string) {

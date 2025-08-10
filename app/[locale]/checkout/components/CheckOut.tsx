@@ -7,6 +7,7 @@ import {
   createCheckoutSession,
   getShippingRate,
   getUserData,
+  validateDiscountCode,
 } from "@/server/actions/checkout-actions";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
@@ -25,6 +26,13 @@ interface BillingData {
   state: string;
   postalCode: string;
   country: string;
+}
+
+interface AppliedDiscount {
+  code: string;
+  amount: number;
+  type: "PERCENTAGE" | "FIXED";
+  value: number;
 }
 
 const EGYPT_GOVERNORATES = [
@@ -66,9 +74,11 @@ export default function CheckoutPage() {
   const [initializing, setInitializing] = useState(true);
   const [shippingCost, setShippingCost] = useState<number | null>(null);
 
-  const searchParams = useSearchParams();
-  const discountCode = searchParams.get("discountCode") || undefined;
-  const discountAmount = Number(searchParams.get("discountAmount")) || 0;
+  // Discount state
+  const [discountCode, setDiscountCode] = useState("");
+  const [appliedDiscount, setAppliedDiscount] =
+    useState<AppliedDiscount | null>(null);
+  const [discountLoading, setDiscountLoading] = useState(false);
 
   const [billingData, setBillingData] = useState<BillingData>({
     email: "",
@@ -86,10 +96,13 @@ export default function CheckoutPage() {
   });
 
   const { data: session } = useSession();
-  // Load user data on component mount
+  const searchParams = useSearchParams();
+
+  // Load user data and handle discount from URL on component mount
   useEffect(() => {
-    const loadUserData = async () => {
+    const loadUserDataAndDiscount = async () => {
       try {
+        // Load user data if authenticated
         if (session) {
           const userData = await getUserData(session.user.id);
           if (userData) {
@@ -103,6 +116,44 @@ export default function CheckoutPage() {
             }));
           }
         }
+
+        // Check for discount code in URL parameters
+        const urlDiscountCode = searchParams.get('discount');
+        if (urlDiscountCode) {
+          setDiscountCode(urlDiscountCode);
+          
+          // Auto-apply the discount code from the cart
+          const subtotal = cartItems.reduce((sum, item) => {
+            const fullPrice = item.productVariant.product.price;
+            return sum + fullPrice * item.quantity;
+          }, 0);
+
+          const saleDiscount = cartItems.reduce((sum, item) => {
+            const { price, salePrice } = item.productVariant.product;
+            if (salePrice && salePrice < price) {
+              return sum + (price - salePrice) * item.quantity;
+            }
+            return sum;
+          }, 0);
+
+          const orderAmount = subtotal - saleDiscount;
+          
+          if (orderAmount > 0) {
+            setDiscountLoading(true);
+            try {
+              const result = await validateDiscountCode(urlDiscountCode, orderAmount);
+              if (result.discount) {
+                setAppliedDiscount(result.discount);
+              } else if (result.error) {
+                setError(`Discount error: ${result.error}`);
+              }
+            } catch (error) {
+              console.error("Failed to apply URL discount:", error);
+            } finally {
+              setDiscountLoading(false);
+            }
+          }
+        }
       } catch (error) {
         console.error("Failed to load user data:", error);
       } finally {
@@ -110,7 +161,14 @@ export default function CheckoutPage() {
       }
     };
 
-    loadUserData();
+    if (!initializing) {
+      loadUserDataAndDiscount();
+    }
+  }, [session, searchParams, cartItems]); // Add cartItems as dependency
+
+  // Set initializing to false when component mounts
+  useEffect(() => {
+    setInitializing(false);
   }, []);
 
   const handleGovernorateChange = useCallback(async (governorate: string) => {
@@ -142,6 +200,7 @@ export default function CheckoutPage() {
     return sum;
   }, 0);
 
+  const discountAmount = appliedDiscount ? appliedDiscount.amount : 0;
   const total = subtotal - saleDiscount - discountAmount + (shippingCost || 0);
 
   const handleInputChange = (
@@ -152,6 +211,43 @@ export default function CheckoutPage() {
       ...prev,
       [name]: value,
     }));
+  };
+
+  const handleApplyDiscount = async () => {
+    if (!discountCode.trim()) {
+      setError("Please enter a discount code");
+      return;
+    }
+
+    setDiscountLoading(true);
+    setError(null);
+
+    try {
+      const result = await validateDiscountCode(
+        discountCode,
+        subtotal - saleDiscount
+      );
+
+      if (result.error) {
+        setError(result.error);
+        setAppliedDiscount(null);
+      } else if (result.discount) {
+        setAppliedDiscount(result.discount);
+        setError(null);
+      }
+    } catch (error) {
+      console.error("Failed to apply discount:", error);
+      setError("Failed to apply discount code");
+      setAppliedDiscount(null);
+    } finally {
+      setDiscountLoading(false);
+    }
+  };
+
+  const handleRemoveDiscount = () => {
+    setAppliedDiscount(null);
+    setDiscountCode("");
+    setError(null);
   };
 
   const validateForm = () => {
@@ -204,9 +300,10 @@ export default function CheckoutPage() {
     setError(null);
 
     try {
+      // Pass the discount code (not the amount) to server for re-validation
       const result = await createCheckoutSession(
         billingData,
-        discountCode,
+        appliedDiscount?.code, // Only pass the code, server will validate
         shippingCost
       );
 
@@ -224,6 +321,7 @@ export default function CheckoutPage() {
       setLoading(false);
     }
   };
+
   if (initializing) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -247,12 +345,58 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto py-5">
       <h1 className="text-2xl font-bold mb-8">Checkout</h1>
 
-      <div className="grid lg:grid-cols-2 gap-8">
+      <div className="flex flex-col lg:flex-row gap-8">
         {/* Left Column - Forms and Cart Summary */}
-        <div className="space-y-8">
+        <div className="space-y-8 lg:max-w-1/2">
+          {/* Discount Code Section */}
+          {!showPayment && (
+            <div className="bg-white p-6 rounded-lg shadow-sm border">
+              <h2 className="text-xl font-semibold mb-4">Discount Code</h2>
+
+              {!appliedDiscount ? (
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="text"
+                    value={discountCode}
+                    onChange={(e) =>
+                      setDiscountCode(e.target.value.toUpperCase())
+                    }
+                    placeholder="Enter discount code"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    disabled={discountLoading}
+                  />
+                  <button
+                    onClick={handleApplyDiscount}
+                    disabled={discountLoading || !discountCode.trim()}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {discountLoading ? "Applying..." : "Apply"}
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-md">
+                  <div>
+                    <span className="text-sm font-medium text-green-800">
+                      Code &quot;{appliedDiscount.code}&quot; applied
+                    </span>
+                    <p className="text-xs text-green-600">
+                      You saved {formatPrice(appliedDiscount.amount)}
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleRemoveDiscount}
+                    className="text-red-600 hover:text-red-800 text-sm"
+                  >
+                    Remove
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Billing Information Form */}
           {!showPayment && (
             <div className="bg-white p-6 rounded-lg shadow-sm border">
@@ -470,7 +614,7 @@ export default function CheckoutPage() {
 
           {/* Payment Iframe */}
           {showPayment && paymentKey && (
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <div className="bg-white p-6 rounded-lg shadow-sm border lg:min-w-[400px]">
               <h2 className="text-xl font-semibold mb-6">Complete Payment</h2>
               <div className="relative">
                 <iframe
@@ -487,7 +631,7 @@ export default function CheckoutPage() {
         </div>
 
         {/* Right Column - Order Summary */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border h-fit sticky top-4">
+        <div className="bg-white p-6 rounded-lg shadow-sm border h-fit sticky top-4 lg:max-w-1/2">
           <h2 className="text-xl font-semibold mb-6">Order Summary</h2>
 
           {/* Cart Items */}
@@ -544,7 +688,7 @@ export default function CheckoutPage() {
 
             {discountAmount > 0 && (
               <div className="flex justify-between text-sm text-red-600">
-                <span>Coupon Discount</span>
+                <span>Coupon Discount ({appliedDiscount?.code})</span>
                 <span>-{formatPrice(discountAmount)}</span>
               </div>
             )}
@@ -565,6 +709,7 @@ export default function CheckoutPage() {
               <span>{formatPrice(total)}</span>
             </div>
           </div>
+
           {/* Security Badge */}
           <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
             <div className="flex items-center">

@@ -163,7 +163,7 @@ model Order {
   status               OrderStatus       @default(PENDING)
   subtotal             Float
   totalAmount          Float
-  discountAmount       Float?
+  discountAmount       Float?           
   shippingCost         Float?
   paymentMethod        String?
   paymentProvider      String?           @default("paymob")
@@ -247,13 +247,13 @@ model Review {
 model DiscountCode {
   id             String       @id @default(uuid())
   code           String       @unique
-  discountType   DiscountType
   value          Float
   minOrderAmount Float?
   isActive       Boolean      @default(true)
   expiresAt      DateTime?
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+  discountType   String? 
   orders         Order[]
 }
 
@@ -280,7 +280,3 @@ enum OrderStatus {
   RETURNED
 }
 
-enum DiscountType {
-  PERCENTAGE
-  FIXED_AMOUNT
-}
