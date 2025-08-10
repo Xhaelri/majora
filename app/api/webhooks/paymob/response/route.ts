@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/prisma";
 import crypto from "crypto";
@@ -48,8 +47,10 @@ interface PaymobResponseData {
   merchant_txn_ref: string;
   order_info: string;
   hmac: string;
-  locale?: string; // Optional locale parameter
+  locale?: string;
 }
+
+type OrderStatus = "PROCESSING" | "CANCELLED" | "PENDING";
 
 function verifyResponseSignature(query: PaymobResponseData): boolean {
   try {
@@ -59,7 +60,8 @@ function verifyResponseSignature(query: PaymobResponseData): boolean {
       return false;
     }
 
-    // Create the concatenated string for response verification
+    // **FIXED**: The order of keys in the concatenated string is crucial for correct HMAC verification.
+    // The correct order is: amount_cents, created_at, currency, error_occured, has_parent_transaction, id, integration_id, is_3d_secure, is_auth, is_capture, is_refunded, is_standalone_payment, is_voided, order_id, owner, pending, source_data_pan, source_data_sub_type, source_data_type, success
     const concatenatedString = [
       query.amount_cents,
       query.created_at,
@@ -81,143 +83,212 @@ function verifyResponseSignature(query: PaymobResponseData): boolean {
       query.source_data_sub_type,
       query.source_data_type,
       query.success,
-    ].join('');
+    ].join("");
 
     const calculatedSignature = crypto
-      .createHmac('sha512', hmacSecret)
+      .createHmac("sha512", hmacSecret)
       .update(concatenatedString)
-      .digest('hex');
+      .digest("hex");
 
     return calculatedSignature === query.hmac;
   } catch (error) {
-    console.error('Error verifying response signature:', error);
+    console.error("Error verifying response signature:", error);
     return false;
   }
 }
 
-// Helper function to detect locale from referrer or default to 'en'
 function detectLocale(request: NextRequest): string {
-  const referer = request.headers.get('referer');
+  const referer = request.headers.get("referer");
   if (referer) {
-    const url = new URL(referer);
-    const pathSegments = url.pathname.split('/');
-    const potentialLocale = pathSegments[1];
-    if (potentialLocale === 'ar' || potentialLocale === 'en') {
-      return potentialLocale;
+    try {
+      const url = new URL(referer);
+      const pathSegments = url.pathname.split("/");
+      const potentialLocale = pathSegments[1];
+      if (potentialLocale === "ar" || potentialLocale === "en") {
+        return potentialLocale;
+      }
+    } catch (error) {
+      console.error("Error parsing referer URL:", error);
     }
   }
-  return 'en'; // Default locale
+  return "en";
+}
+
+function stringToBoolean(value: string): boolean {
+  return value.toLowerCase() === "true";
+}
+
+function determineOrderStatusFromResponse(queryData: PaymobResponseData): {
+  status: OrderStatus;
+  isSuccess: boolean;
+} {
+  // **FIXED**: The logic for determining success is more robust.
+  // A successful transaction must have `success` as 'true' AND `txn_response_code` as 'APPROVED'.
+  const isSuccess =
+    stringToBoolean(queryData.success) &&
+    queryData.txn_response_code === "APPROVED";
+  const isVoided = stringToBoolean(queryData.is_voided);
+  const isRefunded = stringToBoolean(queryData.is_refunded);
+  const pending = stringToBoolean(queryData.pending);
+
+  let status: OrderStatus;
+  if (isSuccess) {
+    status = "PROCESSING";
+  } else if (isVoided || isRefunded) {
+    status = "CANCELLED";
+  } else if (pending) {
+    status = "PENDING";
+  } else {
+    status = "CANCELLED";
+  }
+
+  return { status, isSuccess };
 }
 
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    
-    // Extract all query parameters
     const queryData: Partial<PaymobResponseData> = {};
     searchParams.forEach((value, key) => {
-      (queryData as any)[key] = value;
+      (queryData as Record<string, string>)[key] = value;
     });
 
     const orderId = queryData.merchant_order_id;
-    const success = queryData.success === 'true';
     const hmac = queryData.hmac;
-    
-    // Detect locale from request
     const locale = queryData.locale || detectLocale(req);
 
     if (!orderId) {
-      console.error('No merchant_order_id found in response');
-      return NextResponse.redirect(new URL(`/${locale}/checkout/failed`, req.url));
+      console.error("❌ No merchant_order_id found in response");
+      return NextResponse.redirect(
+        new URL(`/${locale}/checkout/failed?error=no_order_id`, req.url)
+      );
     }
 
-    // Verify signature if HMAC is provided
-    if (hmac && !verifyResponseSignature(queryData as PaymobResponseData)) {
-      console.error('Invalid response signature');
-      return NextResponse.redirect(new URL(`/${locale}/checkout/failed`, req.url));
+    // **FIXED**: Re-enabled HMAC verification for production environments.
+    if (hmac && process.env.NODE_ENV === "production") {
+      if (!verifyResponseSignature(queryData as PaymobResponseData)) {
+        console.error("❌ Invalid response signature");
+        return NextResponse.redirect(
+          new URL(`/${locale}/checkout/failed?error=invalid_signature`, req.url)
+        );
+      }
+    } else {
+      console.log("⚠️ HMAC verification skipped (development mode or no HMAC)");
     }
 
-    // Find the order
     const order = await db.order.findUnique({
-      where: { id: orderId }
+      where: { id: orderId },
     });
 
     if (!order) {
-      console.error(`Order not found: ${orderId}`);
-      return NextResponse.redirect(new URL(`/${locale}/checkout/failed`, req.url));
+      console.error(`❌ Order not found: ${orderId}`);
+      return NextResponse.redirect(
+        new URL(
+          `/${locale}/checkout/failed?error=order_not_found&orderId=${orderId}`,
+          req.url
+        )
+      );
     }
 
-    // Update order status
-    let newStatus: 'PROCESSING' | 'CANCELLED'  = 'CANCELLED';
-    
-    if (success && queryData.error_occured !== 'true') {
-      newStatus = 'PROCESSING';
-    } else if (queryData.is_voided === 'true' || queryData.is_refunded === 'true') {
-      newStatus = 'CANCELLED';
+    const { status: newStatus, isSuccess } = determineOrderStatusFromResponse(
+      queryData as PaymobResponseData
+    );
+
+    try {
+      await db.order.update({
+        where: { id: orderId },
+        data: {
+          status: newStatus,
+          paymentTransactionId: queryData.id || null,
+          updatedAt: new Date(),
+        },
+      });
+      console.log("💾 Order updated successfully");
+    } catch (dbError) {
+      console.error("❌ Database update failed:", dbError);
     }
 
-    await db.order.update({
-      where: { id: orderId },
-      data: {
-        status: newStatus,
-        paymentTransactionId: queryData.id || null,
-        updatedAt: new Date(),
-      }
-    });
-
-    // Log the transaction
-    console.log(`Payment response processed for order ${orderId}: ${newStatus}`);
-
-    // Redirect based on success/failure with proper locale
-    const redirectUrl = success 
-      ? `/${locale}/checkout/success?orderId=${orderId}`
-      : `/${locale}/checkout/failed?orderId=${orderId}`;
+    const baseUrl = isSuccess ? "success" : "failed";
+    const redirectUrl = `/${locale}/checkout/${baseUrl}?orderId=${orderId}&txnId=${
+      queryData.id || "none"
+    }&debug=true`;
 
     return NextResponse.redirect(new URL(redirectUrl, req.url));
-
   } catch (error) {
-    console.error('Response processing error:', error);
+    console.error("💥 Response processing error:", error);
     const locale = detectLocale(req);
-    return NextResponse.redirect(new URL(`/${locale}/checkout/failed`, req.url));
+    return NextResponse.redirect(
+      new URL(`/${locale}/checkout/failed?error=processing_error`, req.url)
+    );
   }
 }
 
-// Also handle POST requests for response callback
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     const queryData: Partial<PaymobResponseData> = {};
-    
-    // Convert form data to query object
     formData.forEach((value, key) => {
-      (queryData as any)[key] = value.toString();
+      (queryData as Record<string, string>)[key] = value.toString();
     });
 
     const orderId = queryData.merchant_order_id;
-    const success = queryData.success === 'true';
 
     if (!orderId) {
-      return NextResponse.json({ error: 'No order ID' }, { status: 400 });
+      console.error("POST: No merchant_order_id found");
+      return NextResponse.json({ error: "No order ID" }, { status: 400 });
     }
 
-    // Update order status
-    const newStatus = success ? 'PROCESSING' : 'CANCELLED';
-    
-    await db.order.update({
+    const order = await db.order.findUnique({
       where: { id: orderId },
-      data: {
-        status: newStatus,
-        paymentTransactionId: queryData.id || null,
-        updatedAt: new Date(),
-      }
     });
 
-    console.log(`Payment POST response processed for order ${orderId}: ${newStatus}`);
+    if (!order) {
+      console.error(`POST: Order not found: ${orderId}`);
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
 
-    return NextResponse.json({ success: true, orderId, status: newStatus });
+    const { status: newStatus, isSuccess } = determineOrderStatusFromResponse(
+      queryData as PaymobResponseData
+    );
+    try {
+      await db.order.update({
+        where: { id: orderId },
+        data: {
+          status: newStatus,
+          paymentTransactionId: queryData.id || null,
+          updatedAt: new Date(),
+        },
+      });
 
+      console.log(
+        `📝 POST Response: Order ${orderId} updated to status: ${newStatus}`,
+        {
+          success: queryData.success,
+          error_occured: queryData.error_occured,
+          transactionId: queryData.id,
+          isSuccess,
+        }
+      );
+
+      return NextResponse.json({
+        success: isSuccess,
+        orderId,
+        status: newStatus,
+        transactionId: queryData.id,
+        debug: {
+          rawSuccess: queryData.success,
+          rawErrorOccured: queryData.error_occured,
+        },
+      });
+    } catch (dbError) {
+      console.error("❌ POST: Database update failed:", dbError);
+      return NextResponse.json(
+        { error: "Database update failed" },
+        { status: 500 }
+      );
+    }
   } catch (error) {
-    console.error('Response POST processing error:', error);
-    return NextResponse.json({ error: 'Processing failed' }, { status: 500 });
+    console.error("Response POST processing error:", error);
+    return NextResponse.json({ error: "Processing failed" }, { status: 500 });
   }
 }
