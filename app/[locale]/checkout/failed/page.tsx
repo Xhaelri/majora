@@ -5,7 +5,6 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { XCircleIcon } from "@heroicons/react/24/solid";
 
 export default function CheckoutFailedPage() {
   const searchParams = useSearchParams();
@@ -15,7 +14,7 @@ export default function CheckoutFailedPage() {
   return (
     <div className="container mx-auto px-4 py-16 text-center">
       <div className="max-w-md mx-auto">
-        <XCircleIcon className="w-16 h-16 text-red-500 mx-auto mb-6" />
+        {/* <XCircleIcon className="w-16 h-16 text-red-500 mx-auto mb-6" /> */}
         
         <h1 className="text-3xl font-bold text-gray-900 mb-4">
           {t("failed.title")}
