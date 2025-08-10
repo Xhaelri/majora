@@ -1,4 +1,3 @@
-// @/server/db/prisma.ts
 
 import { db } from "@/lib/prisma";
 import { FullProduct } from "@/types/product";
@@ -8,7 +7,6 @@ export const getAllProducts = async () => {
     const products: FullProduct[] = await db.product.findMany({
       include: {
         category: true,
-        reviews: true,
         variants: {
           include: {
             size: true,
@@ -58,7 +56,6 @@ export async function getProductsByCategory(categorySlug: string) {
       },
       include: {
         category: true,
-        reviews: true,
         variants: {
           include: {
             size: true,
@@ -128,7 +125,6 @@ export async function getSortedProducts(sort: SortOption) {
           product: true,
         },
       },
-      reviews: true,
     },
   });
 
@@ -196,6 +192,7 @@ export async function getAccountDetails(userId: string) {
           billingFloor: true,
           billingStreet: true,
           paymentMethod: true,
+          paymentProvider: true,
           orderItems: {
             select: {
               id: true,

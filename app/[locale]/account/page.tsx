@@ -8,12 +8,12 @@ import AccountDetails from "./components/accountDetails";
 import Link from "next/link";
 import SignOut from "./SignOut";
 
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: { tab?: string };
-}) {
+type Props = {
+  searchParams: Promise<{ tab?: string }>;
+};
+export default async function Page({ searchParams }: Props) {
   const session = await auth();
+  const params = await searchParams;
 
   if (!session?.user?.id) {
     return (
@@ -50,9 +50,8 @@ export default async function Page({
       </div>
     );
   }
-
   const userData = await getAccountDetails(session.user.id);
-  const activeTab = searchParams.tab === "account" ? "account" : "orders";
+  const activeTab = params.tab === "account" ? "account" : "orders";
 
   return (
     <div className="container min-h-screen overflow-hidden">

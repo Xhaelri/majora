@@ -41,6 +41,7 @@ interface Order {
   billingStreet: string | null;
   status: string;
   paymentMethod: string | null;
+  paymentProvider: string | null;
   orderItems: OrderItem[];
 }
 
@@ -137,7 +138,7 @@ const Orders = async () => {
   }
 
   return (
-    <section className="container mx-auto p-4 sm:p-6 overflow-x-scroll lg:overflow-hidden">
+    <section className="container mx-auto p-4 sm:p-6  lg:overflow-hidden">
       <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-2xl font-bold text-gray-900">Your Orders</h2>
@@ -150,25 +151,25 @@ const Orders = async () => {
           <Table>
             <TableHeader>
               <TableRow className="bg-gray-50">
-                <TableHead className="text-left text-gray-900 font-semibold">
+                <TableHead className="text-center text-gray-900 font-semibold">
                   Order ID
                 </TableHead>
-                <TableHead className="text-left text-gray-900 font-semibold">
+                <TableHead className="text-center text-gray-900 font-semibold">
                   Date
                 </TableHead>
-                <TableHead className="text-left text-gray-900 font-semibold">
+                <TableHead className="text-center text-gray-900 font-semibold">
                   Items
                 </TableHead>
-                <TableHead className="text-left text-gray-900 font-semibold">
+                <TableHead className="text-center text-gray-900 font-semibold">
                   Status
                 </TableHead>
-                <TableHead className="text-left text-gray-900 font-semibold">
+                <TableHead className="text-center text-gray-900 font-semibold">
                   Shipping
                 </TableHead>
-                <TableHead className="text-left text-gray-900 font-semibold">
+                <TableHead className="text-center text-gray-900 font-semibold">
                   Payment
                 </TableHead>
-                <TableHead className="text-right text-gray-900 font-semibold">
+                <TableHead className="text-center text-gray-900 font-semibold">
                   Total
                 </TableHead>
               </TableRow>
@@ -190,7 +191,7 @@ const Orders = async () => {
                     <div className="space-y-1">
                       {order.orderItems.map((item) => (
                         <div key={item.id} className="text-sm">
-                          <div className="font-medium text-gray-900">
+                          <div className="font-medium text-gray-900 text-wrap">
                             {item.productVariant.product.name}
                           </div>
                           <div className="text-gray-500">
@@ -215,12 +216,12 @@ const Orders = async () => {
                     <div className="text-sm">
                       <div>{order.billingState || "N/A"}</div>
                       {order.billingCity && (
-                        <div className="text-gray-500">{order.billingState}, {" "}{order.billingCity}, {" "}{order.billingStreet}, {" "}{order.billingBuilding}, {" "}{order.billingFloor}</div>
+                        <div className="text-gray-500 text-wrap">{order.billingState}, {" "}{order.billingCity}, {" "}{order.billingStreet}, {" "}{order.billingBuilding}, {" "}{order.billingFloor}</div>
                       )}
                     </div>
                   </TableCell>
                   <TableCell className="text-gray-700">
-                    {order.paymentMethod || "N/A"}
+                    {order.paymentProvider || "N/A"}
                   </TableCell>
                   <TableCell className="text-right font-semibold text-gray-900">
                     {order.totalAmount.toFixed(2)} EGP

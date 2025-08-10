@@ -1,14 +1,11 @@
-// app/[locale]/page.tsx
 
 import Hero from "@/components/Hero/Hero";
 import { Suspense } from "react";
 import dynamic from "next/dynamic";
 import { routing } from "@/i18n/routing";
 
-// Import your data fetching functions
 import { getProductsByCategory } from "@/server/db/prisma";
 
-// Skeleton loaders for a better UX (see step 2)
 import { CardGridSkeleton } from "@/components/ui-custom/CardGridSkeleton";
 import BestSellers from "@/components/Best-Sellers/BestSellers";
 
@@ -40,9 +37,7 @@ export default async function Home() {
   return (
     <>
       <Hero />
-      {/* 3. Pass the fetched data down as props */}
       <BestSellers />
-
       <Suspense fallback={<CardGridSkeleton />}>
         <Sets products={sets ?? []} />
       </Suspense>

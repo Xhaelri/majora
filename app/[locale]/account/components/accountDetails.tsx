@@ -76,7 +76,7 @@ export default function AccountDetails({ user, userId }: AccountDetailsProps) {
   const currentUserData = state.data || user;
 
   return (
-    <section className="container mx-auto p-4 sm:p-6 max-w-4xl">
+    <section className="container mx-auto p-4 sm:p-6 ">
       <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">

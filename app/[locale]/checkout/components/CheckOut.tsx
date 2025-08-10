@@ -10,6 +10,7 @@ import {
 } from "@/server/actions/checkout-actions";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
+import Image from "next/image";
 
 interface BillingData {
   email: string;
@@ -440,10 +441,6 @@ export default function CheckoutPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="Egypt">Egypt</option>
-                    <option value="Saudi Arabia">Saudi Arabia</option>
-                    <option value="UAE">UAE</option>
-                    <option value="Kuwait">Kuwait</option>
-                    <option value="Qatar">Qatar</option>
                   </select>
                 </div>
               </div>
@@ -502,7 +499,7 @@ export default function CheckoutPage() {
               >
                 <div className="w-16 h-16 bg-gray-200 rounded-md flex-shrink-0 overflow-hidden">
                   {item.productVariant.images?.[0] && (
-                    <img
+                    <Image
                       src={item.productVariant.images[0].url.trimStart()}
                       alt={item.productVariant.images[0].altText}
                       className="w-full h-full object-cover"
