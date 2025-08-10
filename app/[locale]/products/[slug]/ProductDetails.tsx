@@ -21,7 +21,7 @@ type Variant = {
   stock: number;
   size: { id: string; name: string; nameAr?: string | null };
   color: { id: string; name: string; nameAr?: string | null };
-  images: Image[];
+  images?: Image[]; // Make images optional to avoid undefined errors
 };
 
 type Props = {
@@ -40,12 +40,12 @@ const ProductDetails = ({ product }: Props) => {
     let initialVariant: Variant | undefined;
 
     if (variantId) {
-      initialVariant = product.variants.find((v) => v.id === variantId);
+      initialVariant = product.variants.find((v: { id: string; }) => v.id === variantId);
     }
 
     // If no valid variant in URL, find the first available one
     if (!initialVariant) {
-      initialVariant = product.variants.find((v) => v.stock > 0);
+      initialVariant = product.variants.find((v: { stock: number; }) => v.stock > 0);
     }
 
     // If all are out of stock, default to the first variant
@@ -66,31 +66,31 @@ const ProductDetails = ({ product }: Props) => {
   }, [selectedVariant, router, searchParams]);
 
   // Memoize derived values for performance
-  const uniqueSizes = useMemo(
+  const uniqueSizes = useMemo<Variant["size"][]>(
     () =>
       Array.from(
-        new Map(product.variants.map((v) => [v.size.id, v.size])).values()
-      ),
+        new Map(product.variants.map((v: Variant) => [v.size.id, v.size])).values()
+      ) as Variant["size"][],
     [product.variants]
   );
 
-  const getAvailableColorsForSize = (sizeId: string) =>
+  const getAvailableColorsForSize = (sizeId: string): Variant["color"][] =>
     Array.from(
       new Map(
         product.variants
-          .filter((v) => v.size.id === sizeId)
-          .map((v) => [v.color.id, v.color])
+          .filter((v: Variant) => v.size.id === sizeId)
+          .map((v: Variant) => [v.color.id, v.color])
       ).values()
-    );
+    ) as Variant["color"][];
 
   const handleSizeClick = (sizeId: string) => {
     const variant =
       product.variants.find(
-        (v) =>
+        (v: { size: { id: string; }; color: { id: string | undefined; }; stock: number; }) =>
           v.size.id === sizeId &&
           v.color.id === selectedVariant?.color.id &&
           v.stock > 0
-      ) || product.variants.find((v) => v.size.id === sizeId && v.stock > 0);
+      ) || product.variants.find((v: { size: { id: string; }; stock: number; }) => v.size.id === sizeId && v.stock > 0);
 
     if (variant) {
       setSelectedVariant(variant);
@@ -99,7 +99,7 @@ const ProductDetails = ({ product }: Props) => {
 
   const handleColorClick = (colorId: string) => {
     const variant = product.variants.find(
-      (v) =>
+      (v: { color: { id: string; }; size: { id: string | undefined; }; stock: number; }) =>
         v.color.id === colorId &&
         v.size.id === selectedVariant?.size.id &&
         v.stock > 0
@@ -159,9 +159,9 @@ const ProductDetails = ({ product }: Props) => {
                 {t("product.size")}
               </h1>
               <div className="space-x-3">
-                {uniqueSizes.map((size) => {
+                {uniqueSizes.map((size: Variant["size"]) => {
                   const isDisabled = !product.variants.some(
-                    (v) => v.size.id === size.id && v.stock > 0
+                    (v: Variant) => v.size.id === size.id && v.stock > 0
                   );
                   return (
                     <Button
@@ -190,9 +190,9 @@ const ProductDetails = ({ product }: Props) => {
                 </h1>
                 <div className="space-x-3">
                   {getAvailableColorsForSize(selectedVariant.size.id).map(
-                    (color) => {
+                    (color: Variant["color"]) => {
                       const isDisabled = !product.variants.some(
-                        (v) =>
+                        (v: Variant) =>
                           v.size.id === selectedVariant.size.id &&
                           v.color.id === color.id &&
                           v.stock > 0
