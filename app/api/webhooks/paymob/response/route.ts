@@ -2,57 +2,49 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/prisma";
 import crypto from "crypto";
 
-interface PaymobResponseData {
-  id: string;
-  pending: string;
-  amount_cents: string;
-  success: string;
-  is_auth: string;
-  is_capture: string;
-  is_standalone_payment: string;
-  is_voided: string;
-  is_refunded: string;
-  is_3d_secure: string;
-  integration_id: string;
-  profile_id: string;
-  has_parent_transaction: string;
-  order_id: string;
-  created_at: string;
-  currency: string;
-  merchant_order_id: string;
-  owner: string;
-  parent_transaction: string;
-  source_data_pan: string;
-  source_data_sub_type: string;
-  source_data_type: string;
-  terminal_id: string;
-  merchant_commission: string;
-  installment: string;
-  discount_details: string;
-  is_void: string;
-  is_refund: string;
-  is_hidden: string;
-  error_occured: string;
-  refunded_amount_cents: string;
-  source_id: string;
-  is_captured: string;
-  captured_amount: string;
-  updated_at: string;
-  is_settled: string;
-  bill_balanced: string;
-  is_bill: string;
-  txn_response_code: string;
-  acq_response_code: string;
-  message: string;
-  merchant_txn_ref: string;
-  order_info: string;
-  hmac: string;
-  locale?: string;
+interface PaymobWebhookData {
+  obj: {
+    id: number;
+    pending: boolean;
+    amount_cents: number;
+    success: boolean;
+    is_auth: boolean;
+    is_capture: boolean;
+    is_standalone_payment: boolean;
+    is_voided: boolean;
+    is_refunded: boolean;
+    is_3d_secure: boolean;
+    integration_id: number;
+    profile_id: number;
+    has_parent_transaction: boolean;
+    order: {
+      id: number;
+      created_at: string;
+      merchant_order_id: string;
+    };
+    created_at: string;
+    currency: string;
+    source_data: {
+      pan: string;
+      type: string;
+      sub_type: string;
+    };
+    error_occured: boolean;
+    owner: number;
+    parent_transaction: null | Record<string, unknown>;
+    // Additional fields that might be present
+    txn_response_code?: string;
+    acq_response_code?: string;
+  };
+  type: string;
 }
 
 type OrderStatus = "PROCESSING" | "CANCELLED" | "PENDING";
 
-function verifyResponseSignature(query: PaymobResponseData): boolean {
+function verifyWebhookSignature(
+  data: PaymobWebhookData,
+  signature: string
+): boolean {
   try {
     const hmacSecret = process.env.PAYMOB_HMAC_SECRET;
     if (!hmacSecret) {
@@ -60,29 +52,28 @@ function verifyResponseSignature(query: PaymobResponseData): boolean {
       return false;
     }
 
-    // **FIXED**: The order of keys in the concatenated string is crucial for correct HMAC verification.
-    // The correct order is: amount_cents, created_at, currency, error_occured, has_parent_transaction, id, integration_id, is_3d_secure, is_auth, is_capture, is_refunded, is_standalone_payment, is_voided, order_id, owner, pending, source_data_pan, source_data_sub_type, source_data_type, success
+    // Convert boolean and number values to strings as Paymob expects
     const concatenatedString = [
-      query.amount_cents,
-      query.created_at,
-      query.currency,
-      query.error_occured,
-      query.has_parent_transaction,
-      query.id,
-      query.integration_id,
-      query.is_3d_secure,
-      query.is_auth,
-      query.is_capture,
-      query.is_refunded,
-      query.is_standalone_payment,
-      query.is_voided,
-      query.order_id,
-      query.owner,
-      query.pending,
-      query.source_data_pan,
-      query.source_data_sub_type,
-      query.source_data_type,
-      query.success,
+      data.obj.amount_cents.toString(),
+      data.obj.created_at,
+      data.obj.currency,
+      data.obj.error_occured.toString(),
+      data.obj.has_parent_transaction.toString(),
+      data.obj.id.toString(),
+      data.obj.integration_id.toString(),
+      data.obj.is_3d_secure.toString(),
+      data.obj.is_auth.toString(),
+      data.obj.is_capture.toString(),
+      data.obj.is_refunded.toString(),
+      data.obj.is_standalone_payment.toString(),
+      data.obj.is_voided.toString(),
+      data.obj.order.id.toString(),
+      data.obj.owner.toString(),
+      data.obj.pending.toString(),
+      data.obj.source_data.pan,
+      data.obj.source_data.sub_type,
+      data.obj.source_data.type,
+      data.obj.success.toString(),
     ].join("");
 
     const calculatedSignature = crypto
@@ -90,205 +81,230 @@ function verifyResponseSignature(query: PaymobResponseData): boolean {
       .update(concatenatedString)
       .digest("hex");
 
-    return calculatedSignature === query.hmac;
+    console.log("🔐 Signature verification:", {
+      provided: signature,
+      calculated: calculatedSignature,
+      match: calculatedSignature === signature,
+    });
+
+    return calculatedSignature === signature;
   } catch (error) {
-    console.error("Error verifying response signature:", error);
+    console.error("Error verifying webhook signature:", error);
     return false;
   }
 }
 
-function detectLocale(request: NextRequest): string {
-  const referer = request.headers.get("referer");
-  if (referer) {
-    try {
-      const url = new URL(referer);
-      const pathSegments = url.pathname.split("/");
-      const potentialLocale = pathSegments[1];
-      if (potentialLocale === "ar" || potentialLocale === "en") {
-        return potentialLocale;
-      }
-    } catch (error) {
-      console.error("Error parsing referer URL:", error);
-    }
-  }
-  return "en";
-}
-
-function stringToBoolean(value: string): boolean {
-  return value.toLowerCase() === "true";
-}
-
-function determineOrderStatusFromResponse(queryData: PaymobResponseData): {
+function determineOrderStatus(transaction: PaymobWebhookData["obj"]): {
   status: OrderStatus;
   isSuccess: boolean;
 } {
-  // **FIXED**: The logic for determining success is more robust.
-  // A successful transaction must have `success` as 'true' AND `txn_response_code` as 'APPROVED'.
-  const isSuccess =
-    stringToBoolean(queryData.success) &&
-    queryData.txn_response_code === "APPROVED";
-  const isVoided = stringToBoolean(queryData.is_voided);
-  const isRefunded = stringToBoolean(queryData.is_refunded);
-  const pending = stringToBoolean(queryData.pending);
+  // Check for success - must be true AND no error occurred
+  const isTransactionSuccess =
+    transaction.success && !transaction.error_occured;
+
+  // Additional check for transaction response code if available
+  const isApproved =
+    transaction.txn_response_code === "APPROVED" ||
+    transaction.acq_response_code === "APPROVED";
+
+  // Consider it successful if basic success is true OR if we have an approved response code
+  const isSuccess = isTransactionSuccess || (transaction.success && isApproved);
 
   let status: OrderStatus;
+
   if (isSuccess) {
     status = "PROCESSING";
-  } else if (isVoided || isRefunded) {
+  } else if (transaction.is_voided || transaction.is_refunded) {
     status = "CANCELLED";
-  } else if (pending) {
+  } else if (transaction.pending) {
     status = "PENDING";
   } else {
+    // Default to CANCELLED for any other case (failed transactions, etc.)
     status = "CANCELLED";
   }
+
+  console.log("📊 Transaction status determination:", {
+    success: transaction.success,
+    error_occured: transaction.error_occured,
+    pending: transaction.pending,
+    is_voided: transaction.is_voided,
+    is_refunded: transaction.is_refunded,
+    txn_response_code: transaction.txn_response_code,
+    final_status: status,
+    is_success: isSuccess,
+  });
 
   return { status, isSuccess };
 }
 
-export async function GET(req: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
-    const queryData: Partial<PaymobResponseData> = {};
-    searchParams.forEach((value, key) => {
-      (queryData as Record<string, string>)[key] = value;
+    // Get signature from headers (try multiple possible header names)
+    const signature =
+      req.headers.get("x-paymob-signature") ||
+      req.headers.get("signature") ||
+      req.headers.get("hmac") ||
+      "";
+
+    console.log("🔔 Webhook received with headers:", {
+      signature: signature ? "present" : "missing",
+      contentType: req.headers.get("content-type"),
+      userAgent: req.headers.get("user-agent"),
     });
 
-    const orderId = queryData.merchant_order_id;
-    const hmac = queryData.hmac;
-    const locale = queryData.locale || detectLocale(req);
+    const rawBody = await req.text();
+    console.log("📝 Raw webhook body:", rawBody.substring(0, 500) + "...");
 
-    if (!orderId) {
-      console.error("❌ No merchant_order_id found in response");
-      return NextResponse.redirect(
-        new URL(`/${locale}/checkout/failed?error=no_order_id`, req.url)
+    let data: PaymobWebhookData;
+    try {
+      data = JSON.parse(rawBody);
+    } catch (error) {
+      console.error("❌ Invalid JSON payload:", error);
+      return NextResponse.json(
+        { error: "Invalid JSON payload" },
+        { status: 400 }
       );
     }
 
-    // **FIXED**: Re-enabled HMAC verification for production environments.
-    if (hmac && process.env.NODE_ENV === "production") {
-      if (!verifyResponseSignature(queryData as PaymobResponseData)) {
-        console.error("❌ Invalid response signature");
-        return NextResponse.redirect(
-          new URL(`/${locale}/checkout/failed?error=invalid_signature`, req.url)
+    console.log("📦 Parsed webhook data:", {
+      type: data.type,
+      transactionId: data.obj.id,
+      orderId: data.obj.order.id,
+      merchantOrderId: data.obj.order.merchant_order_id,
+      success: data.obj.success,
+      pending: data.obj.pending,
+      error_occured: data.obj.error_occured,
+    });
+
+    // Verify signature only in production and if signature is provided
+    if (process.env.NODE_ENV === "production" && signature) {
+      if (!verifyWebhookSignature(data, signature)) {
+        console.error("❌ Invalid webhook signature");
+        return NextResponse.json(
+          { error: "Invalid signature" },
+          { status: 401 }
         );
       }
+      console.log("✅ Webhook signature verified");
     } else {
-      console.log("⚠️ HMAC verification skipped (development mode or no HMAC)");
+      console.log("⚠️ Webhook signature verification skipped");
     }
 
+    const { obj: transaction } = data;
+    const merchantOrderId = transaction.order.merchant_order_id;
+
+    if (!merchantOrderId) {
+      console.error("❌ No merchant_order_id in webhook data");
+      return NextResponse.json({ error: "Invalid order ID" }, { status: 400 });
+    }
+
+    console.log("🔍 Looking for order with merchantOrderId:", merchantOrderId);
+
+    // Find the order using merchantOrderId
     const order = await db.order.findUnique({
-      where: { id: orderId },
+      where: { merchantOrderId: merchantOrderId },
+      include: {
+        orderItems: {
+          include: {
+            productVariant: {
+              include: {
+                product: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!order) {
-      console.error(`❌ Order not found: ${orderId}`);
-      return NextResponse.redirect(
-        new URL(
-          `/${locale}/checkout/failed?error=order_not_found&orderId=${orderId}`,
-          req.url
-        )
+      console.error(
+        `❌ Order not found with merchantOrderId: ${merchantOrderId}`
       );
-    }
-
-    const { status: newStatus, isSuccess } = determineOrderStatusFromResponse(
-      queryData as PaymobResponseData
-    );
-
-    try {
-      await db.order.update({
-        where: { id: orderId },
-        data: {
-          status: newStatus,
-          paymentTransactionId: queryData.id || null,
-          updatedAt: new Date(),
-        },
+      // Try to find by internal ID as fallback
+      const orderById = await db.order.findUnique({
+        where: { id: merchantOrderId },
       });
-      console.log("💾 Order updated successfully");
-    } catch (dbError) {
-      console.error("❌ Database update failed:", dbError);
+
+      if (orderById) {
+        console.log("🔄 Found order by internal ID, updating merchantOrderId");
+        await db.order.update({
+          where: { id: merchantOrderId },
+          data: { merchantOrderId: merchantOrderId },
+        });
+      } else {
+        return NextResponse.json({ error: "Order not found" }, { status: 404 });
+      }
     }
 
-    const baseUrl = isSuccess ? "success" : "failed";
-    const redirectUrl = `/${locale}/checkout/${baseUrl}?orderId=${orderId}&txnId=${
-      queryData.id || "none"
-    }&debug=true`;
+    console.log("📦 Order found:", {
+      id: order?.id || merchantOrderId,
+      currentStatus: order?.status,
+      totalAmount: order?.totalAmount,
+    });
 
-    return NextResponse.redirect(new URL(redirectUrl, req.url));
+    const { status: newStatus, isSuccess } = determineOrderStatus(transaction);
+
+    // Update the order with new status and transaction details
+    const updatedOrder = await db.order.update({
+      where: {
+        merchantOrderId: merchantOrderId,
+      },
+      data: {
+        status: newStatus,
+        paymentTransactionId: transaction.id.toString(),
+        paymobOrderId: transaction.order.id.toString(),
+        // Ensure merchantOrderId is saved if it wasn't before
+        merchantOrderId: merchantOrderId,
+        updatedAt: new Date(),
+      },
+    });
+
+    console.log(`✅ Order ${updatedOrder.id} updated successfully:`, {
+      oldStatus: order?.status,
+      newStatus: newStatus,
+      transactionId: transaction.id,
+      paymobOrderId: transaction.order.id,
+      merchantOrderId: merchantOrderId,
+      isSuccess: isSuccess,
+    });
+
+    // Log the webhook processing result
+    console.log("🎯 Webhook processing completed:", {
+      orderId: updatedOrder.id,
+      status: newStatus,
+      success: isSuccess,
+      transactionId: transaction.id,
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: "Webhook processed successfully",
+      orderId: updatedOrder.id,
+      status: newStatus,
+    });
   } catch (error) {
-    console.error("💥 Response processing error:", error);
-    const locale = detectLocale(req);
-    return NextResponse.redirect(
-      new URL(`/${locale}/checkout/failed?error=processing_error`, req.url)
+    console.error("💥 Webhook processing error:", error);
+
+    // Return a more detailed error response
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+
+    return NextResponse.json(
+      {
+        error: "Webhook processing failed",
+        details: errorMessage,
+        timestamp: new Date().toISOString(),
+      },
+      { status: 500 }
     );
   }
 }
 
-export async function POST(req: NextRequest) {
-  try {
-    const formData = await req.formData();
-    const queryData: Partial<PaymobResponseData> = {};
-    formData.forEach((value, key) => {
-      (queryData as Record<string, string>)[key] = value.toString();
-    });
-
-    const orderId = queryData.merchant_order_id;
-
-    if (!orderId) {
-      console.error("POST: No merchant_order_id found");
-      return NextResponse.json({ error: "No order ID" }, { status: 400 });
-    }
-
-    const order = await db.order.findUnique({
-      where: { id: orderId },
-    });
-
-    if (!order) {
-      console.error(`POST: Order not found: ${orderId}`);
-      return NextResponse.json({ error: "Order not found" }, { status: 404 });
-    }
-
-    const { status: newStatus, isSuccess } = determineOrderStatusFromResponse(
-      queryData as PaymobResponseData
-    );
-    try {
-      await db.order.update({
-        where: { id: orderId },
-        data: {
-          status: newStatus,
-          paymentTransactionId: queryData.id || null,
-          updatedAt: new Date(),
-        },
-      });
-
-      console.log(
-        `📝 POST Response: Order ${orderId} updated to status: ${newStatus}`,
-        {
-          success: queryData.success,
-          error_occured: queryData.error_occured,
-          transactionId: queryData.id,
-          isSuccess,
-        }
-      );
-
-      return NextResponse.json({
-        success: isSuccess,
-        orderId,
-        status: newStatus,
-        transactionId: queryData.id,
-        debug: {
-          rawSuccess: queryData.success,
-          rawErrorOccured: queryData.error_occured,
-        },
-      });
-    } catch (dbError) {
-      console.error("❌ POST: Database update failed:", dbError);
-      return NextResponse.json(
-        { error: "Database update failed" },
-        { status: 500 }
-      );
-    }
-  } catch (error) {
-    console.error("Response POST processing error:", error);
-    return NextResponse.json({ error: "Processing failed" }, { status: 500 });
-  }
+// Handle GET requests (some webhook services might send GET)
+export async function GET(req: NextRequest) {
+  console.log("ℹ️ GET request received on webhook endpoint");
+  return NextResponse.json(
+    { message: "Webhook endpoint is active. Use POST for webhook data." },
+    { status: 200 }
+  );
 }
