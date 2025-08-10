@@ -112,7 +112,7 @@ export default function CheckoutPage() {
 
     loadUserData();
   }, []);
-  
+
   const handleGovernorateChange = useCallback(async (governorate: string) => {
     if (governorate) {
       const rate = await getShippingRate(governorate);
@@ -503,6 +503,8 @@ export default function CheckoutPage() {
                       src={item.productVariant.images[0].url.trimStart()}
                       alt={item.productVariant.images[0].altText}
                       className="w-full h-full object-cover"
+                      width={16}
+                      height={16}
                     />
                   )}
                 </div>
