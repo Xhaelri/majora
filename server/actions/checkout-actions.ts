@@ -1,3 +1,4 @@
+// Updated checkout-actions.ts with proper redirect URLs
 "use server";
 
 import { db } from "@/lib/prisma";
@@ -123,7 +124,8 @@ export async function applyDiscount(discountCode: string, orderAmount: number) {
 export async function createCheckoutSession(
   billingData: BillingData, 
   discountCode?: string,
-  shippingCost?: number
+  shippingCost?: number,
+  locale: string = 'en'
 ) {
   const session = await auth();
   const user = session?.user;
@@ -280,7 +282,9 @@ export async function createCheckoutSession(
       data: { paymobOrderId: paymobOrderId.toString() },
     });
 
-    // Step 3: Create payment key
+    // Step 3: Create payment key with proper redirect URLs
+    const baseUrl = process.env.NEXTAUTH_URL || 'https://sekra-seven.vercel.app';
+    
     const paymentKeyResponse = await fetch(
       "https://accept.paymob.com/api/acceptance/payment_keys",
       {
@@ -308,6 +312,8 @@ export async function createCheckoutSession(
           },
           currency: "EGP",
           integration_id: process.env.PAYMOB_INTEGRATION_ID,
+          // Add redirect URLs for iframe success/failure
+          redirect_url: `${baseUrl}/api/webhooks/paymob/response`,
         }),
       }
     );

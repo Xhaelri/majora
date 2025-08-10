@@ -195,30 +195,10 @@ model Order {
   discountCode         DiscountCode?     @relation(fields: [discountCodeId], references: [id])
   user                 User?             @relation(fields: [userId], references: [id])
   orderItems           OrderItem[]
-  paymobTransaction    PaymobTransaction?
   
-  // DEPRECATED FIELDS (kept for reference from original schema)
-  // shippingAddress    String?
-  // governorate        String?
+
 }
 
-model PaymobTransaction {
-  id              String   @id @default(uuid())
-  orderId         String   @unique
-  paymobOrderId   String
-  transactionId   String   @unique
-  merchantOrderId String
-  amount          Float
-  currency        String   @default("EGP")
-  success         Boolean
-  errorOccurred   Boolean  @default(false)
-  isRefunded      Boolean  @default(false)
-  isVoided        Boolean  @default(false)
-  paymentMethod   String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  order           Order    @relation(fields: [orderId], references: [id])
-}
 
 model OrderItem {
   id               String         @id @default(uuid())

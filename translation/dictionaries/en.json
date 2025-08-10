@@ -16,7 +16,7 @@
     "bestSeller": "BEST SELLER",
     "winterSale": "WINTER SALE"
   },
-"common": {
+  "common": {
     "shop": "SHOP",
     "searchResults": "Search results for",
     "noProductsFound": "No products found",
@@ -144,6 +144,35 @@
         "userExists": "A user with this email already exists.",
         "dbError": "Database error: Failed to create account."
       }
+    }
+  },
+  "checkout": {
+    "success": {
+      "title": "Thank You for Your Order!",
+      "description": "Your payment was successful and your order has been placed.",
+      "orderIdLabel": "Order ID",
+      "confirmationEmail": "A confirmation email has been sent to your email address.",
+      "continueShopping": "Continue Shopping",
+      "viewOrders": "View My Orders",
+      "whatHappensNext": "What happens next?",
+      "step1": "We'll process your order and prepare it for shipping",
+      "step2": "You'll receive tracking information once your order ships",
+      "step3": "Your order will be delivered within 3-7 business days"
+    },
+    "failed": {
+      "title": "Payment Failed",
+      "description": "Unfortunately, we couldn't process your payment. Please try again.",
+      "orderIdLabel": "Failed Order ID",
+      "possibleReasons": "Possible reasons:",
+      "reason1": "Insufficient funds in your account",
+      "reason2": "Incorrect card details",
+      "reason3": "Card expired or blocked",
+      "reason4": "Network connection issues",
+      "tryAgain": "Try Payment Again",
+      "returnToCart": "Return to Cart",
+      "continueShopping": "Continue Shopping",
+      "needHelp": "Need help?",
+      "contactSupport": "Contact our support team"
     }
   }
 }
