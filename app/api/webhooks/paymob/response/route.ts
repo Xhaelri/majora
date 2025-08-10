@@ -32,7 +32,6 @@ interface PaymobWebhookData {
     error_occured: boolean;
     owner: number;
     parent_transaction: null | Record<string, unknown>;
-    // Additional fields that might be present
     txn_response_code?: string;
     acq_response_code?: string;
   };
@@ -52,7 +51,7 @@ function verifyWebhookSignature(
       return false;
     }
 
-    // Convert boolean and number values to strings as Paymob expects
+    // Paymob expects these values in this exact order and format
     const concatenatedString = [
       data.obj.amount_cents.toString(),
       data.obj.created_at,
@@ -119,7 +118,6 @@ function determineOrderStatus(transaction: PaymobWebhookData["obj"]): {
   } else if (transaction.pending) {
     status = "PENDING";
   } else {
-    // Default to CANCELLED for any other case (failed transactions, etc.)
     status = "CANCELLED";
   }
 
@@ -137,9 +135,29 @@ function determineOrderStatus(transaction: PaymobWebhookData["obj"]): {
   return { status, isSuccess };
 }
 
+// Helper function to clear user cart after successful payment
+async function clearUserCart(userId: string) {
+  try {
+    console.log(`🧹 Clearing cart for user: ${userId}`);
+    
+    const cart = await db.cart.findUnique({
+      where: { userId },
+    });
+
+    if (cart) {
+      await db.cartItem.deleteMany({
+        where: { cartId: cart.id },
+      });
+      console.log(`✅ Cart cleared for user: ${userId}`);
+    }
+  } catch (error) {
+    console.error("❌ Error clearing cart:", error);
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
-    // Get signature from headers (try multiple possible header names)
+    // Get signature from headers
     const signature =
       req.headers.get("x-paymob-signature") ||
       req.headers.get("signature") ||
@@ -187,7 +205,7 @@ export async function POST(req: NextRequest) {
       }
       console.log("✅ Webhook signature verified");
     } else {
-      console.log("⚠️ Webhook signature verification skipped");
+      console.log("⚠️ Webhook signature verification skipped (dev mode)");
     }
 
     const { obj: transaction } = data;
@@ -201,9 +219,15 @@ export async function POST(req: NextRequest) {
     console.log("🔍 Looking for order with merchantOrderId:", merchantOrderId);
 
     // Find the order using merchantOrderId
-    const order = await db.order.findUnique({
-      where: { merchantOrderId: merchantOrderId },
+    const order = await db.order.findFirst({
+      where: { 
+        OR: [
+          { merchantOrderId: merchantOrderId },
+          { id: merchantOrderId } // Fallback to internal ID
+        ]
+      },
       include: {
+        user: true,
         orderItems: {
           include: {
             productVariant: {
@@ -217,29 +241,15 @@ export async function POST(req: NextRequest) {
     });
 
     if (!order) {
-      console.error(
-        `❌ Order not found with merchantOrderId: ${merchantOrderId}`
-      );
-      // Try to find by internal ID as fallback
-      const orderById = await db.order.findUnique({
-        where: { id: merchantOrderId },
-      });
-
-      if (orderById) {
-        console.log("🔄 Found order by internal ID, updating merchantOrderId");
-        await db.order.update({
-          where: { id: merchantOrderId },
-          data: { merchantOrderId: merchantOrderId },
-        });
-      } else {
-        return NextResponse.json({ error: "Order not found" }, { status: 404 });
-      }
+      console.error(`❌ Order not found with merchantOrderId: ${merchantOrderId}`);
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
     console.log("📦 Order found:", {
-      id: order?.id || merchantOrderId,
-      currentStatus: order?.status,
-      totalAmount: order?.totalAmount,
+      id: order.id,
+      currentStatus: order.status,
+      totalAmount: order.totalAmount,
+      userId: order.userId,
     });
 
     const { status: newStatus, isSuccess } = determineOrderStatus(transaction);
@@ -247,33 +257,30 @@ export async function POST(req: NextRequest) {
     // Update the order with new status and transaction details
     const updatedOrder = await db.order.update({
       where: {
-        merchantOrderId: merchantOrderId,
+        id: order.id,
       },
       data: {
         status: newStatus,
         paymentTransactionId: transaction.id.toString(),
         paymobOrderId: transaction.order.id.toString(),
-        // Ensure merchantOrderId is saved if it wasn't before
         merchantOrderId: merchantOrderId,
         updatedAt: new Date(),
       },
     });
 
+    // Clear cart only if payment is successful and user exists
+    if (isSuccess && order.userId) {
+      await clearUserCart(order.userId);
+    }
+
     console.log(`✅ Order ${updatedOrder.id} updated successfully:`, {
-      oldStatus: order?.status,
+      oldStatus: order.status,
       newStatus: newStatus,
       transactionId: transaction.id,
       paymobOrderId: transaction.order.id,
       merchantOrderId: merchantOrderId,
       isSuccess: isSuccess,
-    });
-
-    // Log the webhook processing result
-    console.log("🎯 Webhook processing completed:", {
-      orderId: updatedOrder.id,
-      status: newStatus,
-      success: isSuccess,
-      transactionId: transaction.id,
+      cartCleared: isSuccess && order.userId ? true : false,
     });
 
     return NextResponse.json({
@@ -285,7 +292,6 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error("💥 Webhook processing error:", error);
 
-    // Return a more detailed error response
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
 
@@ -300,11 +306,45 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// Handle GET requests (some webhook services might send GET)
+// Handle GET requests - this is what's being called after payment redirect
 export async function GET(req: NextRequest) {
   console.log("ℹ️ GET request received on webhook endpoint");
+  
+  const { searchParams } = new URL(req.url);
+  
+  // Log all query parameters for debugging
+  console.log("🔍 GET request parameters:", Object.fromEntries(searchParams.entries()));
+  
+  // Extract common Paymob response parameters
+  const success = searchParams.get('success');
+  const txn_response_code = searchParams.get('txn_response_code');
+  const merchant_order_id = searchParams.get('merchant_order_id');
+  const order_id = searchParams.get('order');
+  
+  // If we have payment result parameters, this is a payment redirect
+  if (success !== null || merchant_order_id || order_id) {
+    console.log("🔄 Payment redirect detected:", {
+      success,
+      txn_response_code,
+      merchant_order_id,
+      order_id,
+    });
+    
+    // Redirect to a success/failure page based on success parameter
+    const isSuccessful = success === 'true' || txn_response_code === 'APPROVED';
+    const redirectUrl = isSuccessful 
+      ? `/checkout/success?order=${merchant_order_id || order_id}`
+      : `/checkout/failed?order=${merchant_order_id || order_id}`;
+    
+    return NextResponse.redirect(new URL(redirectUrl, req.url));
+  }
+  
+  // Regular GET request to webhook endpoint
   return NextResponse.json(
-    { message: "Webhook endpoint is active. Use POST for webhook data." },
+    { 
+      message: "Webhook endpoint is active. Use POST for webhook data.",
+      timestamp: new Date().toISOString()
+    },
     { status: 200 }
   );
 }

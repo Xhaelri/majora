@@ -1,10 +1,10 @@
-// Updated checkout-actions.ts with proper redirect URLs
+// Updated checkout-actions.ts - Cart cleared only after successful payment
 "use server";
 
 import { db } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { getCartData } from "./cart";
-import { clearCart } from "./cart";
+// Remove the clearCart import since we'll handle it in webhook
 
 interface BillingData {
   email: string;
@@ -128,8 +128,6 @@ export async function applyDiscount(discountCode: string, orderAmount: number) {
   }
 }
 
-// lib/actions/checkout-actions.ts
-
 export async function createCheckoutSession(
   billingData: BillingData,
   discountCode?: string,
@@ -151,21 +149,27 @@ export async function createCheckoutSession(
 
   if (cartCount === 0) {
     return { error: "Your cart is empty." };
-  } // Calculate subtotal from database prices
+  }
 
+  // Calculate subtotal from database prices
   const subtotal = cartItems.reduce(
     (acc, item) => acc + item.productVariant.product.price * item.quantity,
     0
-  ); // Calculate sale discount from database prices
+  );
 
+  // Calculate sale discount from database prices
   const saleDiscount = cartItems.reduce((acc, item) => {
     const { price, salePrice } = item.productVariant.product;
     if (salePrice && salePrice < price) {
       return acc + (price - salePrice) * item.quantity;
     }
     return acc;
-  }, 0); // Calculate order amount after sale discount
-  const orderAmount = subtotal - saleDiscount; // Re-validate discount code server-side
+  }, 0);
+
+  // Calculate order amount after sale discount
+  const orderAmount = subtotal - saleDiscount;
+
+  // Re-validate discount code server-side
   let couponDiscount = 0;
   let appliedDiscountCodeId: string | undefined = undefined;
   if (discountCode) {
@@ -189,8 +193,9 @@ export async function createCheckoutSession(
 
   if (totalAmount < 0) {
     return { error: "Invalid order total calculated." };
-  } // Create the order first to get an ID
+  }
 
+  // Create the order first to get an ID
   const order = await db.order.create({
     data: {
       userId: user.id,
@@ -240,8 +245,9 @@ export async function createCheckoutSession(
     }
 
     const authData = await authResponse.json();
-    const authToken = authData.token; // Step 2: Create Paymob order
+    const authToken = authData.token;
 
+    // Step 2: Create Paymob order
     const orderResponse = await fetch(
       "https://accept.paymob.com/api/ecommerce/orders",
       {
@@ -274,19 +280,21 @@ export async function createCheckoutSession(
     }
 
     const orderData = await orderResponse.json();
-    const paymobOrderId = orderData.id; // Update our order with both Paymob's order ID and the merchantOrderId we sent them.
+    const paymobOrderId = orderData.id;
 
-    // **THIS IS THE FIX**
+    // Update our order with both Paymob's order ID and the merchantOrderId we sent them
     await db.order.update({
       where: { id: order.id },
       data: {
         paymobOrderId: paymobOrderId.toString(),
         merchantOrderId: order.id, // Save the ID you sent to Paymob
       },
-    }); // Step 3: Create payment key
+    });
 
+    // Step 3: Create payment key
     const baseUrl =
       process.env.NEXTAUTH_URL || "https://sekra-seven.vercel.app";
+    
     const paymentKeyResponse = await fetch(
       "https://accept.paymob.com/api/acceptance/payment_keys",
       {
@@ -328,7 +336,8 @@ export async function createCheckoutSession(
     const paymentKeyData = await paymentKeyResponse.json();
     const paymentKey = paymentKeyData.token;
 
-    await clearCart();
+    // DO NOT clear cart here - it will be cleared in the webhook after successful payment
+    console.log(`✅ Payment session created for order ${order.id}. Cart will be cleared after payment confirmation.`);
 
     return { paymentKey, orderId: order.id };
   } catch (error) {
@@ -340,6 +349,7 @@ export async function createCheckoutSession(
     return { error: "Failed to create payment session. Please try again." };
   }
 }
+
 export async function getShippingRate(governorate: string) {
   try {
     const rate = await db.shippingRate.findUnique({
@@ -375,5 +385,25 @@ export async function getUserData(userId: string) {
   } catch (error) {
     console.error("Error fetching user data:", error);
     return null;
+  }
+}
+
+// Helper function to manually clear cart (for testing or admin purposes)
+export async function clearUserCart(userId: string) {
+  try {
+    const cart = await db.cart.findUnique({
+      where: { userId },
+    });
+
+    if (cart) {
+      await db.cartItem.deleteMany({
+        where: { cartId: cart.id },
+      });
+      return { success: "Cart cleared successfully" };
+    }
+    return { error: "Cart not found" };
+  } catch (error) {
+    console.error("Error clearing cart:", error);
+    return { error: "Failed to clear cart" };
   }
 }
