@@ -34,8 +34,11 @@ interface Order {
   id: string;
   orderDate: Date;
   totalAmount: number;
-  shippingAddress: string | null;
-  governorate: string | null;
+  billingState: string | null;
+  billingCity: string | null;
+  billingBuilding: string | null;
+  billingFloor: string | null;
+  billingStreet: string | null;
   status: string;
   paymentMethod: string | null;
   orderItems: OrderItem[];
@@ -53,18 +56,18 @@ interface UserData {
 
 const getStatusColor = (status: string) => {
   switch (status.toLowerCase()) {
-    case 'pending':
-      return 'bg-yellow-100 text-yellow-800';
-    case 'processing':
-      return 'bg-blue-100 text-blue-800';
-    case 'shipped':
-      return 'bg-purple-100 text-purple-800';
-    case 'delivered':
-      return 'bg-green-100 text-green-800';
-    case 'cancelled':
-      return 'bg-red-100 text-red-800';
+    case "pending":
+      return "bg-yellow-100 text-yellow-800";
+    case "processing":
+      return "bg-blue-100 text-blue-800";
+    case "shipped":
+      return "bg-purple-100 text-purple-800";
+    case "delivered":
+      return "bg-green-100 text-green-800";
+    case "cancelled":
+      return "bg-red-100 text-red-800";
     default:
-      return 'bg-gray-100 text-gray-800';
+      return "bg-gray-100 text-gray-800";
   }
 };
 
@@ -75,7 +78,9 @@ const Orders = async () => {
     return (
       <section className="container mx-auto p-4 sm:p-6">
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-8 text-center">
-          <p className="text-red-600 text-lg">Please log in to view your orders.</p>
+          <p className="text-red-600 text-lg">
+            Please log in to view your orders.
+          </p>
         </div>
       </section>
     );
@@ -90,7 +95,9 @@ const Orders = async () => {
     return (
       <section className="container mx-auto p-4 sm:p-6">
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-8 text-center">
-          <p className="text-red-600 text-lg">Failed to load orders. Please try again later.</p>
+          <p className="text-red-600 text-lg">
+            Failed to load orders. Please try again later.
+          </p>
         </div>
       </section>
     );
@@ -120,7 +127,9 @@ const Orders = async () => {
               </svg>
             </div>
             <p className="text-gray-600 text-lg">No orders found.</p>
-            <p className="text-gray-500 text-sm mt-2">Your order history will appear here once you make a purchase.</p>
+            <p className="text-gray-500 text-sm mt-2">
+              Your order history will appear here once you make a purchase.
+            </p>
           </div>
         </div>
       </section>
@@ -132,20 +141,36 @@ const Orders = async () => {
       <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-2xl font-bold text-gray-900">Your Orders</h2>
-          <p className="text-gray-600 mt-1">Track and manage your order history</p>
+          <p className="text-gray-600 mt-1">
+            Track and manage your order history
+          </p>
         </div>
-        
+
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow className="bg-gray-50">
-                <TableHead className="text-left text-gray-900 font-semibold">Order ID</TableHead>
-                <TableHead className="text-left text-gray-900 font-semibold">Date</TableHead>
-                <TableHead className="text-left text-gray-900 font-semibold">Items</TableHead>
-                <TableHead className="text-left text-gray-900 font-semibold">Status</TableHead>
-                <TableHead className="text-left text-gray-900 font-semibold">Shipping</TableHead>
-                <TableHead className="text-left text-gray-900 font-semibold">Payment</TableHead>
-                <TableHead className="text-right text-gray-900 font-semibold">Total</TableHead>
+                <TableHead className="text-left text-gray-900 font-semibold">
+                  Order ID
+                </TableHead>
+                <TableHead className="text-left text-gray-900 font-semibold">
+                  Date
+                </TableHead>
+                <TableHead className="text-left text-gray-900 font-semibold">
+                  Items
+                </TableHead>
+                <TableHead className="text-left text-gray-900 font-semibold">
+                  Status
+                </TableHead>
+                <TableHead className="text-left text-gray-900 font-semibold">
+                  Shipping
+                </TableHead>
+                <TableHead className="text-left text-gray-900 font-semibold">
+                  Payment
+                </TableHead>
+                <TableHead className="text-right text-gray-900 font-semibold">
+                  Total
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -169,22 +194,28 @@ const Orders = async () => {
                             {item.productVariant.product.name}
                           </div>
                           <div className="text-gray-500">
-                            {item.productVariant.size.name} • {item.productVariant.color.name} • Qty: {item.quantity}
+                            {item.productVariant.size.name} •{" "}
+                            {item.productVariant.color.name} • Qty:{" "}
+                            {item.quantity}
                           </div>
                         </div>
                       ))}
                     </div>
                   </TableCell>
                   <TableCell>
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(order.status)}`}>
+                    <span
+                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+                        order.status
+                      )}`}
+                    >
                       {order.status}
                     </span>
                   </TableCell>
                   <TableCell className="text-gray-700">
                     <div className="text-sm">
-                      <div>{order.shippingAddress || "N/A"}</div>
-                      {order.governorate && (
-                        <div className="text-gray-500">{order.governorate}</div>
+                      <div>{order.billingState || "N/A"}</div>
+                      {order.billingCity && (
+                        <div className="text-gray-500">{order.billingState}, {" "}{order.billingCity}, {" "}{order.billingStreet}, {" "}{order.billingBuilding}, {" "}{order.billingFloor}</div>
                       )}
                     </div>
                   </TableCell>

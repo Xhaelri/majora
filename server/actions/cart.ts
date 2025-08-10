@@ -265,3 +265,56 @@ export async function getCartData(): Promise<GetCartDataResult> {
     return { items: [], count: 0 };
   }
 }
+
+
+
+export async function applyDiscount(code: string, subtotal: number) {
+  const discountCode = await db.discountCode.findUnique({
+    where: { code, isActive: true },
+  });
+
+  if (!discountCode) {
+    return { error: "Invalid discount code." };
+  }
+
+  if (discountCode.expiresAt && new Date() > discountCode.expiresAt) {
+    return { error: "This discount code has expired." };
+  }
+
+  if (discountCode.minOrderAmount && subtotal < discountCode.minOrderAmount) {
+    return { error: `Minimum order of ${discountCode.minOrderAmount} is required.` };
+  }
+
+  let discountAmount = 0;
+  if (discountCode.discountType === "PERCENTAGE") {
+    discountAmount = (subtotal * discountCode.value) / 100;
+  } else {
+    discountAmount = discountCode.value;
+  }
+
+  return { 
+    success: "Discount applied!", 
+    discountAmount, 
+    discountCode: discountCode.code 
+  };
+}
+
+export async function clearCart() {
+    const session = await auth();
+    if (!session?.user) {
+        return { error: "User not authenticated." };
+    }
+
+    const cart = await db.cart.findUnique({
+        where: { userId: session.user.id },
+        select: { id: true }
+    });
+
+    if (cart) {
+        await db.cartItem.deleteMany({
+            where: { cartId: cart.id }
+        });
+    }
+    
+    return { success: "Cart cleared." };
+}

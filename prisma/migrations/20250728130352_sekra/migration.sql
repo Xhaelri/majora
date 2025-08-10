@@ -159,6 +159,9 @@ CREATE TABLE "Order" (
     "id" TEXT NOT NULL,
     "userId" TEXT,
     "stripeSessionId" TEXT,
+    "paymobOrderId" TEXT,
+    "merchantOrderId" TEXT,
+    "paymentTransactionId" TEXT,
     "orderDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "status" "OrderStatus" NOT NULL DEFAULT 'PENDING',
     "subtotal" DOUBLE PRECISION NOT NULL,
@@ -167,12 +170,33 @@ CREATE TABLE "Order" (
     "totalAmount" DOUBLE PRECISION NOT NULL,
     "shippingAddress" TEXT,
     "paymentMethod" TEXT,
+    "paymentProvider" TEXT DEFAULT 'paymob',
     "discountCodeId" TEXT,
     "governorate" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Order_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "PaymobTransaction" (
+    "id" TEXT NOT NULL,
+    "orderId" TEXT NOT NULL,
+    "paymobOrderId" TEXT NOT NULL,
+    "transactionId" TEXT NOT NULL,
+    "merchantOrderId" TEXT NOT NULL,
+    "amount" DOUBLE PRECISION NOT NULL,
+    "currency" TEXT NOT NULL DEFAULT 'EGP',
+    "success" BOOLEAN NOT NULL,
+    "errorOccurred" BOOLEAN NOT NULL DEFAULT false,
+    "isRefunded" BOOLEAN NOT NULL DEFAULT false,
+    "isVoided" BOOLEAN NOT NULL DEFAULT false,
+    "paymentMethod" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "PaymobTransaction_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -282,6 +306,18 @@ CREATE UNIQUE INDEX "CartItem_cartId_productVariantId_key" ON "CartItem"("cartId
 CREATE UNIQUE INDEX "Order_stripeSessionId_key" ON "Order"("stripeSessionId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Order_paymobOrderId_key" ON "Order"("paymobOrderId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Order_merchantOrderId_key" ON "Order"("merchantOrderId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PaymobTransaction_orderId_key" ON "PaymobTransaction"("orderId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PaymobTransaction_transactionId_key" ON "PaymobTransaction"("transactionId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "DiscountCode_code_key" ON "DiscountCode"("code");
 
 -- CreateIndex
@@ -327,6 +363,9 @@ ALTER TABLE "Order" ADD CONSTRAINT "Order_discountCodeId_fkey" FOREIGN KEY ("dis
 ALTER TABLE "Order" ADD CONSTRAINT "Order_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "PaymobTransaction" ADD CONSTRAINT "PaymobTransaction_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "OrderItem" ADD CONSTRAINT "OrderItem_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -337,4 +376,3 @@ ALTER TABLE "Review" ADD CONSTRAINT "Review_productId_fkey" FOREIGN KEY ("produc
 
 -- AddForeignKey
 ALTER TABLE "Review" ADD CONSTRAINT "Review_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
