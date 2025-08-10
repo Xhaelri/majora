@@ -157,24 +157,67 @@ model CartItem {
 }
 
 model Order {
-  id               String        @id @default(uuid())
-  userId           String?
-  stripeSessionId  String?       @unique  // ✅ Add this
-  orderDate        DateTime      @default(now())
-  status           OrderStatus   @default(PENDING)
-  subtotal         Float
-  discountAmount   Float?
-  shippingCost     Float?
-  totalAmount      Float
-  shippingAddress String?
-  paymentMethod    String?
-  discountCodeId   String?
-  governorate      String?
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-  discountCode     DiscountCode? @relation(fields: [discountCodeId], references: [id])
-  user             User?         @relation(fields: [userId], references: [id])
-  orderItems       OrderItem[]
+  id                   String            @id @default(uuid())
+  userId               String?
+  orderDate            DateTime          @default(now())
+  status               OrderStatus       @default(PENDING)
+  subtotal             Float
+  totalAmount          Float
+  discountAmount       Float?
+  shippingCost         Float?
+  paymentMethod        String?
+  paymentProvider      String?           @default("paymob")
+  discountCodeId       String?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+
+  // Billing Address
+  billingEmail         String?
+  billingFirstName     String?
+  billingLastName      String?
+  billingPhone         String?
+  billingStreet        String?
+  billingBuilding      String?
+  billingApartment     String?
+  billingFloor         String?
+  billingCity          String?
+  billingState         String? // This was referred to as 'governorate' elsewhere
+  billingPostalCode    String?
+  billingCountry       String?
+
+  // Payment Provider Specific Fields
+  stripeSessionId      String?           @unique // Keep for backward compatibility
+  paymobOrderId        String?           @unique
+  merchantOrderId      String?           @unique
+  paymentTransactionId String?
+
+  // Relations
+  discountCode         DiscountCode?     @relation(fields: [discountCodeId], references: [id])
+  user                 User?             @relation(fields: [userId], references: [id])
+  orderItems           OrderItem[]
+  paymobTransaction    PaymobTransaction?
+  
+  // DEPRECATED FIELDS (kept for reference from original schema)
+  // shippingAddress    String?
+  // governorate        String?
+}
+
+model PaymobTransaction {
+  id              String   @id @default(uuid())
+  orderId         String   @unique
+  paymobOrderId   String
+  transactionId   String   @unique
+  merchantOrderId String
+  amount          Float
+  currency        String   @default("EGP")
+  success         Boolean
+  errorOccurred   Boolean  @default(false)
+  isRefunded      Boolean  @default(false)
+  isVoided        Boolean  @default(false)
+  paymentMethod   String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  order           Order    @relation(fields: [orderId], references: [id])
 }
 
 model OrderItem {

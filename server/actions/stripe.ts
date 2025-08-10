@@ -107,7 +107,13 @@ export async function fetchClientSecret(): Promise<string> {
 export async function retrieveCheckoutSession(sessionId: string) {
   try {
     const session = (await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ["shipping", "shipping.address", "phone_number", "line_items", "payment_intent"],
+      expand: [
+        "shipping",
+        "shipping.address",
+        "phone_number",
+        "line_items",
+        "payment_intent",
+      ],
     })) as Stripe.Checkout.Session & {
       shipping?: {
         address?: Stripe.Address | null;
@@ -124,7 +130,12 @@ export async function retrieveCheckoutSession(sessionId: string) {
 export async function handleSuccessfulPayment(sessionId: string) {
   try {
     const session = (await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ["shipping", "shipping.address", "phone_number", "payment_intent"],
+      expand: [
+        "shipping",
+        "shipping.address",
+        "phone_number",
+        "payment_intent",
+      ],
     })) as Stripe.Checkout.Session & {
       shipping?: {
         address?: Stripe.Address | null;
@@ -153,7 +164,8 @@ export async function handleSuccessfulPayment(sessionId: string) {
 
       // Use customer_details.address and phone
       const shippingAddress =
-        session.customer_details?.address?.line1 || "No shipping address provided";
+        session.customer_details?.address?.line1 ||
+        "No shipping address provided";
       const governorate =
         session.customer_details?.address?.state || "Not provided";
       const phone = session.customer_details?.phone || "Not provided";
@@ -201,6 +213,13 @@ export async function handleSuccessfulPayment(sessionId: string) {
         include: {
           orderItems: true,
         },
+      });
+
+      const stockUpdate = await db.order.upsert({
+        where: { id: userId },
+        update:{
+          
+        }
       });
 
       if (session.metadata?.cartId) {

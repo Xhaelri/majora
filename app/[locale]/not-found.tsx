@@ -37,7 +37,7 @@ export default function NotFoundPage() {
       </p>
       <Link
         href={"/"}
-        className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-md hoverEffect hover:bg-primary/90"
+        className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground  hoverEffect hover:bg-primary/90"
       >
         {t("returnHome") || "Return to Home"}
       </Link>
