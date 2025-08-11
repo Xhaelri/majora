@@ -43,7 +43,7 @@ interface PaymobWebhookData {
   };
 }
 
-type OrderStatus = "PROCESSING" | "CANCELLED" | "PENDING";
+type OrderStatus = "PROCESSING" | "CANCELLED" | "PENDING" ;
 
 function verifyWebhookSignature(
   data: PaymobWebhookData,
@@ -138,43 +138,31 @@ async function clearUserCart(userId: string) {
 }
 
 export async function POST(req: NextRequest) {
+  // 1. أول سطر عشان نتأكد إن الدالة اشتغلت
+  console.log("--- ✅ WEBHOOK RECEIVED ---");
+
   try {
     const signature = req.headers.get("x-paymob-signature") || "";
     const rawBody = await req.text();
-    const data: PaymobWebhookData = JSON.parse(rawBody);
+    const data = JSON.parse(rawBody);
 
-    console.log("🔔 Webhook received:", {
-      type: data.type,
-      transactionId: data.obj.id,
-      paymobOrderId: data.obj.order.id,
-      merchantOrderId: data.obj.order.merchant_order_id,
-    });
+    // 2. هل قدر يقرأ البيانات؟
+    console.log("--- 📝 DATA PARSED SUCCESSFULLY ---", { transactionId: data.obj.id });
 
-    // We'll skip signature verification in dev, but it's crucial for production.
     if (process.env.NODE_ENV === "production") {
-      if (!signature || !verifyWebhookSignature(data, signature)) {
-        console.error("❌ Invalid webhook signature");
+      if (!verifyWebhookSignature(data, signature)) {
+        console.error("--- ❌ SIGNATURE VERIFICATION FAILED ---");
         return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
       }
-      console.log("✅ Webhook signature verified");
-    } else {
-      console.log("⚠️ Signature verification skipped (dev mode)");
+      console.log("--- 🔐 SIGNATURE VERIFIED ---");
     }
 
     const { obj: transaction } = data;
-
-    // 3. UPDATED: Flexible order identification logic.
     const merchantOrderId = transaction.order.merchant_order_id;
     const paymobOrderId = transaction.order.id.toString();
 
-    if (!merchantOrderId && !paymobOrderId) {
-      console.error("❌ No merchant_order_id or paymob order ID found in webhook.");
-      return NextResponse.json({ error: "Missing order identifier" }, { status: 400 });
-    }
+    console.log(`--- 🔍 SEARCHING FOR ORDER with paymobOrderId: ${paymobOrderId} or merchantOrderId: ${merchantOrderId} ---`);
 
-    // 4. UPDATED: Dynamic database query.
-    // This now searches for EITHER the merchantOrderId OR the paymobOrderId.
-    // Ensure you have a 'paymobOrderId' field (or similar) on your Order model.
     const order = await db.order.findFirst({
       where: {
         OR: [
@@ -186,45 +174,45 @@ export async function POST(req: NextRequest) {
     });
 
     if (!order) {
-      console.error(`❌ Order not found with merchantOrderId: '${merchantOrderId}' or paymobOrderId: '${paymobOrderId}'`);
-      // Return 200 OK to prevent Paymob from retrying a webhook for an order you can't find.
-      return NextResponse.json({ message: "Order not found, but webhook acknowledged." });
+      console.error("--- ❌ ORDER NOT FOUND IN DATABASE ---");
+      return NextResponse.json({ message: "Order not found" });
     }
 
-    console.log("📦 Order found:", {
-      id: order.id,
-      currentStatus: order.status,
-    });
+    // 3. هل لقى الطلب؟
+    console.log(`--- 📦 ORDER FOUND: ${order.id} with status ${order.status} ---`);
 
-    // Avoid reprocessing an already finalized order
-    if (order.status === "PROCESSING" || order.status === "CANCELLED") {
-      console.log(`- Order ${order.id} is already finalized. No update needed.`);
+    if (order.status === "PROCESSING"  || order.status === "CANCELLED") {
+      console.log("--- ⏩ ORDER ALREADY FINALIZED, SKIPPING. ---");
       return NextResponse.json({ message: "Order already processed." });
     }
 
     const { status: newStatus, isSuccess } = determineOrderStatus(transaction);
 
-    const updatedOrder = await db.order.update({
+    // 4. قبل ما يحدث مباشرة
+    console.log(`--- 🔄 ATTEMPTING TO UPDATE ORDER ${order.id} TO: ${newStatus} ---`);
+
+    await db.order.update({
       where: { id: order.id },
       data: {
         status: newStatus,
         paymentTransactionId: transaction.id.toString(),
-        // You are already saving paymobOrderId, which is great!
         updatedAt: new Date(),
       },
     });
 
+    // 5. لو نجح في التحديث
+    console.log(`--- 🎉 ORDER ${order.id} UPDATED SUCCESSFULLY! ---`);
+    
     if (isSuccess && order.userId) {
       await clearUserCart(order.userId);
     }
 
-    console.log(`✅ Order ${updatedOrder.id} updated successfully to ${newStatus}`);
     return NextResponse.json({ success: true, newStatus: newStatus });
 
   } catch (error) {
-    console.error("💥 Webhook processing error:", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    return NextResponse.json({ error: "Webhook processing failed", details: errorMessage }, { status: 500 });
+    // 6. لو حصل أي خطأ في أي مكان
+    console.error("--- 🔥🔥🔥 CRITICAL ERROR IN WEBHOOK ---", error);
+    return NextResponse.json({ error: "Webhook processing failed" }, { status: 500 });
   }
 }
 
