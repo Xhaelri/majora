@@ -65,7 +65,34 @@ async function getOrCreateCart(userId: string) {
       include: { items: true },
     });
   }
+
   return cart;
+}
+
+// Helper function to get cart items with full relations
+async function getCartItemsWithFullData(cartId: string) {
+  return db.cartItem.findMany({
+    where: { cartId },
+    include: {
+      productVariant: {
+        include: {
+          color: true,
+          size: true,
+          images: {
+            select: {
+              url: true,
+              altText: true,
+            },
+            take: 1, 
+          },
+          product: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "asc",
+    },
+  });
 }
 
 export async function addToCart(productVariantId: string, quantity = 1) {
@@ -75,7 +102,6 @@ export async function addToCart(productVariantId: string, quantity = 1) {
 
     const cart = await getOrCreateCart(user.id);
 
-    // Use upsert for better performance and atomicity
     await db.cartItem.upsert({
       where: {
         cartId_productVariantId: {
@@ -95,11 +121,10 @@ export async function addToCart(productVariantId: string, quantity = 1) {
       },
     });
 
-    // Revalidate paths for better cache management
-    // revalidatePath("/cart");
-    // revalidatePath("/api/cart");
-    
-    return { success: true };
+    const updatedItems = await getCartItemsWithFullData(cart.id);
+    const count = updatedItems.reduce((sum, item) => sum + item.quantity, 0);
+
+    return { success: true, count, updatedItems };
   } catch (error) {
     console.error("Add to cart error:", error);
     return { success: false, error: getErrorMessage(error) };
@@ -128,10 +153,10 @@ export async function updateCartItemQuantity(
       });
     }
 
-    revalidatePath("/cart");
-    revalidatePath("/api/cart");
-    
-    return { success: true };
+    const updatedItems = await getCartItemsWithFullData(cart.id);
+    const count = updatedItems.reduce((sum, item) => sum + item.quantity, 0);
+
+    return { success: true, count, updatedItems };
   } catch (error) {
     console.error("Update cart item error:", error);
     return { success: false, error: getErrorMessage(error) };
@@ -150,16 +175,15 @@ export async function removeFromCart(productVariantId: string) {
       where: { cartId: cart.id, productVariantId },
     });
 
-    revalidatePath("/cart");
-    revalidatePath("/api/cart");
-    
-    return { success: true };
+    const updatedItems = await getCartItemsWithFullData(cart.id);
+    const count = updatedItems.reduce((sum, item) => sum + item.quantity, 0);
+
+    return { success: true, count, updatedItems };
   } catch (error) {
     console.error("Remove from cart error:", error);
     return { success: false, error: getErrorMessage(error) };
   }
 }
-
 export async function mergeGuestCartWithUserCart(authenticatedUserId: string) {
   try {
     const anonymousId = (await cookies()).get("guest_cart_id")?.value;
@@ -266,8 +290,6 @@ export async function getCartData(): Promise<GetCartDataResult> {
   }
 }
 
-
-
 export async function applyDiscount(code: string, subtotal: number) {
   const discountCode = await db.discountCode.findUnique({
     where: { code, isActive: true },
@@ -282,7 +304,9 @@ export async function applyDiscount(code: string, subtotal: number) {
   }
 
   if (discountCode.minOrderAmount && subtotal < discountCode.minOrderAmount) {
-    return { error: `Minimum order of ${discountCode.minOrderAmount} is required.` };
+    return {
+      error: `Minimum order of ${discountCode.minOrderAmount} is required.`,
+    };
   }
 
   let discountAmount = 0;
@@ -292,29 +316,29 @@ export async function applyDiscount(code: string, subtotal: number) {
     discountAmount = discountCode.value;
   }
 
-  return { 
-    success: "Discount applied!", 
-    discountAmount, 
-    discountCode: discountCode.code 
+  return {
+    success: "Discount applied!",
+    discountAmount,
+    discountCode: discountCode.code,
   };
 }
 
 export async function clearCart() {
-    const session = await auth();
-    if (!session?.user) {
-        return { error: "User not authenticated." };
-    }
+  const session = await auth();
+  if (!session?.user) {
+    return { error: "User not authenticated." };
+  }
 
-    const cart = await db.cart.findUnique({
-        where: { userId: session.user.id },
-        select: { id: true }
+  const cart = await db.cart.findUnique({
+    where: { userId: session.user.id },
+    select: { id: true },
+  });
+
+  if (cart) {
+    await db.cartItem.deleteMany({
+      where: { cartId: cart.id },
     });
+  }
 
-    if (cart) {
-        await db.cartItem.deleteMany({
-            where: { cartId: cart.id }
-        });
-    }
-    
-    return { success: "Cart cleared." };
+  return { success: "Cart cleared." };
 }

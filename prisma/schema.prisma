@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  // output   = "../lib/generated/prisma"
 }
 
 datasource db {
@@ -24,23 +23,26 @@ model Account {
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  // Performance indexes
+  @@index([userId])
+  @@index([provider])
 }
 
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
+// model Session {
+//   id           String   @id @default(cuid())
+//   sessionToken String   @unique
+//   userId       String
+//   expires      DateTime
+//   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+// }
 
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
+// model VerificationToken {
+//   identifier String
+//   token      String   @unique
+//   expires    DateTime
 
-  @@unique([identifier, token])
-}
+//   @@unique([identifier, token])
+// }
 
 model User {
   id            String    @id @default(uuid())
@@ -61,8 +63,14 @@ model User {
   cart          Cart?
   orders        Order[]
   reviews       Review[]
-  sessions      Session[]
+  // sessions      Session[]
+
+  // Performance indexes
+  @@index([createdAt])
+  @@index([isGuest])
+  @@index([email, isGuest]) // Composite for user lookups
 }
+
 
 model Product {
   id               String           @id @default(uuid())
@@ -80,8 +88,13 @@ model Product {
   category         Category?        @relation(fields: [categoryId], references: [id])
   variants         ProductVariant[]
   reviews          Review[]
-}
 
+  @@index([categoryId]) // Keep - category browsing
+  @@index([categoryId, price]) // Keep - most common filter combo
+  @@index([isLimitedEdition]) // Keep - business requirement
+  @@index([createdAt]) // Keep - for "new products" listings
+
+}
 model ProductVariant {
   id         String         @id @default(uuid())
   productId  String
@@ -99,6 +112,10 @@ model ProductVariant {
   size       Size           @relation(fields: [sizeId], references: [id])
 
   @@unique([productId, sizeId, colorId])
+  @@index([productId]) // Keep - most common query
+  @@index([productId, stock]) // Keep - available variants query
+  @@index([stock]) // Keep - low stock monitoring
+
 }
 
 model ProductImage {
@@ -108,6 +125,9 @@ model ProductImage {
   variantId String
   altTextAr String?
   variant   ProductVariant @relation(fields: [variantId], references: [id])
+
+  // Performance indexes
+  @@index([variantId])
 }
 
 model Category {
@@ -141,6 +161,7 @@ model Cart {
   updatedAt DateTime   @updatedAt
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   items     CartItem[]
+
 }
 
 model CartItem {
@@ -154,7 +175,12 @@ model CartItem {
   productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
 
   @@unique([cartId, productVariantId])
+  // Performance indexes
+  @@index([cartId])
+  @@index([productVariantId])
+  @@index([updatedAt]) // For recent cart activity
 }
+
 
 model Order {
   id                   String            @id @default(uuid())
@@ -165,13 +191,12 @@ model Order {
   totalAmount          Float
   discountAmount       Float?           
   shippingCost         Float?
-  paymentMethod        String?
   paymentProvider      String?           @default("paymob")
   discountCodeId       String?
   createdAt            DateTime          @default(now())
   updatedAt            DateTime          @updatedAt
 
-  // Billing Address
+  // Billing Address fields...
   billingEmail         String?
   billingFirstName     String?
   billingLastName      String?
@@ -181,12 +206,11 @@ model Order {
   billingApartment     String?
   billingFloor         String?
   billingCity          String?
-  billingState         String? // This was referred to as 'governorate' elsewhere
+  billingState         String?
   billingPostalCode    String?
   billingCountry       String?
 
   // Payment Provider Specific Fields
-  stripeSessionId      String?           @unique // Keep for backward compatibility
   paymobOrderId        String?           @unique
   merchantOrderId      String?           @unique
   paymentTransactionId String?
@@ -195,9 +219,15 @@ model Order {
   discountCode         DiscountCode?     @relation(fields: [discountCodeId], references: [id])
   user                 User?             @relation(fields: [userId], references: [id])
   orderItems           OrderItem[]
-  
 
+  // Essential indexes - reduced from 9 to 5
+  @@index([userId, status]) // Keep - most common user query
+  @@index([status, orderDate]) // Keep - admin dashboard
+  @@index([billingEmail]) // Keep - customer service
+  @@index([paymobOrderId]) // Keep - payment webhooks
+  @@index([createdAt]) // Keep - recent orders
 }
+
 
 
 model OrderItem {
@@ -210,7 +240,13 @@ model OrderItem {
   updatedAt        DateTime       @updatedAt
   order            Order          @relation(fields: [orderId], references: [id])
   productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
+
+  // Essential indexes - reduced from 4 to 2
+  @@index([orderId]) // Keep - always queried by order
+  @@index([productVariantId, createdAt]) // Keep - for sales analytics
 }
+
+
 
 model Review {
   id        String   @id @default(uuid())
@@ -222,6 +258,13 @@ model Review {
   updatedAt DateTime @updatedAt
   product   Product  @relation(fields: [productId], references: [id])
   user      User     @relation(fields: [userId], references: [id])
+
+  // Essential indexes - reduced from 6 to 3
+  @@index([productId]) // Keep - product review lookups
+  @@index([productId, rating]) // Keep - rating calculations
+  @@index([userId]) // Keep - user review history
+  // REMOVED: Individual rating, createdAt indexes (less critical)
+  // REMOVED: @@index([productId, createdAt]) - less common than rating queries
 }
 
 model DiscountCode {
@@ -235,6 +278,10 @@ model DiscountCode {
   updatedAt      DateTime     @updatedAt
   discountType   String? 
   orders         Order[]
+
+  // Essential indexes - reduced from 4 to 2
+  @@index([isActive, expiresAt]) // Keep - valid discount lookups
+  @@index([code, isActive]) // Keep - discount validation
 }
 
 model ShippingRate {
@@ -243,13 +290,18 @@ model ShippingRate {
   cost        Float
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
 }
 
-model NewsletterSubscription {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  createdAt DateTime @default(now())
-}
+
+// model NewsletterSubscription {
+//   id        String   @id @default(uuid())
+//   email     String   @unique
+//   createdAt DateTime @default(now())
+
+//   // Performance indexes
+//   @@index([createdAt]) // For subscription analytics
+// }
 
 enum OrderStatus {
   PENDING

@@ -1,4 +1,8 @@
+// AddToCartButton.tsx
+
 "use client";
+// CHANGE 1: Import useState and useEffect to manage local state.
+import React, { useState } from "react";
 import Check from "@/public/assets/check.svg";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
@@ -12,26 +16,31 @@ export default function AddToCartButton({
   productVariantId: string;
   quantity?: number;
 }) {
-  const t = useTranslations(); 
-  const { addToCartOptimistic, isMutating } = useCart(); 
+  const t = useTranslations();
+  const { addToCartContext } = useCart();
+  const [isAdding, setIsAdding] = useState(false);
 
-  const handleClick = async () => {
-      try {
-        await addToCartOptimistic(productVariantId, quantity);
+  const handleClick = () => {
+    if (isAdding) return;
 
-        // Show success toast
-        toast.custom(() => (
-          <div className="bg-black text-white w-full px-4 py-3 text-sm rounded-none flex items-center justify-center gap-2">
-            <Check />
-            <p className="font-semibold uppercase">
-              {t("product.itemAddedToCart")}
-            </p>
-          </div>
-        ));
-      } catch (error) {
-        console.log(error);
-        toast.error(t("product.addToCartError"));
-      }
+    setIsAdding(true);
+
+    try {
+      addToCartContext(productVariantId, quantity);
+      toast.custom(() => (
+        <div className="bg-black text-white w-full px-4 py-3 text-sm rounded-none flex items-center justify-center gap-2">
+          <Check />
+          <p className="font-semibold uppercase">
+            {t("product.itemAddedToCart")}
+          </p>
+        </div>
+      ));
+    } catch (error) {
+      console.log(error);
+      toast.error(t("product.addToCartError"));
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   return (
@@ -39,9 +48,9 @@ export default function AddToCartButton({
       variant={"cartAdd"}
       size={"cartAdd"}
       onClick={handleClick}
-      disabled={isMutating} 
+      disabled={isAdding}
     >
-      {isMutating ? t("product.adding") : t("product.addToCart")}
+      {isAdding ? t("product.adding") : t("product.addToCart")}
     </Button>
   );
 }
