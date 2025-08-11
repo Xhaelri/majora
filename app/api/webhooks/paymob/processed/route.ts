@@ -48,27 +48,29 @@ function verifyWebhookSignature(
       return false;
     }
 
+    // FIX: Concatenate values based on alphabetically sorted keys from the 'obj' object.
+    const receivedObject = data.obj;
     const concatenatedString = [
-      data.obj.amount_cents,
-      data.obj.created_at,
-      data.obj.currency,
-      data.obj.error_occured,
-      data.obj.has_parent_transaction,
-      data.obj.id,
-      data.obj.integration_id,
-      data.obj.is_3d_secure,
-      data.obj.is_auth,
-      data.obj.is_capture,
-      data.obj.is_refunded,
-      data.obj.is_standalone_payment,
-      data.obj.is_voided,
-      data.obj.order.id,
-      data.obj.owner,
-      data.obj.pending,
-      data.obj.source_data.pan,
-      data.obj.source_data.sub_type,
-      data.obj.source_data.type,
-      data.obj.success,
+      receivedObject.amount_cents,
+      receivedObject.created_at,
+      receivedObject.currency,
+      receivedObject.error_occured,
+      receivedObject.has_parent_transaction,
+      receivedObject.id,
+      receivedObject.integration_id,
+      receivedObject.is_3d_secure,
+      receivedObject.is_auth,
+      receivedObject.is_capture,
+      receivedObject.is_refunded,
+      receivedObject.is_standalone_payment,
+      receivedObject.is_voided,
+      receivedObject.order.id,
+      receivedObject.owner,
+      receivedObject.pending,
+      receivedObject.source_data.pan,
+      receivedObject.source_data.sub_type,
+      receivedObject.source_data.type,
+      receivedObject.success,
     ].join("");
 
     const calculatedSignature = crypto
@@ -109,10 +111,12 @@ function determineOrderStatus(
 
 export async function POST(req: NextRequest) {
   try {
-    const signature =
-      req.headers.get("x-paymob-signature") ||
-      req.headers.get("signature") ||
-      "";
+    // FIX: Read the 'hmac' from the URL search parameters, not the headers.
+    const hmac = req.nextUrl.searchParams.get("hmac");
+    if (!hmac) {
+      return NextResponse.json({ error: "Missing HMAC" }, { status: 400 });
+    }
+
     const rawBody = await req.text();
     let data: PaymobWebhookData;
     try {
@@ -127,7 +131,7 @@ export async function POST(req: NextRequest) {
 
     if (
       process.env.NODE_ENV === "production" &&
-      !verifyWebhookSignature(data, signature)
+      !verifyWebhookSignature(data, hmac)
     ) {
       return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     }
@@ -148,6 +152,13 @@ export async function POST(req: NextRequest) {
 
     if (!order) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
+    // Don't update the status if the order is already paid
+    if (order.status === "PAID") {
+        return NextResponse.json({
+            success: true,
+            message: "Webhook processed. Order already marked as PAID.",
+        });
     }
 
     const newStatus = determineOrderStatus(transaction);
