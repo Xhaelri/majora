@@ -191,7 +191,6 @@ export async function getAccountDetails(userId: string) {
           billingBuilding: true,
           billingFloor: true,
           billingStreet: true,
-          paymentMethod: true,
           paymentProvider: true,
           orderItems: {
             select: {

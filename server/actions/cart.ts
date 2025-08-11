@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/prisma";
 import { auth } from "@/auth";
-import { revalidatePath, unstable_noStore } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { nanoid } from "nanoid";
 import { GetCartDataResult } from "@/types/product";
@@ -83,7 +83,7 @@ async function getCartItemsWithFullData(cartId: string) {
               url: true,
               altText: true,
             },
-            take: 1, 
+            take: 1,
           },
           product: true,
         },
@@ -244,8 +244,6 @@ export async function mergeGuestCartWithUserCart(authenticatedUserId: string) {
     (await cookies()).delete("guest_cart_id");
     revalidatePath("/cart");
     revalidatePath("/");
-    revalidatePath("/api/cart");
-
     return { success: true };
   } catch (error) {
     console.error("Merge cart error:", error);
@@ -254,7 +252,7 @@ export async function mergeGuestCartWithUserCart(authenticatedUserId: string) {
 }
 
 export async function getCartData(): Promise<GetCartDataResult> {
-  unstable_noStore();
+  // unstable_noStore();
 
   try {
     const user = await getCartUser();
@@ -269,7 +267,13 @@ export async function getCartData(): Promise<GetCartDataResult> {
               include: {
                 color: true,
                 size: true,
-                images: true,
+                images: {
+                  select: {
+                    url: true,
+                    altText: true,
+                  },
+                  take: 1,
+                },
                 product: true,
               },
             },

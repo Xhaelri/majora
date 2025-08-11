@@ -40,7 +40,6 @@ interface Order {
   billingFloor: string | null;
   billingStreet: string | null;
   status: string;
-  paymentMethod: string | null;
   paymentProvider: string | null;
   orderItems: OrderItem[];
 }
