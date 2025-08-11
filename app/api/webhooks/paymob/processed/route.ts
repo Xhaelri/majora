@@ -36,7 +36,7 @@ interface PaymobWebhookData {
   type: string;
 }
 
-type OrderStatus = "PROCESSING" | "CANCELLED" | "PENDING";
+type OrderStatus = "PROCESSING" | "CANCELLED" | "PENDING" | "PAID" | "FAILED";
 
 function verifyWebhookSignature(
   data: PaymobWebhookData,
@@ -78,8 +78,20 @@ function verifyWebhookSignature(
 
     return calculatedSignature === signature;
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return false;
+  }
+}
+
+async function clearUserCart(userId: string) {
+  if (!userId) return;
+  try {
+    const cart = await db.cart.findUnique({ where: { userId } });
+    if (cart) {
+      await db.cartItem.deleteMany({ where: { cartId: cart.id } });
+    }
+  } catch (error) {
+    console.error("Error clearing cart:", error);
   }
 }
 
@@ -87,15 +99,12 @@ function determineOrderStatus(
   transaction: PaymobWebhookData["obj"]
 ): OrderStatus {
   if (transaction.success && !transaction.error_occured) {
-    return "PROCESSING";
+    return "PAID";
   }
   if (transaction.is_voided || transaction.is_refunded) {
-    return "CANCELLED";
+    return "FAILED";
   }
-  if (transaction.pending) {
-    return "PENDING";
-  }
-  return "CANCELLED";
+  return "FAILED";
 }
 
 export async function POST(req: NextRequest) {
@@ -109,7 +118,7 @@ export async function POST(req: NextRequest) {
     try {
       data = JSON.parse(rawBody);
     } catch (error) {
-        console.log(error)
+      console.log(error);
       return NextResponse.json(
         { error: "Invalid JSON payload" },
         { status: 400 }
@@ -130,8 +139,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid order ID" }, { status: 400 });
     }
 
-    const order = await db.order.findUnique({
-      where: { merchantOrderId: merchantOrderId },
+    const order = await db.order.findFirst({
+      where: {
+        merchantOrderId: merchantOrderId,
+      },
+      include: { user: true },
     });
 
     if (!order) {
@@ -148,6 +160,10 @@ export async function POST(req: NextRequest) {
         updatedAt: new Date(),
       },
     });
+
+    if (newStatus === "PAID" && order.userId) {
+      await clearUserCart(order.userId);
+    }
 
     return NextResponse.json({
       success: true,
