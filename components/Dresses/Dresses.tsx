@@ -5,13 +5,12 @@ import CardGrid from "../ui-custom/CardGrid";
 import { getTranslations } from "next-intl/server";
 import { mobileMenue } from "@/constants/constants";
 import Link from "next/link";
-import { FullProduct } from "@/types/product";
+import { getProductsByCategory } from "@/server/db/prisma";
 
-interface DressesProps {
-  products: FullProduct[];
-}
 
-const Dresses = async ({ products }: DressesProps) => {
+const Dresses = async () => {
+    const products = await getProductsByCategory("dresses")
+  
   const t = await getTranslations();
 
   return (

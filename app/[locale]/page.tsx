@@ -1,19 +1,11 @@
-
 import Hero from "@/components/Hero/Hero";
-import { Suspense } from "react";
-import dynamic from "next/dynamic";
 import { routing } from "@/i18n/routing";
 
-import { getProductsByCategory } from "@/server/db/prisma";
-
-import { CardGridSkeleton } from "@/components/ui-custom/CardGridSkeleton";
 import BestSellers from "@/components/Best-Sellers/BestSellers";
-
-// Dynamically import components as before
-const Bottoms = dynamic(() => import("@/components/Bottoms/Bottoms"));
-const Dresses = dynamic(() => import("@/components/Dresses/Dresses"));
-const Sets = dynamic(() => import("@/components/Sets/Sets"));
-const Tops = dynamic(() => import("@/components/Tops-Shirts/Tops-Shirts"));
+import Sets from "@/components/Sets/Sets";
+import Tops from "@/components/Tops-Shirts/Tops-Shirts";
+import Dresses from "@/components/Dresses/Dresses";
+// import Bottoms from "@/components/Bottoms/Bottoms";
 
 export async function generateStaticParams() {
   return routing.locales.map((locale) => ({
@@ -22,34 +14,14 @@ export async function generateStaticParams() {
 }
 
 export default async function Home() {
-  const setsData = getProductsByCategory("sets");
-  const topsData = getProductsByCategory("tops-shirts");
-  const dressesData = getProductsByCategory("dresses");
-  const bottomsData = getProductsByCategory("bottoms");
-
-  const [sets, tops, dresses, bottoms] = await Promise.all([
-    setsData,
-    topsData,
-    dressesData,
-    bottomsData,
-  ]);
-
   return (
     <>
       <Hero />
       <BestSellers />
-      <Suspense fallback={<CardGridSkeleton />}>
-        <Sets products={sets ?? []} />
-      </Suspense>
-      <Suspense fallback={<CardGridSkeleton />}>
-        <Tops products={tops ?? []} />
-      </Suspense>
-      <Suspense fallback={<CardGridSkeleton />}>
-        <Dresses products={dresses ?? []} />
-      </Suspense>
-      <Suspense fallback={<CardGridSkeleton />}>
-        <Bottoms products={bottoms ?? []} />
-      </Suspense>
+      <Sets />
+      <Tops />
+      <Dresses />
+      {/* <Bottoms /> */}
     </>
   );
 }

@@ -7,13 +7,13 @@ import CardGrid from "../ui-custom/CardGrid";
 import { mobileMenue } from "@/constants/constants";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
-import { FullProduct } from "@/types/product";
+import { getProductsByCategory } from "@/server/db/prisma";
 
-interface TopsProps {
-  products: FullProduct[];
-}
 
-const Tops = async ({ products }: TopsProps) => {
+
+const Tops = async () => {
+    const products = await getProductsByCategory("tops-shirts")
+  
   const t = await getTranslations();
 
   return (
