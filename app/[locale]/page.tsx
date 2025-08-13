@@ -10,7 +10,7 @@ import type { Metadata } from "next";
 // Generate static params for all locales at build time
 export async function generateStaticParams() {
   return routing.locales.map((locale) => ({
-    locale,
+    lang: locale,
   }));
 }
 
@@ -21,23 +21,25 @@ export async function generateMetadata({
   params: Promise<{ lang: "en" | "ar" }>;
 }): Promise<Metadata> {
   const { lang } = await params;
-  
+
   // You can customize metadata per locale here
-  const isArabic = lang === 'ar';
-  
+  const isArabic = lang === "ar";
+
   return {
-    title: isArabic ? "سكرة | أزياء نسائية وملابس" : "SEKRA | Women's Fashion & Clothing",
-    description: isArabic 
+    title: isArabic
+      ? "سكرة | أزياء نسائية وملابس"
+      : "SEKRA | Women's Fashion & Clothing",
+    description: isArabic
       ? "اكتشف أحدث مجموعة من الملابس النسائية من سكرة"
       : "Discover SEKRA's latest collection of women's clothing",
     openGraph: {
-      locale: isArabic ? 'ar_EG' : 'en_US',
+      locale: isArabic ? "ar_EG" : "en_US",
     },
   };
 }
 
 // Force static generation for better performance
-export const dynamic = 'force-static';
+export const dynamic = "force-static";
 export const revalidate = 3600; // Revalidate every hour
 
 export default async function Home() {
