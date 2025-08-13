@@ -8,10 +8,11 @@ export async function generateStaticParams() {
     const slugs = await getAllProductSlugs(); 
 
     const params = [];
-    for (const locale of routing.locales) {
+    // Generate params for all locale/slug combinations
+    for (const lang of routing.locales) {
       for (const slug of slugs) {
         params.push({
-          lang: locale,
+          lang: lang,
           slug: slug,
         });
       }
@@ -24,15 +25,17 @@ export async function generateStaticParams() {
   }
 }
 
+// Update Props to match your URL structure
 type Props = {
   params: Promise<{
+    lang: string;
     slug: string;
   }>;
 };
 
 export async function generateMetadata({ params }: Props) {
   try {
-    const { slug } = await params
+    const { slug } = await params;
     const product = await getProductBySlug(slug);
 
     if (!product) {
@@ -60,7 +63,7 @@ export async function generateMetadata({ params }: Props) {
 
 const ProductPage = async ({ params }: Props) => {
   try {
-    const {slug} = await params;
+    const { lang, slug } = await params;
     const product = await getProductBySlug(slug);
 
     if (!product) {
@@ -70,8 +73,7 @@ const ProductPage = async ({ params }: Props) => {
     return <ProductDetails product={product} />;
   } catch (error) {
     console.error("Error loading product:", error);
-    // You might want to return a custom error page here
-    throw error; // This will trigger Next.js error boundary
+    throw error;
   }
 };
 
