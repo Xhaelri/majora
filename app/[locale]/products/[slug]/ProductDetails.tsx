@@ -10,6 +10,8 @@ import ProductDetailsCarousel from "./components/ProductDetailsCarousel";
 import AddToCartButton from "./components/AddToCartButton";
 import { useLocale, useTranslations } from "next-intl";
 import { motion } from "framer-motion";
+import BuyNowButton from "./components/BuyNowButton";
+
 type Image = {
   url: string;
   altText: string;
@@ -40,12 +42,16 @@ const ProductDetails = ({ product }: Props) => {
     let initialVariant: Variant | undefined;
 
     if (variantId) {
-      initialVariant = product.variants.find((v: { id: string; }) => v.id === variantId);
+      initialVariant = product.variants.find(
+        (v: { id: string }) => v.id === variantId
+      );
     }
 
     // If no valid variant in URL, find the first available one
     if (!initialVariant) {
-      initialVariant = product.variants.find((v: { stock: number; }) => v.stock > 0);
+      initialVariant = product.variants.find(
+        (v: { stock: number }) => v.stock > 0
+      );
     }
 
     // If all are out of stock, default to the first variant
@@ -69,7 +75,9 @@ const ProductDetails = ({ product }: Props) => {
   const uniqueSizes = useMemo<Variant["size"][]>(
     () =>
       Array.from(
-        new Map(product.variants.map((v: Variant) => [v.size.id, v.size])).values()
+        new Map(
+          product.variants.map((v: Variant) => [v.size.id, v.size])
+        ).values()
       ) as Variant["size"][],
     [product.variants]
   );
@@ -86,11 +94,19 @@ const ProductDetails = ({ product }: Props) => {
   const handleSizeClick = (sizeId: string) => {
     const variant =
       product.variants.find(
-        (v: { size: { id: string; }; color: { id: string | undefined; }; stock: number; }) =>
+        (v: {
+          size: { id: string };
+          color: { id: string | undefined };
+          stock: number;
+        }) =>
           v.size.id === sizeId &&
           v.color.id === selectedVariant?.color.id &&
           v.stock > 0
-      ) || product.variants.find((v: { size: { id: string; }; stock: number; }) => v.size.id === sizeId && v.stock > 0);
+      ) ||
+      product.variants.find(
+        (v: { size: { id: string }; stock: number }) =>
+          v.size.id === sizeId && v.stock > 0
+      );
 
     if (variant) {
       setSelectedVariant(variant);
@@ -99,7 +115,11 @@ const ProductDetails = ({ product }: Props) => {
 
   const handleColorClick = (colorId: string) => {
     const variant = product.variants.find(
-      (v: { color: { id: string; }; size: { id: string | undefined; }; stock: number; }) =>
+      (v: {
+        color: { id: string };
+        size: { id: string | undefined };
+        stock: number;
+      }) =>
         v.color.id === colorId &&
         v.size.id === selectedVariant?.size.id &&
         v.stock > 0
@@ -253,9 +273,27 @@ const ProductDetails = ({ product }: Props) => {
           </div>
           <div className="pt-5">
             {(selectedVariant?.stock ?? 0) > 0 && (
-              <Button variant={"cartBuyNow"} size={"cartBuyNow"}>
-                {t("product.buyItNow")}
-              </Button>
+              // In your ProductDetails component, replace the BuyNowButton usage with:
+
+              <div className="pt-5">
+                {(selectedVariant?.stock ?? 0) > 0 && (
+                  <BuyNowButton
+                    productVariant={selectedVariant}
+                    productInfo={{
+                      id: product.id,
+                      name: product.name,
+                      nameAr: product.nameAr,
+                      price: product.price,
+                      salePrice: product.salePrice,
+                      description: product.description,
+                    }}
+                    className="w-full"
+                    disabled={
+                      !selectedVariant || (selectedVariant?.stock ?? 0) <= 0
+                    }
+                  />
+                )}
+              </div>
             )}
           </div>
         </div>

@@ -34,6 +34,34 @@ interface AppliedDiscount {
   type: "PERCENTAGE" | "FIXED";
   value: number;
 }
+interface BuyNowItem {
+  id: string;
+  quantity: number;
+  productVariantId: string;
+  productVariant: {
+    id: string;
+    product: {
+      id: string;
+      name: string;
+      price: number;
+      salePrice?: number;
+      description?: string;
+    };
+    size: {
+      id: string;
+      name: string;
+    };
+    color: {
+      id: string;
+      name: string;
+    };
+    images?: Array<{
+      id: string;
+      url: string;
+      altText: string;
+    }>;
+  };
+}
 
 const EGYPT_GOVERNORATES = [
   "Alexandria",
@@ -74,6 +102,9 @@ export default function CheckoutPage() {
   const [initializing, setInitializing] = useState(true);
   const [shippingCost, setShippingCost] = useState<number | null>(null);
 
+// Buy-Now
+  const [buyNowItem, setBuyNowItem] = useState<BuyNowItem | null>(null);
+  const [isBuyNowMode, setIsBuyNowMode] = useState(false);
   // Discount state
   const [discountCode, setDiscountCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] =
@@ -118,10 +149,10 @@ export default function CheckoutPage() {
         }
 
         // Check for discount code in URL parameters
-        const urlDiscountCode = searchParams.get('discount');
+        const urlDiscountCode = searchParams.get("discount");
         if (urlDiscountCode) {
           setDiscountCode(urlDiscountCode);
-          
+
           // Auto-apply the discount code from the cart
           const subtotal = cartItems.reduce((sum, item) => {
             const fullPrice = item.productVariant.product.price;
@@ -137,11 +168,14 @@ export default function CheckoutPage() {
           }, 0);
 
           const orderAmount = subtotal - saleDiscount;
-          
+
           if (orderAmount > 0) {
             setDiscountLoading(true);
             try {
-              const result = await validateDiscountCode(urlDiscountCode, orderAmount);
+              const result = await validateDiscountCode(
+                urlDiscountCode,
+                orderAmount
+              );
               if (result.discount) {
                 setAppliedDiscount(result.discount);
               } else if (result.error) {
@@ -171,6 +205,58 @@ export default function CheckoutPage() {
     setInitializing(false);
   }, []);
 
+  useEffect(() => {
+  const buyNow = searchParams.get('buyNow');
+  
+  if (buyNow === 'true') {
+    const variantId = searchParams.get('variantId');
+    const productId = searchParams.get('productId');
+    const productName = searchParams.get('productName');
+    const price = searchParams.get('price');
+    const salePrice = searchParams.get('salePrice');
+    const sizeName = searchParams.get('sizeName');
+    const colorName = searchParams.get('colorName');
+    const imageUrl = searchParams.get('imageUrl');
+    const imageAlt = searchParams.get('imageAlt');
+
+    if (variantId && productId && productName && price && sizeName && colorName) {
+      const buyNowItemData: BuyNowItem = {
+        id: `buynow-${variantId}`,
+        quantity: 1,
+        productVariantId: variantId,
+        productVariant: {
+          id: variantId,
+          product: {
+            id: productId,
+            name: decodeURIComponent(productName),
+            price: parseFloat(price),
+            salePrice: salePrice ? parseFloat(salePrice) : undefined,
+          },
+          size: {
+            id: 'temp-size',
+            name: decodeURIComponent(sizeName),
+          },
+          color: {
+            id: 'temp-color',
+            name: decodeURIComponent(colorName),
+          },
+          ...(imageUrl && {
+            images: [{
+              id: 'temp-image',
+              url: decodeURIComponent(imageUrl),
+              altText: imageAlt ? decodeURIComponent(imageAlt) : productName,
+            }]
+          })
+        }
+      };
+
+      setBuyNowItem(buyNowItemData);
+      setIsBuyNowMode(true);
+    }
+  }
+}, [searchParams]);
+
+
   const handleGovernorateChange = useCallback(async (governorate: string) => {
     if (governorate) {
       const rate = await getShippingRate(governorate);
@@ -186,19 +272,23 @@ export default function CheckoutPage() {
     }
   }, [billingData.state, handleGovernorateChange]);
 
-  // Calculate totals
-  const subtotal = cartItems.reduce((sum, item) => {
-    const fullPrice = item.productVariant.product.price;
-    return sum + fullPrice * item.quantity;
-  }, 0);
 
-  const saleDiscount = cartItems.reduce((sum, item) => {
-    const { price, salePrice } = item.productVariant.product;
-    if (salePrice && salePrice < price) {
-      return sum + (price - salePrice) * item.quantity;
-    }
-    return sum;
-  }, 0);
+  const displayItems = isBuyNowMode && buyNowItem ? [buyNowItem] : cartItems;
+const displayCount = isBuyNowMode && buyNowItem ? 1 : count;
+  // Calculate totals
+// Update your calculations to use displayItems instead of cartItems:
+const subtotal = displayItems.reduce((sum, item) => {
+  const fullPrice = item.productVariant.product.price;
+  return sum + fullPrice * item.quantity;
+}, 0);
+
+const saleDiscount = displayItems.reduce((sum, item) => {
+  const { price, salePrice } = item.productVariant.product;
+  if (salePrice && salePrice < price) {
+    return sum + (price - salePrice) * item.quantity;
+  }
+  return sum;
+}, 0);
 
   const discountAmount = appliedDiscount ? appliedDiscount.amount : 0;
   const total = subtotal - saleDiscount - discountAmount + (shippingCost || 0);
@@ -333,7 +423,7 @@ export default function CheckoutPage() {
     );
   }
 
-  if (count === 0) {
+  if (displayCount === 0 && !isBuyNowMode) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
@@ -636,7 +726,7 @@ export default function CheckoutPage() {
 
           {/* Cart Items */}
           <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
-            {cartItems.map((item) => (
+            {displayItems.map((item) => (
               <div
                 key={item.id}
                 className="flex items-center space-x-4 p-2 bg-gray-50 rounded-md"
@@ -675,7 +765,7 @@ export default function CheckoutPage() {
           {/* Price Breakdown */}
           <div className="border-t pt-4 space-y-2">
             <div className="flex justify-between text-sm">
-              <span>Subtotal ({count} items)</span>
+              <span>Subtotal ({displayCount} items)</span>
               <span>{formatPrice(subtotal)}</span>
             </div>
 

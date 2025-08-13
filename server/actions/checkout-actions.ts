@@ -4,6 +4,7 @@
 import { db } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { getCartData } from "./cart";
+import { FullProduct } from "@/types/product";
 // Remove the clearCart import since we'll handle it in webhook
 
 interface BillingData {
@@ -31,6 +32,11 @@ interface AppliedDiscount {
 interface DiscountValidationResult {
   error?: string;
   discount?: AppliedDiscount;
+}
+interface BuyNowItemData {
+  productVariantId: string;
+  quantity: number;
+  priceAtPurchase: number;
 }
 
 // Secure server-side discount validation
@@ -132,7 +138,7 @@ export async function createCheckoutSession(
   billingData: BillingData,
   discountCode?: string,
   shippingCost?: number,
-  locale: string = "en"
+  buyNowItems?: BuyNowItemData[] // Add this parameter
 ) {
   const session = await auth();
   const user = session?.user;
@@ -145,10 +151,46 @@ export async function createCheckoutSession(
     return { error: "Shipping cost is not determined." };
   }
 
-  const { items: cartItems, count: cartCount } = await getCartData();
+  let cartItems: FullProduct[] = [];
+  let cartCount = 0;
+
+  // Handle Buy Now items or regular cart items
+  if (buyNowItems && buyNowItems.length > 0) {
+    // For buy now, we need to fetch product variant details
+    cartItems = await Promise.all(
+      buyNowItems.map(async (item) => {
+        const variant = await db.productVariant.findUnique({
+          where: { id: item.productVariantId },
+          include: {
+            product: true,
+            size: true,
+            color: true,
+          },
+        });
+
+        if (!variant) {
+          throw new Error(`Product variant ${item.productVariantId} not found`);
+        }
+
+        return {
+          id: `buynow-${item.productVariantId}`,
+          productVariantId: item.productVariantId,
+          quantity: item.quantity,
+          productVariant: variant,
+        };
+      })
+    );
+    cartCount = buyNowItems.reduce((sum, item) => sum + item.quantity, 0);
+  } else {
+    // Use existing cart logic
+    const cartData = await getCartData();
+    cartItems = cartData.items;
+    cartCount = cartData.count;
+  }
+
 
   if (cartCount === 0) {
-    return { error: "Your cart is empty." };
+    return { error: "No items to checkout." };
   }
 
   // Calculate subtotal from database prices
@@ -294,7 +336,7 @@ export async function createCheckoutSession(
     // Step 3: Create payment key
     const baseUrl =
       process.env.NEXTAUTH_URL || "https://sekra-seven.vercel.app";
-    
+
     const paymentKeyResponse = await fetch(
       "https://accept.paymob.com/api/acceptance/payment_keys",
       {
@@ -337,7 +379,9 @@ export async function createCheckoutSession(
     const paymentKey = paymentKeyData.token;
 
     // DO NOT clear cart here - it will be cleared in the webhook after successful payment
-    console.log(`✅ Payment session created for order ${order.id}. Cart will be cleared after payment confirmation.`);
+    console.log(
+      `✅ Payment session created for order ${order.id}. Cart will be cleared after payment confirmation.`
+    );
 
     return { paymentKey, orderId: order.id };
   } catch (error) {

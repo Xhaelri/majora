@@ -96,6 +96,7 @@
     "addToCart": "Add to Cart",
     "adding": "Adding...",
     "buyItNow": "BUY IT NOW",
+    "processing":"Processing..",
     "itemAddedToCart": "Item added to shopping bag",
     "addToCartError": "Failed to add item to cart. Please try again."
   },
