@@ -9,10 +9,10 @@ export async function generateStaticParams() {
 
     const params = [];
     // Generate params for all locale/slug combinations
-    for (const lang of routing.locales) {
+    for (const locale of routing.locales) {
       for (const slug of slugs) {
         params.push({
-          lang: lang,
+          locale: locale,
           slug: slug,
         });
       }
@@ -28,7 +28,7 @@ export async function generateStaticParams() {
 // Update Props to match your URL structure
 type Props = {
   params: Promise<{
-    lang: string;
+    locale: string;
     slug: string;
   }>;
 };
@@ -63,7 +63,7 @@ export async function generateMetadata({ params }: Props) {
 
 const ProductPage = async ({ params }: Props) => {
   try {
-    const { lang, slug } = await params;
+    const { locale, slug } = await params;
     const product = await getProductBySlug(slug);
 
     if (!product) {
