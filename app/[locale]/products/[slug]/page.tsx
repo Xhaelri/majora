@@ -1,14 +1,23 @@
 import { getAllProductSlugs, getProductBySlug } from "@/server/db/prisma";
 import { notFound } from "next/navigation";
 import ProductDetails from "./ProductDetails";
-
+import { routing } from "@/i18n/routing";
 
 export async function generateStaticParams() {
   try {
     const slugs = await getAllProductSlugs(); 
-    return slugs.map((slug) => ({
-      slug,
-    }));
+
+    const params = [];
+    for (const locale of routing.locales) {
+      for (const slug of slugs) {
+        params.push({
+          lang: locale,
+          slug: slug,
+        });
+      }
+    }
+    
+    return params;
   } catch (error) {
     console.error("Error generating static params:", error);
     return [];

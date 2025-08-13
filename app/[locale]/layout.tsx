@@ -6,10 +6,10 @@ import Footer from "@/components/Footer/Footer";
 import { Toaster } from "@/components/ui/sonner";
 import { SessionProvider } from "next-auth/react";
 import CartProvider from "@/context/CartContext";
-import { NextIntlClientProvider } from "next-intl";
+import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { routing } from "@/i18n/routing";
 import { getMessages } from "next-intl/server";
-import { auth } from "@/auth";
+import { notFound } from "next/navigation";
 
 const corinthia = Meow_Script({
   subsets: ["latin"],
@@ -50,6 +50,7 @@ export const metadata: Metadata = {
     url: "",
     siteName: "SEKRA",
     type: "website",
+    locale: "en_US",
     images: [
       {
         url: "",
@@ -78,35 +79,30 @@ export const metadata: Metadata = {
     apple: "/logo.png",
   },
 };
-export async function generateStaticParams() {
-    return routing.locales.map((locale) => ({
-    lang: locale
-  }));
-}
- 
 
 export default async function RootLayout({
   children,
   params,
 }: Readonly<{
   children: React.ReactNode;
-  params: Promise<{ lang: "en" | "ar" }>;
+  params: Promise<{ locale: string }>;
 }>) {
 
-  const { lang } = await params;
-
+  const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) {
+    notFound()
+  }
   const messages = await getMessages();
-  const session = await auth()
-  
+
   return (
-    <html lang={lang} dir={lang === "ar" ? "rtl" : "ltr"}>
+    <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
       <body
         className={`${corinthia.variable} ${notoSans.variable} ${
-          lang === "ar" ? "font-notoSans" : ""
+          locale === "ar" ? "font-notoSans" : ""
         } antialiased light min-h-screen flex flex-col`}
       >
-        <NextIntlClientProvider locale={lang} messages={messages}>
-          <SessionProvider session={session}>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <SessionProvider>
             <CartProvider>
               <Header />
               <Toaster
