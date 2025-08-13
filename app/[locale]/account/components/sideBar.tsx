@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import SignOut from "../SignOut";
+import { getTranslations } from "next-intl/server";
 
 interface SidebarProps {
   activeTab: "orders" | "account";
 }
 
 export default async function Sidebar({ activeTab }: SidebarProps) {
+  const t = await getTranslations('account');
   const session = await auth();
 
   if (!session?.user) {
@@ -18,7 +20,7 @@ export default async function Sidebar({ activeTab }: SidebarProps) {
       <div className="pt-6 px-6">
         <div className="flex flex-col lg:flex-row">
           <div>
-            <h2 className="text-lg font-bold text-gray-900 mb-5">My Account</h2>
+            <h2 className="text-lg font-bold text-gray-900 mb-5">{t('myAccount')}</h2>
             <nav>
               <ul className="space-y-2 lg:flex-col flex justify-between">
                 <li className="w-1/2 lg:w-auto">
@@ -43,7 +45,7 @@ export default async function Sidebar({ activeTab }: SidebarProps) {
                         d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
                       />
                     </svg>
-                    Orders
+                    {t('orders')}
                   </Link>
                 </li>
                 <li className="w-1/2 lg:w-auto">
@@ -68,7 +70,7 @@ export default async function Sidebar({ activeTab }: SidebarProps) {
                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                       />
                     </svg>
-                    Account Details
+                    {t('accountDetails')}
                   </Link>
                 </li>
                 <li className="hidden lg:block mt-5">

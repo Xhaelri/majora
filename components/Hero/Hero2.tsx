@@ -2,8 +2,11 @@ import Image from "next/image";
 import React from "react";
 import { heroImages2 } from "@/constants/constants";
 import Link from "next/link";
+import { useTranslations } from 'next-intl';
 
 const Hero2 = () => {
+  const t = useTranslations('hero');
+  
   return (
     <section className="flex flex-col">
       {/* First image with centered text - Optimized for LCP */}
@@ -23,10 +26,10 @@ const Hero2 = () => {
           />
 
           <h1 className="absolute inset-0 flex items-center justify-center text-white text-5xl md:text-7xl font-semibold mb-20 uppercase">
-            NEW NOW
+            {t('newNow')}
           </h1>
           <h1 className="absolute inset-0 flex items-center justify-center text-white text-sm md:text-xl font-semibold mt-10 md:mt-20 uppercase">
-            Discover More
+            {t('discoverMore')}
           </h1>
         </div>
       </Link>
@@ -48,10 +51,10 @@ const Hero2 = () => {
               />
             </div>
             <h1 className="absolute bottom-4 left-4 text-white text-md font-semibold">
-              TOPS
+              {t('tops')}
             </h1>
             <h1 className="absolute bottom-4 right-4 text-white hidden md:inline text-md font-semibold">
-              See all
+              {t('seeAll')}
             </h1>
           </Link>
         </div>
@@ -71,10 +74,10 @@ const Hero2 = () => {
               />
             </div>
             <h1 className="absolute bottom-4 left-4 text-white text-md font-semibold">
-              BOTTOMS
+              {t('bottoms')}
             </h1>
             <h1 className="absolute bottom-4 right-4 text-white hidden md:inline text-md font-semibold">
-              See all
+              {t('seeAll')}
             </h1>
           </Link>
         </div>
@@ -97,10 +100,10 @@ const Hero2 = () => {
               />
             </div>
             <h1 className="absolute bottom-4 left-4 text-white text-md font-semibold">
-              DRESSES
+              {t('dresses')}
             </h1>
             <h1 className="absolute bottom-4 right-4 text-white hidden md:inline text-md font-semibold">
-              See all
+              {t('seeAll')}
             </h1>
           </Link>
         </div>
@@ -120,10 +123,10 @@ const Hero2 = () => {
               />
             </div>
             <h1 className="absolute bottom-4 left-4 text-white text-md font-semibold">
-              SETS
+              {t('sets')}
             </h1>
             <h1 className="absolute bottom-4 right-4 text-white hidden md:inline text-md font-semibold">
-              See all
+              {t('seeAll')}
             </h1>
           </Link>
         </div>

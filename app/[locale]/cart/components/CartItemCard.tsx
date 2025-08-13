@@ -8,6 +8,7 @@ import Reduce from "@/public/assets/minus.svg";
 import { useCart } from "@/context/CartContext";
 import { toast } from "sonner";
 import Check from "@/public/assets/check.svg";
+import { useTranslations } from "next-intl";
 
 type Props = {
   item: CartItemWithVariant;
@@ -16,12 +17,13 @@ type Props = {
 const CartItemCard = ({ item }: Props) => {
   const { removeFromCartContext, updateQuantityContext } = useCart();
   const [isMutating, setIsMutating] = useState(false);
+  const t = useTranslations("cart");
 
   if (!item.productVariant) {
     console.log("Product variant not found");
   }
   const img = item.productVariant.images?.[0];
-  
+
   const handleRemoveFromCart = async () => {
     try {
       setIsMutating(true);
@@ -29,12 +31,12 @@ const CartItemCard = ({ item }: Props) => {
       toast.custom(() => (
         <div className="bg-black text-white w-full px-4 py-3 text-sm rounded-none flex items-center justify-center gap-2">
           <Check />
-          <p className="font-semibold uppercase">Item deleted</p>
+          <p className="font-semibold uppercase">{t('itemDeleted')}</p>
         </div>
       ));
     } catch (error) {
       console.log(error);
-      toast.error("Failed to remove item. Please try again.");
+      toast.error(<p className="font-semibold uppercase">{t('failedToRemove')}</p>);
     } finally {
       setIsMutating(false);
     }
@@ -46,7 +48,7 @@ const CartItemCard = ({ item }: Props) => {
       await updateQuantityContext(item.productVariantId, item.quantity + 1);
     } catch (error) {
       console.log(error);
-      toast.error("Failed to update quantity. Please try again.");
+      toast.error(<p className="font-semibold uppercase">{t('failedToUpdate')}</p>);
     } finally {
       setIsMutating(false);
     }
@@ -63,7 +65,7 @@ const CartItemCard = ({ item }: Props) => {
       await updateQuantityContext(item.productVariantId, item.quantity - 1);
     } catch (error) {
       console.log(error);
-      toast.error("Failed to update quantity. Please try again.");
+      toast.error(<p className="font-semibold uppercase">{t('failedToUpdate')}</p>);
     } finally {
       setIsMutating(false);
     }

@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/table";
 import { getAccountDetails } from "@/server/db/prisma";
 import { auth } from "@/auth";
+import { getTranslations } from "next-intl/server";
 
 interface ProductVariant {
   product: {
@@ -72,6 +73,7 @@ const getStatusColor = (status: string) => {
 };
 
 const Orders = async () => {
+  const t = await getTranslations('account');
   const session = await auth();
 
   if (!session?.user?.id) {
@@ -79,7 +81,7 @@ const Orders = async () => {
       <section className="container mx-auto p-4 sm:p-6">
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-8 text-center">
           <p className="text-red-600 text-lg">
-            Please log in to view your orders.
+            {t('pleaseLoginOrders')}
           </p>
         </div>
       </section>
@@ -96,7 +98,7 @@ const Orders = async () => {
       <section className="container mx-auto p-4 sm:p-6">
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-8 text-center">
           <p className="text-red-600 text-lg">
-            Failed to load orders. Please try again later.
+            {t('failedToLoadOrders')}
           </p>
         </div>
       </section>
@@ -108,7 +110,7 @@ const Orders = async () => {
       <section className="container mx-auto p-4 sm:p-6">
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
           <div className="p-6 border-b border-gray-200">
-            <h2 className="text-2xl font-bold text-gray-900">Your Orders</h2>
+            <h2 className="text-2xl font-bold text-gray-900">{t('yourOrders')}</h2>
           </div>
           <div className="p-8 text-center">
             <div className="mb-4">
@@ -126,9 +128,9 @@ const Orders = async () => {
                 />
               </svg>
             </div>
-            <p className="text-gray-600 text-lg">No orders found.</p>
+            <p className="text-gray-600 text-lg">{t('noOrdersFound')}</p>
             <p className="text-gray-500 text-sm mt-2">
-              Your order history will appear here once you make a purchase.
+              {t('orderHistoryMessage')}
             </p>
           </div>
         </div>
@@ -140,9 +142,9 @@ const Orders = async () => {
     <section className="container mx-auto p-4 sm:p-6  lg:overflow-hidden">
       <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
         <div className="p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900">Your Orders</h2>
+          <h2 className="text-2xl font-bold text-gray-900">{t('yourOrders')}</h2>
           <p className="text-gray-600 mt-1">
-            Track and manage your order history
+            {t('trackAndManage')}
           </p>
         </div>
 
@@ -151,25 +153,25 @@ const Orders = async () => {
             <TableHeader>
               <TableRow className="bg-gray-50">
                 <TableHead className="text-center text-gray-900 font-semibold">
-                  Order ID
+                  {t('orderId')}
                 </TableHead>
                 <TableHead className="text-center text-gray-900 font-semibold">
-                  Date
+                  {t('date')}
                 </TableHead>
                 <TableHead className="text-center text-gray-900 font-semibold">
-                  Items
+                  {t('items')}
                 </TableHead>
                 <TableHead className="text-center text-gray-900 font-semibold">
-                  Status
+                  {t('status')}
                 </TableHead>
                 <TableHead className="text-center text-gray-900 font-semibold">
-                  Shipping
+                  {t('shipping')}
                 </TableHead>
                 <TableHead className="text-center text-gray-900 font-semibold">
-                  Payment
+                  {t('payment')}
                 </TableHead>
                 <TableHead className="text-center text-gray-900 font-semibold">
-                  Total
+                  {t('total')}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -194,8 +196,8 @@ const Orders = async () => {
                             {item.productVariant.product.name}
                           </div>
                           <div className="text-gray-500">
-                            {item.productVariant.size.name} •{" "}
-                            {item.productVariant.color.name} • Qty:{" "}
+                            {item.productVariant.size.name} • {" "}
+                            {item.productVariant.color.name} • {t('quantity')}: {" "}
                             {item.quantity}
                           </div>
                         </div>

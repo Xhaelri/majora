@@ -5,6 +5,7 @@ import { useFormStatus } from "react-dom";
 import { updateUserAction } from "@/server/actions/user-actions";
 import { toast } from "sonner";
 import { Check } from "lucide-react";
+import { useTranslations } from 'next-intl';
 
 interface UserData {
   email: string | null;
@@ -28,6 +29,7 @@ type ActionState = {
 
 function SubmitButton() {
   const { pending } = useFormStatus();
+  const t = useTranslations('account');
   
   return (
     <button
@@ -35,12 +37,14 @@ function SubmitButton() {
       disabled={pending}
       className="w-full sm:w-auto px-6 py-3 bg-black text-white hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200 font-medium"
     >
-      {pending ? "Saving..." : "Save Changes"}
+      {pending ? t('saving') : t('saveChanges')}
     </button>
   );
 }
 
 export default function AccountDetails({ user, userId }: AccountDetailsProps) {
+  const t = useTranslations('account');
+  
   const initialState: ActionState = {
     success: null,
     error: null,
@@ -58,7 +62,7 @@ export default function AccountDetails({ user, userId }: AccountDetailsProps) {
       toast.custom(() => (
         <div className="bg-black text-white w-full px-4 py-3 text-sm rounded-none flex items-center justify-center gap-2">
           <Check />
-          <p className="font-semibold uppercase">{state.success}</p>
+          <p className="font-semibold uppercase">{t('profileUpdated')}</p>
         </div>
       ));
     }
@@ -70,7 +74,7 @@ export default function AccountDetails({ user, userId }: AccountDetailsProps) {
         </div>
       ));
     }
-  }, [state.success, state.error]);
+  }, [state.success, state.error, t]);
 
   // Use updated data from server response or fallback to original user data
   const currentUserData = state.data || user;
@@ -80,7 +84,7 @@ export default function AccountDetails({ user, userId }: AccountDetailsProps) {
       <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            Account Details
+            {t('accountDetails')}
           </h2>
         </div>
 
@@ -91,10 +95,10 @@ export default function AccountDetails({ user, userId }: AccountDetailsProps) {
               <h3 className="text-xl sm:text-2xl font-semibold text-gray-900">
                 {currentUserData.name ||
                   `${currentUserData.firstName || ""} ${currentUserData.lastName || ""}`.trim() ||
-                  "User"}
+                  t('user')}
               </h3>
               <p className="text-gray-600 mt-1">
-                {currentUserData.email || "No email provided"}
+                {currentUserData.email || t('noEmailProvided')}
               </p>
             </div>
           </div>
@@ -108,7 +112,7 @@ export default function AccountDetails({ user, userId }: AccountDetailsProps) {
                   htmlFor="firstName"
                   className="block text-sm font-medium text-gray-900 mb-2"
                 >
-                  First Name
+                  {t('firstName')}
                 </label>
                 <input
                   type="text"
@@ -116,7 +120,7 @@ export default function AccountDetails({ user, userId }: AccountDetailsProps) {
                   id="firstName"
                   defaultValue={currentUserData.firstName || ""}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                  placeholder="Enter first name"
+                  placeholder={t('enterFirstName')}
                 />
               </div>
               <div>
@@ -124,7 +128,7 @@ export default function AccountDetails({ user, userId }: AccountDetailsProps) {
                   htmlFor="lastName"
                   className="block text-sm font-medium text-gray-900 mb-2"
                 >
-                  Last Name
+                  {t('lastName')}
                 </label>
                 <input
                   type="text"
@@ -132,7 +136,7 @@ export default function AccountDetails({ user, userId }: AccountDetailsProps) {
                   id="lastName"
                   defaultValue={currentUserData.lastName || ""}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                  placeholder="Enter last name"
+                  placeholder={t('enterLastName')}
                 />
               </div>
             </div>
@@ -143,7 +147,7 @@ export default function AccountDetails({ user, userId }: AccountDetailsProps) {
                 htmlFor="email"
                 className="block text-sm font-medium text-gray-900 mb-2"
               >
-                Email Address
+                {t('emailAddress')}
               </label>
               <input
                 type="email"
@@ -151,7 +155,7 @@ export default function AccountDetails({ user, userId }: AccountDetailsProps) {
                 id="email"
                 defaultValue={currentUserData.email || ""}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                placeholder="Enter email address"
+                placeholder={t('enterEmailAddress')}
                 required
               />
             </div>
@@ -162,7 +166,7 @@ export default function AccountDetails({ user, userId }: AccountDetailsProps) {
                 htmlFor="phone"
                 className="block text-sm font-medium text-gray-900 mb-2"
               >
-                Phone Number
+                {t('phoneNumber')}
               </label>
               <input
                 type="tel"
@@ -170,7 +174,7 @@ export default function AccountDetails({ user, userId }: AccountDetailsProps) {
                 id="phone"
                 defaultValue={currentUserData.phone || ""}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                placeholder="Enter phone number"
+                placeholder={t('enterPhoneNumber')}
               />
             </div>
 
@@ -180,7 +184,7 @@ export default function AccountDetails({ user, userId }: AccountDetailsProps) {
                 htmlFor="address"
                 className="block text-sm font-medium text-gray-900 mb-2"
               >
-                Address
+                {t('address')}
               </label>
               <input
                 type="text"
@@ -188,7 +192,7 @@ export default function AccountDetails({ user, userId }: AccountDetailsProps) {
                 id="address"
                 defaultValue={currentUserData.address || ""}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                placeholder="Enter address"
+                placeholder={t('enterAddress')}
               />
             </div>
 

@@ -1,17 +1,19 @@
 import { auth } from "@/auth";
 import React from "react";
-
 import { getAccountDetails } from "@/server/db/prisma";
 import Sidebar from "./components/sideBar";
 import Orders from "./components/orders";
 import AccountDetails from "./components/accountDetails";
 import Link from "next/link";
 import SignOut from "./SignOut";
+import { getTranslations } from "next-intl/server";
 
 type Props = {
   searchParams: Promise<{ tab?: string }>;
 };
+
 export default async function Page({ searchParams }: Props) {
+  const t = await getTranslations('auth.signin');
   const session = await auth();
   const params = await searchParams;
 
@@ -35,16 +37,16 @@ export default async function Page({ searchParams }: Props) {
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Authentication Required
+            {t('authenticationRequired')}
           </h2>
           <p className="text-gray-600 mb-4">
-            Please log in to view your account.
+            {t('pleaseLogin')}
           </p>
           <Link
             href="/signin"
             className="inline-flex items-center px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors duration-200"
           >
-            Sign In
+            {t('signIn')}
           </Link>
         </div>
       </div>
