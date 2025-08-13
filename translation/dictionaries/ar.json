@@ -1,30 +1,30 @@
 {
   "nav": {
-    "newArrivals": "الوافدون الجدد",
+    "newArrivals": "المنتجات الجديدة",
     "topsShirts": "القمصان والبلوزات",
     "kimonosKaftans": "الكيمونو والقفاطين",
-    "sets": "الأطقم",
+    "sets": "الأطقم المتكاملة",
     "bottoms": "البناطيل",
     "dresses": "الفساتين",
-    "sale": "تخفيضات",
+    "sale": "التخفيضات",
     "menu": "القائمة"
   },
   "hero": {
-    "ss25": "صيف 2025",
-    "liveNow": "متوفر الآن",
-    "shopAll": "تسوق الكل",
-    "bestSeller": "الأكثر مبيعًا",
+    "ss25": "مجموعة ربيع وصيف 2025",
+    "liveNow": "متوفرة الآن",
+    "shopAll": "تسوقي الكل",
+    "bestSeller": "الأكثر مبيعاً",
     "winterSale": "تخفيضات الشتاء",
-    "newNow": "جديد الآن",
-    "discoverMore": "اكتشف المزيد",
+    "newNow": "الجديد الآن",
+    "discoverMore": "اكتشفي المزيد",
     "tops": "البلوزات",
     "bottoms": "البناطيل",
     "dresses": "الفساتين",
     "sets": "الأطقم",
-    "seeAll": "عرض الكل"
+    "seeAll": "مشاهدة الكل"
   },
   "common": {
-    "shop": "تسوق",
+    "shop": "تسوقي",
     "searchResults": "نتائج البحث عن",
     "noProductsFound": "لم يتم العثور على منتجات",
     "search": "بحث",
@@ -37,14 +37,14 @@
   "menu": "القائمة",
   "NotFound": {
     "title": "الصفحة غير موجودة",
-    "description": "الصفحة التي تبحث عنها غير متوفرة.",
+    "description": "الصفحة التي تبحثين عنها غير متوفرة.",
     "heading": "عفواً",
     "message": "هذه الصفحة غير متوفرة!",
     "returnHome": "العودة إلى الصفحة الرئيسية"
   },
   "Footer": {
     "socialMedia": {
-      "instagram": "انستجرام",
+      "instagram": "انستقرام",
       "facebook": "فيسبوك",
       "tiktok": "تيك توك"
     },
@@ -57,10 +57,10 @@
   "MobileMenu": {
     "account": "الحساب",
     "login": "تسجيل الدخول",
-    "createAccount": "إنشاء حساب"
+    "createAccount": "إنشاء حساب جديد"
   },
   "Common": {
-    "viewAll": "عرض الكل"
+    "viewAll": "مشاهدة الكل"
   },
   "filters": {
     "filter": "تصفية",
@@ -68,8 +68,8 @@
     "availability": "التوفر",
     "inStock": "متوفر",
     "outOfStock": "غير متوفر",
-    "minPrice": "الحد الأدنى",
-    "maxPrice": "الحد الأقصى"
+    "minPrice": "الحد الأدنى للسعر",
+    "maxPrice": "الحد الأقصى للسعر"
   },
   "sort": {
     "sortBy": "ترتيب حسب",
@@ -77,27 +77,27 @@
     "featured": "مميز",
     "nameAsc": "أبجدياً، أ-ي",
     "nameDesc": "أبجدياً، ي-أ",
-    "priceAsc": "السعر، من الأقل إلى الأكثر",
-    "priceDesc": "السعر، من الأكثر إلى الأقل",
-    "dateDesc": "التاريخ، من الجديد إلى القديم",
-    "dateAsc": "التاريخ، من القديم إلى الجديد"
+    "priceAsc": "السعر من الأقل إلى الأعلى",
+    "priceDesc": "السعر من الأعلى إلى الأقل",
+    "dateDesc": "الأحدث أولاً",
+    "dateAsc": "الأقدم أولاً"
   },
   "product": {
-    "save": "وفر",
+    "save": "وفري",
     "sale": "تخفيض",
     "size": "المقاس",
     "color": "اللون",
-    "lowStock": "مخزون منخفض",
+    "lowStock": "كمية محدودة",
     "item": "قطعة",
     "items": "قطع",
     "left": "متبقية",
-    "inStockReady": "متوفر، جاهز للشحن",
-    "soldOut": "نفد المخزون",
-    "addToCart": "أضف إلى حقيبة التسوق",
+    "inStockReady": "متوفرة وجاهزة للشحن",
+    "soldOut": "نفدت الكمية",
+    "addToCart": "أضيفي إلى حقيبة التسوق",
     "adding": "جاري الإضافة...",
     "buyItNow": "اشتري الآن",
-    "itemAddedToCart": "تم إضافة العنصر إلى حقيبة التسوق",
-    "addToCartError": "فشل في إضافة العنصر إلى العربة. يرجى المحاولة مرة أخرى."
+    "itemAddedToCart": "تم إضافة المنتج إلى حقيبة التسوق",
+    "addToCartError": "فشل في إضافة المنتج. يرجى المحاولة مرة أخرى."
   },
   "auth": {
     "signin": {
@@ -108,25 +108,25 @@
       "loggingIn": "جاري تسجيل الدخول...",
       "loginSuccessful": "تم تسجيل الدخول بنجاح!",
       "noAccount": "ليس لديك حساب؟",
-      "signUp": "إنشاء حساب",
-      "continueWithGoogle": "المتابعة مع Google",
+      "signUp": "إنشاء حساب جديد",
+      "continueWithGoogle": "المتابعة باستخدام Google",
       "accountCreated": "تم إنشاء الحساب بنجاح!",
       "authenticationRequired": "المصادقة مطلوبة",
       "pleaseLogin": "يرجى تسجيل الدخول لعرض حسابك.",
       "signIn": "تسجيل الدخول",
       "errors": {
         "emailRequired": "البريد الإلكتروني مطلوب.",
-        "emailInvalid": "صيغة البريد الإلكتروني غير صحيحة. تأكد من أنها تبدو مثل 'example@domain.com'.",
+        "emailInvalid": "صيغة البريد الإلكتروني غير صحيحة. تأكدي من أنها تشبه 'example@domain.com'.",
         "passwordRequired": "كلمة المرور مطلوبة.",
-        "passwordMinLength": "كلمة المرور يجب أن تكون على الأقل 6 أحرف.",
+        "passwordMinLength": "كلمة المرور يجب أن تكون 6 أحرف على الأقل.",
         "invalidFields": "حقول مفقودة أو غير صحيحة. فشل في تسجيل الدخول.",
-        "invalidCredentials": "بيانات اعتماد غير صحيحة.",
+        "invalidCredentials": "بيانات الاعتماد غير صحيحة.",
         "authFailed": "فشل في المصادقة.",
         "somethingWrong": "حدث خطأ ما."
       }
     },
     "signup": {
-      "title": "إنشاء حساب",
+      "title": "إنشاء حساب جديد",
       "firstName": "الاسم الأول",
       "lastName": "اسم العائلة",
       "email": "البريد الإلكتروني",
@@ -135,18 +135,18 @@
       "signingUp": "جاري إنشاء الحساب...",
       "haveAccount": "لديك حساب بالفعل؟",
       "login": "تسجيل الدخول",
-      "continueWithGoogle": "المتابعة مع Google",
+      "continueWithGoogle": "المتابعة باستخدام Google",
       "accountCreated": "تم إنشاء الحساب بنجاح!",
       "errors": {
-        "firstNameMinLength": "الاسم الأول يجب أن يكون على الأقل حرفين.",
+        "firstNameMinLength": "الاسم الأول يجب أن يكون حرفين على الأقل.",
         "firstNameMaxLength": "الاسم الأول يجب أن يكون أقل من 50 حرفاً.",
         "firstNameLettersOnly": "الاسم الأول يمكن أن يحتوي على حروف فقط (a-z، A-Z).",
-        "lastNameMinLength": "اسم العائلة يجب أن يكون على الأقل حرفين.",
+        "lastNameMinLength": "اسم العائلة يجب أن يكون حرفين على الأقل.",
         "lastNameMaxLength": "اسم العائلة يجب أن يكون أقل من 50 حرفاً.",
         "lastNameLettersOnly": "اسم العائلة يمكن أن يحتوي على حروف فقط (a-z، A-Z).",
         "emailRequired": "البريد الإلكتروني مطلوب.",
         "emailInvalid": "صيغة البريد الإلكتروني غير صحيحة. مثال: 'yourname@example.com'.",
-        "passwordMinLength8": "كلمة المرور يجب أن تكون على الأقل 8 أحرف.",
+        "passwordMinLength8": "كلمة المرور يجب أن تكون 8 أحرف على الأقل.",
         "passwordLowercase": "كلمة المرور يجب أن تحتوي على حرف صغير واحد على الأقل.",
         "passwordUppercase": "كلمة المرور يجب أن تحتوي على حرف كبير واحد على الأقل.",
         "passwordNumber": "كلمة المرور يجب أن تحتوي على رقم واحد على الأقل.",
@@ -159,22 +159,22 @@
   },
   "account": {
     "myAccount": "حسابي",
-    "orders": "الطلبات",
+    "orders": "طلباتي",
     "accountDetails": "تفاصيل الحساب",
     "logout": "تسجيل الخروج",
     "loggedOutSuccessfully": "تم تسجيل الخروج بنجاح.",
     "yourOrders": "طلباتك",
-    "trackAndManage": "تتبع وإدارة تاريخ طلباتك",
+    "trackAndManage": "تتبعي وأديري تاريخ طلباتك",
     "orderId": "رقم الطلب",
     "date": "التاريخ",
-    "items": "العناصر",
-    "status": "الحالة",
+    "items": "المنتجات",
+    "status": "حالة الطلب",
     "shipping": "الشحن",
     "payment": "الدفع",
     "total": "المجموع",
     "quantity": "الكمية",
-    "noOrdersFound": "لم يتم العثور على طلبات.",
-    "orderHistoryMessage": "سيظهر تاريخ طلباتك هنا بمجرد إجراء عملية شراء.",
+    "noOrdersFound": "لا توجد طلبات.",
+    "orderHistoryMessage": "ستظهر طلباتك هنا بمجرد إجراء عملية شراء.",
     "pleaseLoginOrders": "يرجى تسجيل الدخول لعرض طلباتك.",
     "failedToLoadOrders": "فشل في تحميل الطلبات. يرجى المحاولة مرة أخرى لاحقاً.",
     "saveChanges": "حفظ التغييرات",
@@ -182,20 +182,31 @@
     "profileUpdated": "تم تحديث الملف الشخصي بنجاح!",
     "firstName": "الاسم الأول",
     "lastName": "اسم العائلة",
-    "enterFirstName": "أدخل الاسم الأول",
-    "enterLastName": "أدخل اسم العائلة",
+    "enterFirstName": "أدخلي الاسم الأول",
+    "enterLastName": "أدخلي اسم العائلة",
     "emailAddress": "عنوان البريد الإلكتروني",
-    "enterEmailAddress": "أدخل عنوان البريد الإلكتروني",
+    "enterEmailAddress": "أدخلي عنوان البريد الإلكتروني",
     "phoneNumber": "رقم الهاتف",
-    "enterPhoneNumber": "أدخل رقم الهاتف",
+    "enterPhoneNumber": "أدخلي رقم الهاتف",
     "address": "العنوان",
-    "enterAddress": "أدخل العنوان",
-    "user": "مستخدم",
+    "enterAddress": "أدخلي العنوان",
+    "user": "مستخدمة",
     "noEmailProvided": "لم يتم تقديم بريد إلكتروني"
   },
+  "cartPage": {
+    "shoppingBag": "حقيبة التسوق",
+    "emptyCart": "حقيبة التسوق فارغة",
+    "itemDeleted": "تم حذف المنتج",
+    "failedToRemove": "فشل في حذف المنتج. يرجى المحاولة مرة أخرى.",
+    "failedToUpdate": "فشل في تحديث الكمية. يرجى المحاولة مرة أخرى.",
+    "subtotal": "المجموع الفرعي",
+    "saleDiscount": "خصم التخفيض",
+    "total": "المجموع الإجمالي",
+    "checkout": "إتمام الطلب"
+  },
   "cart": {
-    "itemDeleted": "تم حذف العنصر",
-    "failedToRemove": "فشل في إزالة العنصر. يرجى المحاولة مرة أخرى.",
+    "itemDeleted": "تم حذف المنتج",
+    "failedToRemove": "فشل في حذف المنتج. يرجى المحاولة مرة أخرى.",
     "failedToUpdate": "فشل في تحديث الكمية. يرجى المحاولة مرة أخرى."
   },
   "checkout": {
@@ -212,39 +223,39 @@
       "description": "للأسف، لم نتمكن من معالجة دفعتك. يرجى المحاولة مرة أخرى.",
       "orderIdLabel": "رقم الطلب الفاشل",
       "possibleReasons": "الأسباب المحتملة:",
-      "reason1": "أموال غير كافية في حسابك",
+      "reason1": "رصيد غير كافٍ في حسابك",
       "reason2": "تفاصيل البطاقة غير صحيحة",
       "reason3": "البطاقة منتهية الصلاحية أو محظورة",
       "reason4": "مشاكل في الاتصال بالشبكة",
-      "cartSaved": "حقيبة تسوقك مازالت محفوظة، يمكنك إعادة محاولة الدفع مرة اخرى",
-      "returnToCart": "العودة إلى العربة",
+      "cartSaved": "حقيبة تسوقك محفوظة، يمكنك إعادة محاولة الدفع مرة أخرى",
+      "returnToCart": "العودة إلى حقيبة التسوق",
       "continueShopping": "متابعة التسوق",
-      "needHelp": "تحتاج مساعدة؟",
-      "contactSupport": "اتصل بفريق الدعم"
+      "needHelp": "تحتاجين مساعدة؟",
+      "contactSupport": "تواصلي مع فريق الدعم"
     }
   },
   "Common2": {
-    "viewAll": "عرض الكل",
-    "shop": "تسوق",
-    "shopNow": "تسوق الآن"
+    "viewAll": "مشاهدة الكل",
+    "shop": "تسوقي",
+    "shopNow": "تسوقي الآن"
   },
   "hero2": {
-    "newNow": "جديد الآن",
-    "discoverMore": "اكتشف المزيد",
+    "newNow": "الجديد الآن",
+    "discoverMore": "اكتشفي المزيد",
     "tops": "البلوزات والقمصان",
     "bottoms": "البناطيل",
     "dresses": "الفساتين",
-    "sets": "الطقم",
-    "seeAll": "عرض الكل",
-    "ss25": "مجموعة ربيع وصيف 25",
-    "liveNow": "متوفر الآن",
-    "shopAll": "تسوق الكل",
+    "sets": "الأطقم",
+    "seeAll": "مشاهدة الكل",
+    "ss25": "مجموعة ربيع وصيف 2025",
+    "liveNow": "متوفرة الآن",
+    "shopAll": "تسوقي الكل",
     "bestSeller": "الأكثر مبيعاً",
     "winterSale": "تخفيضات الشتاء"
   },
   "sections": {
     "bestSellers": "الأكثر مبيعاً",
-    "sets": "الطقم",
+    "sets": "الأطقم",
     "topsShirts": "البلوزات والقمصان",
     "dresses": "الفساتين",
     "bottoms": "البناطيل"
@@ -254,17 +265,6 @@
     "products": "المنتجات",
     "menu": "القائمة",
     "account": "الحساب",
-    "cart": "السلة"
-  },
-  "cartPage": {
-    "shoppingBag": "حقيبة التسوق",
-    "emptyCart": "عربة التسوق فارغة",
-    "itemDeleted": "تم حذف العنصر من العربة",
-    "failedToRemove": "فشل في إزالة العنصر",
-    "failedToUpdate": "فشل في تحديث الكمية",
-    "subtotal": "المجموع الفرعي",
-    "saleDiscount": "خصم التخفيض",
-    "total": "المجموع",
-    "checkout": "الدفع"
+    "cart": "حقيبة التسوق"
   }
 }
