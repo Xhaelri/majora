@@ -85,7 +85,7 @@ export default function ProductDetailsCarousel({
 
   return isDesktop ? (
     <>
-      <div className="flex flex-col md:flex-row gap-20 w-full justify-center items-start">
+      <div className="flex flex-col md:flex-row gap-10 w-full justify-center items-start">
         <div className="md:w-1/5 w-full order-2 md:order-1 flex justify-center md:justify-start">
           <Carousel
             orientation="vertical"
@@ -93,7 +93,7 @@ export default function ProductDetailsCarousel({
               align: "start",
               direction: isRTL ? "rtl" : "ltr",
             }}
-            className="w-full max-h-[500px]"
+            className="w-full max-h-[600px]"
           >
             <CarouselContent className="flex flex-row md:flex-col gap-3 h-fit md:h-full">
               {images.map((image, index) => (
@@ -181,11 +181,11 @@ export default function ProductDetailsCarousel({
                 className="cursor-pointer"
               >
                 <Card className="overflow-hidden w-full">
-                  <CardContent className="relative aspect-[4/5] w-full">
+                  <CardContent className="relative w-full">
                     <Image
                       src={image.url}
                       alt={getAltText(image)}
-                      width={"400"}
+                      width={"600"}
                       height={"300"}
                       className="object-cover"
                       loading={index === 0 ? "eager" : "lazy"}

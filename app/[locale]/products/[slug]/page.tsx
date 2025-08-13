@@ -1,20 +1,19 @@
-import { getProductBySlug } from "@/server/db/prisma";
+import { getAllProductSlugs, getProductBySlug } from "@/server/db/prisma";
 import { notFound } from "next/navigation";
 import ProductDetails from "./ProductDetails";
 
-export const revalidate = 3600;
 
-// export async function generateStaticParams() {
-//   try {
-//     const slugs = await getAllProductSlugs(); 
-//     return slugs.map((slug) => ({
-//       slug,
-//     }));
-//   } catch (error) {
-//     console.error("Error generating static params:", error);
-//     return [];
-//   }
-// }
+export async function generateStaticParams() {
+  try {
+    const slugs = await getAllProductSlugs(); 
+    return slugs.map((slug) => ({
+      slug,
+    }));
+  } catch (error) {
+    console.error("Error generating static params:", error);
+    return [];
+  }
+}
 
 type Props = {
   params: Promise<{
@@ -24,8 +23,8 @@ type Props = {
 
 export async function generateMetadata({ params }: Props) {
   try {
-    const resolvedParams = await params;
-    const product = await getProductBySlug(resolvedParams.slug);
+    const { slug } = await params
+    const product = await getProductBySlug(slug);
 
     if (!product) {
       return {
@@ -52,8 +51,8 @@ export async function generateMetadata({ params }: Props) {
 
 const ProductPage = async ({ params }: Props) => {
   try {
-    const resolvedParams = await params;
-    const product = await getProductBySlug(resolvedParams.slug);
+    const {slug} = await params;
+    const product = await getProductBySlug(slug);
 
     if (!product) {
       notFound();

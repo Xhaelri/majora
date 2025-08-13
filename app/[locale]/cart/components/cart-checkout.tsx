@@ -1,3 +1,4 @@
+"use client"
 import { Button } from "@/components/ui/button";
 import { CartItemWithVariant } from "@/types/product";
 import formatPrice from "@/utils/formatPrice";
@@ -30,7 +31,6 @@ const CartCheckOut = ({ cartItems }: Props) => {
 
   return (
     <div className="mx-auto px-7 space-y-4 lg:px-0 lg:mx-0">
-      {/* Price Breakdown */}
       <div className="space-y-1">
         <div className="flex text-sm font-light justify-between">
           <p>Subtotal</p>

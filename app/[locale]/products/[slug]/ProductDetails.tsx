@@ -119,22 +119,22 @@ const ProductDetails = ({ product }: Props) => {
   const isRTL = locale === "ar";
 
   return (
-    <section className="container pt-0 md:py-20">
-      <div className="flex flex-col md:flex-row items-center md:items-start gap-15">
+    <section className="container pt-0 lg:py-20">
+      <div className="flex flex-col lg:flex-row items-center justify-center lg:items-start ">
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           whileInView={{ y: 0, opacity: 100 }}
           viewport={{ once: true }}
           transition={{ delay: 0.2 }}
-          className="w-full md:w-1/2"
+          className="w-full lg:w-1/2 flex"
         >
           <ProductDetailsCarousel images={imagesForCarousel} />
         </motion.div>
-        <div className="w-full md:w-1/2">
-          <h1 className="text-4xl font-extralight tracking-widest text-center md:text-start">
+        <div className="w-full lg:w-1/2">
+          <h1 className="text-4xl font-extralight tracking-widest text-center lg:text-start">
             {isRTL && product.nameAr ? product.nameAr : product.name}
           </h1>
-          <div className="flex flex-col items-center md:items-start lg:flex-row gap-0 lg:gap-5 pt-5">
+          <div className="flex flex-col items-center lg:items-start lg:flex-row gap-0 lg:gap-5 pt-5">
             <div className="flex gap-5">
               {product.salePrice && (
                 <h2 className="line-through text-nowrap text-lg">
@@ -153,8 +153,8 @@ const ProductDetails = ({ product }: Props) => {
           </div>
 
           {/* Variant Selection UI */}
-          <div className="flex flex-col items-center md:items-start gap-5 pt-15">
-            <div className="flex flex-col items-center md:items-start">
+          <div className="flex flex-col items-center lg:items-start gap-5 pt-15">
+            <div className="flex flex-col items-center lg:items-start">
               <h1 className="text-lg tracking-widest font-extralight uppercase py-5">
                 {t("product.size")}
               </h1>
@@ -184,7 +184,7 @@ const ProductDetails = ({ product }: Props) => {
             </div>
 
             {selectedVariant?.size && (
-              <div className="flex flex-col items-center md:items-start">
+              <div className="flex flex-col items-center lg:items-start">
                 <h1 className="text-lg tracking-widest font-extralight uppercase py-5">
                   {t("product.color")}
                 </h1>
@@ -220,7 +220,7 @@ const ProductDetails = ({ product }: Props) => {
             )}
 
             {selectedVariant && (
-              <div className="pt-5 md:ps-1 text-md text-muted-foreground">
+              <div className="pt-5 lg:ps-1 text-md text-muted-foreground">
                 {selectedVariant.stock < 5 && selectedVariant.stock > 0 ? (
                   <span className="flex items-center gap-2 text-primary">
                     <AvailabilityPing available={false} />

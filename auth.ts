@@ -119,7 +119,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return true;
     },
 
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         const dbUser = await db.user.findUnique({
           where: { email: user.email! },
@@ -143,7 +143,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
       }
 
-      if (token.sub && !token.email) {
+      if ((token.sub && !token.email) || trigger === "update") {
         try {
           const dbUser = await db.user.findUnique({
             where: { id: token.sub },
@@ -178,4 +178,3 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
 });
-

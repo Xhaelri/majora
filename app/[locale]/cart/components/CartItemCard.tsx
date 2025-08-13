@@ -20,9 +20,8 @@ const CartItemCard = ({ item }: Props) => {
   if (!item.productVariant) {
     console.log("Product variant not found");
   }
-
   const img = item.productVariant.images?.[0];
-
+  
   const handleRemoveFromCart = async () => {
     try {
       setIsMutating(true);

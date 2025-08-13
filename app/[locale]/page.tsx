@@ -18,12 +18,12 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ locale: string }>;
+  params: Promise<{ lang: "en" | "ar" }>;
 }): Promise<Metadata> {
-  const { locale } = await params;
+  const { lang } = await params;
   
   // You can customize metadata per locale here
-  const isArabic = locale === 'ar';
+  const isArabic = lang === 'ar';
   
   return {
     title: isArabic ? "سكرة | أزياء نسائية وملابس" : "SEKRA | Women's Fashion & Clothing",
