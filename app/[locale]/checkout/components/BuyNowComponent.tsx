@@ -1,20 +1,22 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { useCart } from "@/context/CartContext";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 import formatPrice from "@/utils/formatPrice";
 import {
-  createCheckoutSession,
+  getBuyNowItemDetails,
+  createBuyNowCheckoutSession,
+} from "@/server/actions/buy-now-actions";
+import {
   getShippingRate,
   getUserData,
   validateDiscountCode,
 } from "@/server/actions/checkout-actions";
-import { useSession } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
-import Image from "next/image";
-import DiscountSection from "./DiscountSection";
-import BillingForm from "./BillingForm";
-import PaymentIframe from "./PaymentIframe";
+import DiscountSection from "../components/DiscountSection";
+import BillingForm from "../components/BillingForm";
+import PaymentIframe from "../components/PaymentIframe";
 
 interface AppliedDiscount {
   code: string;
@@ -38,18 +40,58 @@ interface BillingData {
   country: string;
 }
 
-export default function CheckoutPage() {
-  const { items: cartItems, count } = useCart();
+interface BuyNowItem {
+  id: string;
+  quantity: number;
+  productVariantId: string;
+  productVariant: {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    productId: string;
+    sizeId: string;
+    colorId: string;
+    stock: number;
+    sku: string | null;
+    product: {
+      id: string;
+      name: string;
+      price: number;
+      salePrice: number | null;
+      description: string | null;
+    };
+    size: {
+      id: string;
+      name: string;
+    };
+    color: {
+      id: string;
+      name: string;
+    };
+    images: Array<{
+      id: string;
+      url: string;
+      altText: string;
+    }>;
+  };
+}
+
+export default function BuyNowCheckoutPage() {
+  const { data: session } = useSession();
+  const router = useRouter();
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [paymentKey, setPaymentKey] = useState<string | null>(null);
   const [showPayment, setShowPayment] = useState(false);
   const [initializing, setInitializing] = useState(true);
   const [shippingCost, setShippingCost] = useState<number | null>(null);
+  const [buyNowItem, setBuyNowItem] = useState<BuyNowItem | null>(null);
 
   // Discount state
   const [discountCode, setDiscountCode] = useState("");
-  const [appliedDiscount, setAppliedDiscount] = useState<AppliedDiscount | null>(null);
+  const [appliedDiscount, setAppliedDiscount] =
+    useState<AppliedDiscount | null>(null);
   const [discountLoading, setDiscountLoading] = useState(false);
 
   const [billingData, setBillingData] = useState<BillingData>({
@@ -67,15 +109,41 @@ export default function CheckoutPage() {
     country: "Egypt",
   });
 
-  const { data: session } = useSession();
-  const searchParams = useSearchParams();
-
-  // Load user data and handle discount from URL on component mount
+  // Load buy now item and user data
   useEffect(() => {
-    const loadUserDataAndDiscount = async () => {
+    const loadBuyNowData = async () => {
       try {
+        // Get buy now data from sessionStorage
+        const buyNowDataStr = sessionStorage.getItem("buyNowData");
+        if (!buyNowDataStr) {
+          setError("Buy now session expired. Please try again.");
+          return;
+        }
+
+        const buyNowData = JSON.parse(buyNowDataStr);
+
+        // Check if data is not too old (15 minutes)
+        if (Date.now() - buyNowData.timestamp > 15 * 60 * 1000) {
+          sessionStorage.removeItem("buyNowData");
+          setError("Buy now session expired. Please try again.");
+          return;
+        }
+
+        // Load item details
+        const itemResult = await getBuyNowItemDetails(
+          buyNowData.productVariantId,
+          buyNowData.quantity
+        );
+
+        if (itemResult.error || !itemResult.item) {
+          setError(itemResult.error || "Failed to load product details");
+          return;
+        }
+
+        setBuyNowItem(itemResult.item);
+
         // Load user data if authenticated
-        if (session) {
+        if (session?.user) {
           const userData = await getUserData(session.user.id);
           if (userData) {
             setBillingData((prev) => ({
@@ -88,60 +156,19 @@ export default function CheckoutPage() {
             }));
           }
         }
-
-        // Check for discount code in URL parameters
-        const urlDiscountCode = searchParams.get("discount");
-        if (urlDiscountCode) {
-          setDiscountCode(urlDiscountCode);
-
-          // Auto-apply the discount code from the cart
-          const subtotal = cartItems.reduce((sum, item) => {
-            const fullPrice = item.productVariant.product.price;
-            return sum + fullPrice * item.quantity;
-          }, 0);
-
-          const saleDiscount = cartItems.reduce((sum, item) => {
-            const { price, salePrice } = item.productVariant.product;
-            if (salePrice && salePrice < price) {
-              return sum + (price - salePrice) * item.quantity;
-            }
-            return sum;
-          }, 0);
-
-          const orderAmount = subtotal - saleDiscount;
-
-          if (orderAmount > 0) {
-            setDiscountLoading(true);
-            try {
-              const result = await validateDiscountCode(urlDiscountCode, orderAmount);
-              if (result.discount) {
-                setAppliedDiscount(result.discount);
-              } else if (result.error) {
-                setError(`Discount error: ${result.error}`);
-              }
-            } catch (error) {
-              console.error("Failed to apply URL discount:", error);
-            } finally {
-              setDiscountLoading(false);
-            }
-          }
-        }
       } catch (error) {
-        console.error("Failed to load user data:", error);
+        console.error("Failed to load buy now data:", error);
+        setError("Failed to load checkout data");
       } finally {
         setInitializing(false);
       }
     };
 
-    if (!initializing) {
-      loadUserDataAndDiscount();
+    if (session !== undefined) {
+      // Wait for session to load
+      loadBuyNowData();
     }
-  }, [session, searchParams, cartItems]);
-
-  // Set initializing to false when component mounts
-  useEffect(() => {
-    setInitializing(false);
-  }, []);
+  }, [session]);
 
   const handleGovernorateChange = useCallback(async (governorate: string) => {
     if (governorate) {
@@ -158,19 +185,17 @@ export default function CheckoutPage() {
     }
   }, [billingData.state, handleGovernorateChange]);
 
-  // Calculate totals - now only uses cart items
-  const subtotal = cartItems.reduce((sum, item) => {
-    const fullPrice = item.productVariant.product.price;
-    return sum + fullPrice * item.quantity;
-  }, 0);
+  // Calculate totals
+  const subtotal = buyNowItem
+    ? buyNowItem.productVariant.product.price * buyNowItem.quantity
+    : 0;
 
-  const saleDiscount = cartItems.reduce((sum, item) => {
-    const { price, salePrice } = item.productVariant.product;
-    if (salePrice && salePrice < price) {
-      return sum + (price - salePrice) * item.quantity;
-    }
-    return sum;
-  }, 0);
+  const saleDiscount =
+    buyNowItem && buyNowItem.productVariant.product.salePrice
+      ? (buyNowItem.productVariant.product.price -
+          buyNowItem.productVariant.product.salePrice) *
+        buyNowItem.quantity
+      : 0;
 
   const discountAmount = appliedDiscount ? appliedDiscount.amount : 0;
   const total = subtotal - saleDiscount - discountAmount + (shippingCost || 0);
@@ -195,7 +220,10 @@ export default function CheckoutPage() {
     setError(null);
 
     try {
-      const result = await validateDiscountCode(discountCode, subtotal - saleDiscount);
+      const result = await validateDiscountCode(
+        discountCode,
+        subtotal - saleDiscount
+      );
 
       if (result.error) {
         setError(result.error);
@@ -264,16 +292,23 @@ export default function CheckoutPage() {
       setError("Please select a governorate to calculate shipping.");
       return;
     }
+    if (!buyNowItem) {
+      setError("Product information is missing.");
+      return;
+    }
 
     setLoading(true);
     setError(null);
 
     try {
-      // Pass the discount code (not the amount) to server for re-validation
-      const result = await createCheckoutSession(
+      const result = await createBuyNowCheckoutSession(
+        {
+          productVariantId: buyNowItem.productVariantId,
+          quantity: buyNowItem.quantity,
+        },
         billingData,
-        appliedDiscount?.code,
-        shippingCost
+        shippingCost,
+        appliedDiscount?.code
       );
 
       if (result.error) {
@@ -281,8 +316,12 @@ export default function CheckoutPage() {
         return;
       }
 
-      setPaymentKey(result.paymentKey);
-      setShowPayment(true);
+      if (result.paymentKey) {
+        setPaymentKey(result.paymentKey);
+        setShowPayment(true);
+        // Clear the session storage as we're now in payment flow
+        sessionStorage.removeItem("buyNowData");
+      }
     } catch (error) {
       console.error(error);
       setError("An unexpected error occurred.");
@@ -291,7 +330,16 @@ export default function CheckoutPage() {
     }
   };
 
-  if (initializing) {
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (session === null) {
+      router.push(
+        "/auth/signin?callbackUrl=" + encodeURIComponent("/checkout/buy-now")
+      );
+    }
+  }, [session, router]);
+
+  if (initializing || session === undefined) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
@@ -302,12 +350,29 @@ export default function CheckoutPage() {
     );
   }
 
-  if (count === 0) {
+  if (error && !buyNowItem) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Your cart is empty</h1>
-          <p>Add some items to your cart before checking out.</p>
+          <h1 className="text-2xl font-bold mb-4 text-red-600">Error</h1>
+          <p className="mb-4">{error}</p>
+          <button
+            onClick={() => router.push("/products")}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+          >
+            Continue Shopping
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!buyNowItem) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          <p className="mt-2">Loading product...</p>
         </div>
       </div>
     );
@@ -315,35 +380,32 @@ export default function CheckoutPage() {
 
   return (
     <div className="container mx-auto py-5">
-      <h1 className="text-2xl font-bold mb-8">Checkout</h1>
+      <h1 className="text-2xl font-bold mb-8">Buy Now Checkout</h1>
 
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Left Column - Forms and Cart Summary */}
+        {/* Left Column - Forms */}
         <div className="space-y-8 lg:max-w-1/2">
-          {/* Discount Code Section */}
           {!showPayment && (
-            <DiscountSection
-              appliedDiscount={appliedDiscount}
-              discountCode={discountCode}
-              discountLoading={discountLoading}
-              setDiscountCode={setDiscountCode}
-              handleApplyDiscount={handleApplyDiscount}
-              handleRemoveDiscount={handleRemoveDiscount}
-            />
+            <>
+              <DiscountSection
+                appliedDiscount={appliedDiscount}
+                discountCode={discountCode}
+                discountLoading={discountLoading}
+                setDiscountCode={setDiscountCode}
+                handleApplyDiscount={handleApplyDiscount}
+                handleRemoveDiscount={handleRemoveDiscount}
+              />
+
+              <BillingForm
+                loading={loading}
+                error={error}
+                billingData={billingData}
+                handleInputChange={handleInputChange}
+                handleProceedToPayment={handleProceedToPayment}
+              />
+            </>
           )}
 
-          {/* Billing Information Form */}
-          {!showPayment && (
-            <BillingForm
-              loading={loading}
-              error={error}
-              billingData={billingData}
-              handleInputChange={handleInputChange}
-              handleProceedToPayment={handleProceedToPayment}
-            />
-          )}
-
-          {/* Payment Iframe */}
           {showPayment && paymentKey && (
             <PaymentIframe paymentKey={paymentKey} />
           )}
@@ -353,48 +415,49 @@ export default function CheckoutPage() {
         <div className="bg-white p-6 rounded-lg shadow-sm border h-fit sticky top-4 lg:max-w-1/2">
           <h2 className="text-xl font-semibold mb-6">Order Summary</h2>
 
-          {/* Cart Items */}
-          <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
-            {cartItems.map((item) => (
-              <div
-                key={item.id}
-                className="flex items-center space-x-4 p-2 bg-gray-50 rounded-md"
-              >
-                <div className="w-16 h-16 bg-gray-200 rounded-md flex-shrink-0 overflow-hidden">
-                  {item.productVariant.images?.[0] && (
-                    <Image
-                      src={item.productVariant.images[0].url.trimStart()}
-                      alt={item.productVariant.images[0].altText}
-                      className="w-full h-full object-cover"
-                      width={16}
-                      height={16}
-                    />
-                  )}
-                </div>
-                <div className="flex-grow min-w-0">
-                  <h3 className="text-sm font-medium truncate">
-                    {item.productVariant.product.name}
-                  </h3>
-                  <p className="text-xs text-gray-500">
-                    {item.productVariant.size.name} •{" "}
-                    {item.productVariant.color.name}
-                  </p>
-                  <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
-                </div>
-                <div className="text-sm font-medium flex-shrink-0">
-                  {formatPrice(
-                    (item.productVariant.product.salePrice ||
-                      item.productVariant.product.price) * item.quantity
-                  )}
-                </div>
+          {/* Product Item */}
+          <div className="mb-6">
+            <div className="flex items-center space-x-4 p-2 bg-gray-50 rounded-md">
+              <div className="w-16 h-16 bg-gray-200 rounded-md flex-shrink-0 overflow-hidden">
+                {buyNowItem.productVariant.images?.[0] && (
+                  <Image
+                    src={buyNowItem.productVariant.images[0].url.trimStart()}
+                    alt={buyNowItem.productVariant.images[0].altText}
+                    className="w-full h-full object-cover"
+                    width={64}
+                    height={64}
+                  />
+                )}
               </div>
-            ))}
+              <div className="flex-grow min-w-0">
+                <h3 className="text-sm font-medium truncate">
+                  {buyNowItem.productVariant.product.name}
+                </h3>
+                <p className="text-xs text-gray-500">
+                  {buyNowItem.productVariant.size.name} •{" "}
+                  {buyNowItem.productVariant.color.name}
+                </p>
+                <p className="text-xs text-gray-500">
+                  Qty: {buyNowItem.quantity}
+                </p>
+              </div>
+              <div className="text-sm font-medium flex-shrink-0">
+                {formatPrice(
+                  (buyNowItem.productVariant.product.salePrice ||
+                    buyNowItem.productVariant.product.price) *
+                    buyNowItem.quantity
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Price Breakdown */}
           <div className="border-t pt-4 space-y-2">
             <div className="flex justify-between text-sm">
-              <span>Subtotal ({count} items)</span>
+              <span>
+                Subtotal ({buyNowItem.quantity} item
+                {buyNowItem.quantity > 1 ? "s" : ""})
+              </span>
               <span>{formatPrice(subtotal)}</span>
             </div>
 
@@ -445,6 +508,26 @@ export default function CheckoutPage() {
               </svg>
               <span className="text-sm text-green-700">
                 Secure payment powered by Paymob
+              </span>
+            </div>
+          </div>
+
+          {/* Buy Now Badge */}
+          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+            <div className="flex items-center">
+              <svg
+                className="w-5 h-5 text-blue-600 mr-2"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span className="text-sm text-blue-700 font-medium">
+                Express Buy Now Checkout
               </span>
             </div>
           </div>

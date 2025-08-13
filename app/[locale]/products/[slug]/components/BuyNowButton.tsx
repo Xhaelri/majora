@@ -1,110 +1,72 @@
 "use client";
 
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useSession } from "next-auth/react";
+import { toast } from "sonner";
+// import { useTranslations } from "next-intl";
 
-type ProductVariant = {
-  id: string;
-  stock: number;
-  size: {
-    id: string;
-    name: string;
-    nameAr?: string | null;
-  };
-  color: {
-    id: string;
-    name: string;
-    nameAr?: string | null;
-  };
-  images?: Array<{
-    url: string;
-    altText: string;
-    altTextAr?: string | null;
-  }>;
-};
-
-type ProductInfo = {
-  id: string;
-  name: string;
-  nameAr?: string | null;
-  price: number;
-  salePrice?: number | null;
-  description?: string | null;
-};
-
-type Props = {
-  productVariant: ProductVariant | null;
-  productInfo: ProductInfo;
-  className?: string;
+interface BuyNowButtonProps {
+  productVariantId: string|null;
+  quantity?: number;
   disabled?: boolean;
-};
+  className?: string;
+}
 
-const BuyNowButton = ({
-  productVariant,
-  productInfo,
+export default function BuyNowButton({
+  productVariantId,
+  quantity = 1,
   disabled = false,
-}: Props) => {
+  className,
+}: BuyNowButtonProps) {
+  // const t = useTranslations();
   const router = useRouter();
-  const t = useTranslations("product");
-  const [isProcessing, setIsProcessing] = useState(false);
+  const { data: session } = useSession();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleBuyNow = async () => {
-    // Validate that a variant is selected
-    if (!productVariant) {
-      console.error("Please select size and color");
+    if (isLoading || disabled) return;
+
+    // Check if user is authenticated
+    if (!session?.user) {
+      toast.error("Please sign in to continue with your purchase");
+      router.push("/auth/signin?callbackUrl=" + encodeURIComponent(window.location.href));
       return;
     }
 
-    setIsProcessing(true);
+    setIsLoading(true);
 
     try {
-      // Create URL with product data as query parameters
-      const buyNowParams = new URLSearchParams({
-        // Product variant details
-        variantId: productVariant.id,
-        productId: productInfo.id,
-        productName: productInfo.name,
-        price: productInfo.price.toString(),
-        salePrice: productInfo.salePrice?.toString() || "",
-        sizeName: productVariant.size.name,
-        colorName: productVariant.color.name,
-        quantity: "1",
-        // Add image if available
-        ...(productVariant.images?.[0] && {
-          imageUrl: productVariant.images[0].url,
-          imageAlt: productVariant.images[0].altText,
-        }),
-      });
+      // Store buy now item data in sessionStorage for the checkout page
+      const buyNowData = {
+        productVariantId,
+        quantity,
+        timestamp: Date.now(),
+      };
 
-      // Navigate to checkout with buy-now flag
-      router.push(`/checkout?buyNow=true&${buyNowParams.toString()}`);
+      sessionStorage.setItem("buyNowData", JSON.stringify(buyNowData));
+
+      // Navigate to buy now checkout page
+      router.push("/checkout/buy-now");
+      
     } catch (error) {
-      console.error("Error processing buy now:", error);
-      // Handle error - maybe show a toast notification
+      console.error("Buy Now error:", error);
+      toast.error("Failed to proceed with Buy Now. Please try again.");
     } finally {
-      setIsProcessing(false);
+      setIsLoading(false);
     }
   };
 
   return (
     <Button
-      variant={"cartBuyNow"}
-      size={"cartBuyNow"}
+      variant="default"
+      size="default"
       onClick={handleBuyNow}
-      disabled={disabled || isProcessing || !productVariant}
+      disabled={isLoading || disabled}
+      className={`bg-blue-600 hover:bg-blue-700 text-white ${className || ""}`}
     >
-      {isProcessing ? (
-        <div className="flex items-center">
-          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-          {t("processing") || "Processing..."}
-        </div>
-      ) : (
-        t("buyItNow") || "Buy Now"
-      )}
+      {isLoading ? "Processing..." : "Buy Now"}
     </Button>
   );
-};
-
-export default BuyNowButton;
+}

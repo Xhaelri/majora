@@ -278,19 +278,10 @@ const ProductDetails = ({ product }: Props) => {
               <div className="pt-5">
                 {(selectedVariant?.stock ?? 0) > 0 && (
                   <BuyNowButton
-                    productVariant={selectedVariant}
-                    productInfo={{
-                      id: product.id,
-                      name: product.name,
-                      nameAr: product.nameAr,
-                      price: product.price,
-                      salePrice: product.salePrice,
-                      description: product.description,
-                    }}
-                    className="w-full"
-                    disabled={
-                      !selectedVariant || (selectedVariant?.stock ?? 0) <= 0
-                    }
+                    productVariantId={selectedVariant?.id || null}
+                    quantity={1}
+                    disabled={selectedVariant?.stock == 0}
+                    className="flex-1"
                   />
                 )}
               </div>

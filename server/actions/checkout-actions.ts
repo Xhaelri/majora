@@ -1,11 +1,9 @@
-// Updated checkout-actions.ts - Cart cleared only after successful payment
+// Updated checkout-actions.ts - Modified to support both cart and buy-now
 "use server";
 
 import { db } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { getCartData } from "./cart";
-import { FullProduct } from "@/types/product";
-// Remove the clearCart import since we'll handle it in webhook
 
 interface BillingData {
   email: string;
@@ -33,13 +31,8 @@ interface DiscountValidationResult {
   error?: string;
   discount?: AppliedDiscount;
 }
-interface BuyNowItemData {
-  productVariantId: string;
-  quantity: number;
-  priceAtPurchase: number;
-}
 
-// Secure server-side discount validation
+// Keep existing discount validation function unchanged
 export async function validateDiscountCode(
   code: string,
   orderAmount: number
@@ -49,7 +42,6 @@ export async function validateDiscountCode(
       return { error: "Please enter a discount code" };
     }
 
-    // Find the discount code in database
     const discountCode = await db.discountCode.findUnique({
       where: { code: code.toUpperCase() },
     });
@@ -62,12 +54,10 @@ export async function validateDiscountCode(
       return { error: "This discount code is no longer active" };
     }
 
-    // Check expiration
     if (discountCode.expiresAt && discountCode.expiresAt < new Date()) {
       return { error: "This discount code has expired" };
     }
 
-    // Check minimum order amount
     if (
       discountCode.minOrderAmount &&
       orderAmount < discountCode.minOrderAmount
@@ -77,7 +67,6 @@ export async function validateDiscountCode(
       };
     }
 
-    // Calculate discount amount
     let discountAmount = 0;
     if (discountCode.discountType === "PERCENTAGE") {
       discountAmount = Math.min(
@@ -88,7 +77,6 @@ export async function validateDiscountCode(
       discountAmount = Math.min(discountCode.value, orderAmount);
     }
 
-    // Round to 2 decimal places
     discountAmount = Math.round(discountAmount * 100) / 100;
 
     return {
@@ -110,7 +98,7 @@ export async function validateDiscountCode(
   }
 }
 
-// Updated applyDiscount function for cart usage
+// Keep existing applyDiscount function unchanged
 export async function applyDiscount(discountCode: string, orderAmount: number) {
   try {
     const result = await validateDiscountCode(discountCode, orderAmount);
@@ -134,11 +122,11 @@ export async function applyDiscount(discountCode: string, orderAmount: number) {
   }
 }
 
+// Modified createCheckoutSession - now only handles cart orders
 export async function createCheckoutSession(
   billingData: BillingData,
   discountCode?: string,
-  shippingCost?: number,
-  buyNowItems?: BuyNowItemData[] // Add this parameter
+  shippingCost?: number
 ) {
   const session = await auth();
   const user = session?.user;
@@ -151,43 +139,10 @@ export async function createCheckoutSession(
     return { error: "Shipping cost is not determined." };
   }
 
-  let cartItems: FullProduct[] = [];
-  let cartCount = 0;
-
-  // Handle Buy Now items or regular cart items
-  if (buyNowItems && buyNowItems.length > 0) {
-    // For buy now, we need to fetch product variant details
-    cartItems = await Promise.all(
-      buyNowItems.map(async (item) => {
-        const variant = await db.productVariant.findUnique({
-          where: { id: item.productVariantId },
-          include: {
-            product: true,
-            size: true,
-            color: true,
-          },
-        });
-
-        if (!variant) {
-          throw new Error(`Product variant ${item.productVariantId} not found`);
-        }
-
-        return {
-          id: `buynow-${item.productVariantId}`,
-          productVariantId: item.productVariantId,
-          quantity: item.quantity,
-          productVariant: variant,
-        };
-      })
-    );
-    cartCount = buyNowItems.reduce((sum, item) => sum + item.quantity, 0);
-  } else {
-    // Use existing cart logic
-    const cartData = await getCartData();
-    cartItems = cartData.items;
-    cartCount = cartData.count;
-  }
-
+  // Only handle cart items - no more buy now logic here
+  const cartData = await getCartData();
+  const cartItems = cartData.items;
+  const cartCount = cartData.count;
 
   if (cartCount === 0) {
     return { error: "No items to checkout." };
@@ -237,11 +192,13 @@ export async function createCheckoutSession(
     return { error: "Invalid order total calculated." };
   }
 
-  // Create the order first to get an ID
+  // Create the cart order - mark as CART type
   const order = await db.order.create({
     data: {
       userId: user.id,
       status: "PENDING",
+      orderType: "CART", // Explicitly mark as cart order
+      isBuyNow: false,
       subtotal,
       totalAmount,
       discountAmount: saleDiscount + couponDiscount,
@@ -300,7 +257,7 @@ export async function createCheckoutSession(
           delivery_needed: "false",
           amount_cents: Math.round(totalAmount * 100),
           currency: "EGP",
-          merchant_order_id: order.id, // This is the ID we need to save!
+          merchant_order_id: order.id,
           items: cartItems.map((item) => ({
             name: item.productVariant.product.name,
             amount_cents: Math.round(
@@ -329,7 +286,7 @@ export async function createCheckoutSession(
       where: { id: order.id },
       data: {
         paymobOrderId: paymobOrderId.toString(),
-        merchantOrderId: order.id, // Save the ID you sent to Paymob
+        merchantOrderId: order.id,
       },
     });
 
@@ -378,9 +335,8 @@ export async function createCheckoutSession(
     const paymentKeyData = await paymentKeyResponse.json();
     const paymentKey = paymentKeyData.token;
 
-    // DO NOT clear cart here - it will be cleared in the webhook after successful payment
     console.log(
-      `✅ Payment session created for order ${order.id}. Cart will be cleared after payment confirmation.`
+      `✅ Cart payment session created for order ${order.id}. Cart will be cleared after payment confirmation.`
     );
 
     return { paymentKey, orderId: order.id };
@@ -394,6 +350,7 @@ export async function createCheckoutSession(
   }
 }
 
+// Keep all other existing functions unchanged
 export async function getShippingRate(governorate: string) {
   try {
     const rate = await db.shippingRate.findUnique({
@@ -432,7 +389,6 @@ export async function getUserData(userId: string) {
   }
 }
 
-// Helper function to manually clear cart (for testing or admin purposes)
 export async function clearUserCart(userId: string) {
   try {
     const cart = await db.cart.findUnique({

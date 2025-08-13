@@ -182,6 +182,7 @@ model CartItem {
 }
 
 
+
 model Order {
   id                   String            @id @default(uuid())
   userId               String?
@@ -195,6 +196,10 @@ model Order {
   discountCodeId       String?
   createdAt            DateTime          @default(now())
   updatedAt            DateTime          @updatedAt
+  
+  // ADD THESE NEW FIELDS
+  orderType            OrderType         @default(CART) // New field to distinguish order types
+  isBuyNow             Boolean           @default(false) // Quick identifier for buy now orders
 
   // Billing Address fields...
   billingEmail         String?
@@ -220,14 +225,20 @@ model Order {
   user                 User?             @relation(fields: [userId], references: [id])
   orderItems           OrderItem[]
 
-  // Essential indexes - reduced from 9 to 5
-  @@index([userId, status]) // Keep - most common user query
-  @@index([status, orderDate]) // Keep - admin dashboard
-  @@index([billingEmail]) // Keep - customer service
-  @@index([paymobOrderId]) // Keep - payment webhooks
-  @@index([createdAt]) // Keep - recent orders
+  // Essential indexes - add new index for buy now queries
+  @@index([userId, status])
+  @@index([status, orderDate])
+  @@index([billingEmail])
+  @@index([paymobOrderId])
+  @@index([createdAt])
+  @@index([orderType, isBuyNow]) // New index for buy now orders
 }
 
+// ADD THIS NEW ENUM
+enum OrderType {
+  CART
+  BUY_NOW
+}
 
 
 model OrderItem {
