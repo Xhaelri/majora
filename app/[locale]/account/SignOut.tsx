@@ -28,7 +28,7 @@ export default function SignOut() {
       variant="destructive"
       className="cursor-pointer px-10 w-50 lg:w-full"
     >
-      t({"logout"})
+      {t("logout")}
     </Button>
   );
 }
