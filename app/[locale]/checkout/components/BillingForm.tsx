@@ -63,7 +63,7 @@ const BillingForm = ({
 }: Props) => {
   return (
     <>
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
+        <div className="bg-white p-6  shadow-sm border">
           <h2 className="text-xl font-semibold mb-6">Billing Information</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -250,7 +250,7 @@ const BillingForm = ({
           <button
             onClick={handleProceedToPayment}
             disabled={loading}
-            className="mt-6 w-full bg-black text-white py-3 px-4 rounded-md hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="mt-6 w-full bg-black text-white py-3 px-4 hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? (
               <div className="flex items-center justify-center">

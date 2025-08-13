@@ -7,7 +7,7 @@ type Props = {
 const PaymentIframe = ({ paymentKey }: Props) => {
   return (
     <>
-      <div className="bg-white p-6 rounded-lg shadow-sm border lg:min-w-[400px]">
+      <div className="bg-white p-6  shadow-sm border lg:min-w-[400px]">
         <h2 className="text-xl font-semibold mb-6">Complete Payment</h2>
         <div className="relative">
           <iframe

@@ -44,8 +44,8 @@ export default function CheckoutPage() {
   const [error, setError] = useState<string | null>(null);
   const [paymentKey, setPaymentKey] = useState<string | null>(null);
   const [showPayment, setShowPayment] = useState(false);
-  const [initializing, setInitializing] = useState(true);
   const [shippingCost, setShippingCost] = useState<number | null>(null);
+  const [initializing, setInitializing] = useState(true);
 
   // Discount state
   const [discountCode, setDiscountCode] = useState("");
@@ -128,20 +128,14 @@ export default function CheckoutPage() {
         }
       } catch (error) {
         console.error("Failed to load user data:", error);
-      } finally {
+      }finally {
         setInitializing(false);
       }
     };
 
-    if (!initializing) {
       loadUserDataAndDiscount();
-    }
   }, [session, searchParams, cartItems]);
 
-  // Set initializing to false when component mounts
-  useEffect(() => {
-    setInitializing(false);
-  }, []);
 
   const handleGovernorateChange = useCallback(async (governorate: string) => {
     if (governorate) {
@@ -291,16 +285,7 @@ export default function CheckoutPage() {
     }
   };
 
-  if (initializing) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-          <p className="mt-2">Loading...</p>
-        </div>
-      </div>
-    );
-  }
+
 
   if (count === 0) {
     return (
@@ -313,13 +298,25 @@ export default function CheckoutPage() {
     );
   }
 
+    if (initializing || session === undefined) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          <p className="mt-2">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+
   return (
     <div className="container mx-auto py-5">
       <h1 className="text-2xl font-bold mb-8">Checkout</h1>
 
-      <div className="flex flex-col lg:flex-row gap-8">
+      <div className="flex flex-col-reverse lg:flex-row gap-8">
         {/* Left Column - Forms and Cart Summary */}
-        <div className="space-y-8 lg:max-w-1/2">
+        <div className="space-y-8 lg:max-w-1/2 order-1">
           {/* Discount Code Section */}
           {!showPayment && (
             <DiscountSection
@@ -350,7 +347,7 @@ export default function CheckoutPage() {
         </div>
 
         {/* Right Column - Order Summary */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border h-fit sticky top-4 lg:max-w-1/2">
+        <div className="bg-white p-6 shadow-sm border h-fit sticky top-4 lg:max-w-1/2 order-2">
           <h2 className="text-xl font-semibold mb-6">Order Summary</h2>
 
           {/* Cart Items */}
@@ -430,7 +427,7 @@ export default function CheckoutPage() {
           </div>
 
           {/* Security Badge */}
-          <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
+          <div className="mt-4 p-3 bg-green-50 border border-green-200 ">
             <div className="flex items-center">
               <svg
                 className="w-5 h-5 text-green-600 mr-2"

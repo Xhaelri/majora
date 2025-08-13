@@ -18,7 +18,6 @@ export default function BuyNowButton({
   productVariantId,
   quantity = 1,
   disabled = false,
-  className,
 }: BuyNowButtonProps) {
   // const t = useTranslations();
   const router = useRouter();
@@ -60,11 +59,10 @@ export default function BuyNowButton({
 
   return (
     <Button
-      variant="default"
-      size="default"
+      variant="cartBuyNow"
+      size="cartBuyNow"
       onClick={handleBuyNow}
       disabled={isLoading || disabled}
-      className={`bg-blue-600 hover:bg-blue-700 text-white ${className || ""}`}
     >
       {isLoading ? "Processing..." : "Buy Now"}
     </Button>
