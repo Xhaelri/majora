@@ -1,6 +1,6 @@
 // app/checkout/success/page.tsx
 import { CheckCircle, Package, Clock } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
 
 export default async function CheckoutSuccessPage() {
@@ -15,7 +15,6 @@ export default async function CheckoutSuccessPage() {
           </h1>
           <p className="text-gray-600">{t("description")}</p>
         </div>
-
         <div className="border-t border-b py-4 my-6">
           <div className="flex items-center justify-center space-x-4 text-sm text-gray-600">
             <div className="flex items-center">

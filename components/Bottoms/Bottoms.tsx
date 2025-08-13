@@ -4,14 +4,12 @@
 // import CardGrid from "../ui-custom/CardGrid";
 // import { mobileMenue } from "@/constants/constants";
 // import { getTranslations } from "next-intl/server";
-// import Link from "next/link";
+// import { Link } from '@/navigation';
 // import { getProductsByCategory } from "@/server/db/prisma";
-
-
 
 // const Bottoms = async () => {
 //     const products = getProductsByCategory("bottoms");
-  
+
 //   const t = await getTranslations();
 
 //   return (

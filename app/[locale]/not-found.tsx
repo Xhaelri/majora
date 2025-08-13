@@ -3,7 +3,7 @@ import { useTranslations } from "next-intl";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { routing } from "@/i18n/routing";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 
 export async function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -23,7 +23,6 @@ export async function generateMetadata({
       t("description") || "The page you are looking for does not exist.",
   };
 }
-
 
 export default function NotFoundPage() {
   const t = useTranslations("NotFound");

@@ -2,22 +2,21 @@ import React from "react";
 import SectionTitle from "../ui-custom/SectionTitle";
 import { Button } from "../ui/button";
 import CardGrid from "../ui-custom/CardGrid";
-import { mobileMenue } from "@/constants/constants";
 import { getTranslations } from "next-intl/server";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { getProductsByCategory } from "@/server/db/prisma";
 
-
 const Sets = async () => {
-  const products = await getProductsByCategory("sets")
-  const t = await getTranslations();
+  const products = await getProductsByCategory("sets");
+  const t = await getTranslations("sections");
+  const tCommon = await getTranslations("Common2");
 
   return (
     <section className="flex flex-col items-center gap-15">
       <div className="flex flex-col items-center justify-center space-y-5">
-        <SectionTitle>{t(mobileMenue[1].title)}</SectionTitle>
+        <SectionTitle>{t("sets")}</SectionTitle>
         <Link href={`/categories/sets`}>
-          <Button variant={"section"}>{t("Common.viewAll")}</Button>
+          <Button variant={"section"}>{tCommon("viewAll")}</Button>
         </Link>
       </div>
       <CardGrid products={products} isProductsPage={false} />

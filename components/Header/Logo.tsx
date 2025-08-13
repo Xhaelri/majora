@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import Link from "../Link/Link";
+import { Link } from "@/i18n/navigation";
 import React from "react";
 
 interface Props {

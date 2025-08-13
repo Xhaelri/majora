@@ -1,12 +1,12 @@
 import Image from "next/image";
 import React from "react";
 import { heroImages2 } from "@/constants/constants";
-import Link from "next/link";
-import { useTranslations } from 'next-intl';
+import { Link } from "@/i18n/navigation";
+import { getTranslations } from "next-intl/server";
 
-const Hero2 = () => {
-  const t = useTranslations('hero');
-  
+const Hero2 = async () => {
+  const t = await getTranslations("hero");
+
   return (
     <section className="flex flex-col">
       {/* First image with centered text - Optimized for LCP */}
@@ -22,14 +22,14 @@ const Hero2 = () => {
             loading="eager"
             sizes="(max-width: 768px) 100vw, 100vw"
             fetchPriority="high"
-            quality={90} 
+            quality={90}
           />
 
           <h1 className="absolute inset-0 flex items-center justify-center text-white text-5xl md:text-7xl font-semibold mb-20 uppercase">
-            {t('newNow')}
+            {t("newNow")}
           </h1>
           <h1 className="absolute inset-0 flex items-center justify-center text-white text-sm md:text-xl font-semibold mt-10 md:mt-20 uppercase">
-            {t('discoverMore')}
+            {t("discoverMore")}
           </h1>
         </div>
       </Link>
@@ -51,10 +51,10 @@ const Hero2 = () => {
               />
             </div>
             <h1 className="absolute bottom-4 left-4 text-white text-md font-semibold">
-              {t('tops')}
+              {t("tops")}
             </h1>
             <h1 className="absolute bottom-4 right-4 text-white hidden md:inline text-md font-semibold">
-              {t('seeAll')}
+              {t("seeAll")}
             </h1>
           </Link>
         </div>
@@ -74,10 +74,10 @@ const Hero2 = () => {
               />
             </div>
             <h1 className="absolute bottom-4 left-4 text-white text-md font-semibold">
-              {t('bottoms')}
+              {t("bottoms")}
             </h1>
             <h1 className="absolute bottom-4 right-4 text-white hidden md:inline text-md font-semibold">
-              {t('seeAll')}
+              {t("seeAll")}
             </h1>
           </Link>
         </div>
@@ -100,10 +100,10 @@ const Hero2 = () => {
               />
             </div>
             <h1 className="absolute bottom-4 left-4 text-white text-md font-semibold">
-              {t('dresses')}
+              {t("dresses")}
             </h1>
             <h1 className="absolute bottom-4 right-4 text-white hidden md:inline text-md font-semibold">
-              {t('seeAll')}
+              {t("seeAll")}
             </h1>
           </Link>
         </div>
@@ -123,10 +123,10 @@ const Hero2 = () => {
               />
             </div>
             <h1 className="absolute bottom-4 left-4 text-white text-md font-semibold">
-              {t('sets')}
+              {t("sets")}
             </h1>
             <h1 className="absolute bottom-4 right-4 text-white hidden md:inline text-md font-semibold">
-              {t('seeAll')}
+              {t("seeAll")}
             </h1>
           </Link>
         </div>

@@ -1,4 +1,4 @@
-import Link from "@/components/Link/Link";
+import { Link } from "@/i18n/navigation";
 import { heroImages } from "@/constants/constants";
 import Image from "next/image";
 import React from "react";
@@ -11,15 +11,15 @@ type Props = {
 };
 
 async function SigninPage({ searchParams }: Props) {
-  const t = await getTranslations('auth.signin');
+  const t = await getTranslations("auth.signin");
   const params = await searchParams;
   const callbackUrl = params.callbackUrl;
-  
+
   // Build signup URL with callbackUrl if it exists
-  const signupUrl = callbackUrl 
+  const signupUrl = callbackUrl
     ? `/signup?callbackUrl=${encodeURIComponent(callbackUrl)}`
     : "/signup";
-  
+
   return (
     <main className="container pt-0 md:pt-20">
       <section className="flex flex-col md:flex-row gap-15">
@@ -33,13 +33,15 @@ async function SigninPage({ searchParams }: Props) {
           />
         </div>
         <div className="w-full md:w-1/2 flex flex-col items-center justify-center">
-          <h1 className="text-primary font-bold text-5xl tracking-widest p-10">{t('title')}</h1>
+          <h1 className="text-primary font-bold text-5xl tracking-widest p-10">
+            {t("title")}
+          </h1>
           <Form />
           <GoogleSign />
           <p className="mt-2 flex items-center justify-center text-primary text-sm gap-3">
-            <span>{t('noAccount')}</span>
+            <span>{t("noAccount")}</span>
             <Link href={signupUrl} className="underline">
-              {t('signUp')}
+              {t("signUp")}
             </Link>
           </p>
         </div>

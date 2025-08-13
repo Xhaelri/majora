@@ -23,7 +23,7 @@
     "sets": "SETS",
     "seeAll": "See all"
   },
-  "common": {
+  "2": {
     "shop": "SHOP",
     "searchResults": "Search results for",
     "noProductsFound": "No products found",
@@ -84,6 +84,7 @@
   },
   "product": {
     "save": "SAVE",
+    "sale": "Sale",
     "size": "Size",
     "color": "Color",
     "lowStock": "Low Stock",
@@ -201,7 +202,7 @@
     "success": {
       "title": "Thank You for Your Order!",
       "description": "Your payment was successful and your order has been placed.",
-      "processing":"Processing",
+      "processing": "Processing",
       "continueShopping": "Continue Shopping",
       "viewOrders": "View My Orders",
       "step3": "Your order will be delivered within 3-7 business days"
@@ -215,11 +216,55 @@
       "reason2": "Incorrect card details",
       "reason3": "Card expired or blocked",
       "reason4": "Network connection issues",
-      "cartSaved":"Your cart items are still saved. You can try completing your purchase again.",
+      "cartSaved": "Your cart items are still saved. You can try completing your purchase again.",
       "returnToCart": "Return to Cart",
       "continueShopping": "Continue Shopping",
       "needHelp": "Need help?",
       "contactSupport": "Contact our support team"
     }
+  },
+  "Common2": {
+    "viewAll": "View All",
+    "shop": "Shop",
+    "shopNow": "Shop Now"
+  },
+  "hero2": {
+    "newNow": "New Now",
+    "discoverMore": "Discover More",
+    "tops": "Tops & Shirts",
+    "bottoms": "Bottoms",
+    "dresses": "Dresses",
+    "sets": "Sets",
+    "seeAll": "See All",
+    "ss25": "SS25 Collection",
+    "liveNow": "Live Now",
+    "shopAll": "Shop All",
+    "bestSeller": "Best Sellers",
+    "winterSale": "Winter Sale"
+  },
+  "sections": {
+    "bestSellers": "Best Sellers",
+    "sets": "Sets",
+    "topsShirts": "Tops & Shirts",
+    "dresses": "Dresses",
+    "bottoms": "Bottoms"
+  },
+  "Header": {
+    "home": "Home",
+    "products": "Products",
+    "menu": "Menu",
+    "account": "Account",
+    "cart": "Cart"
+  },
+  "cartPage": {
+    "shoppingBag": "Shopping Bag",
+    "emptyCart": "Your cart is empty",
+    "itemDeleted": "Item removed from cart",
+    "failedToRemove": "Failed to remove item",
+    "failedToUpdate": "Failed to update quantity",
+    "subtotal": "Subtotal",
+    "saleDiscount": "Sale Discount",
+    "total": "Total",
+    "checkout": "Checkout"
   }
 }

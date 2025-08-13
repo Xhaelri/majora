@@ -1,5 +1,5 @@
 import React from "react";
-import Link from "../Link/Link";
+import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 
 const UserIcon = () => {

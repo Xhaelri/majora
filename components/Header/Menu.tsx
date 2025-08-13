@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import Link from "../Link/Link";
+import { Link } from "@/i18n/navigation";
 import { ChevronDownIcon } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslations } from "next-intl";
@@ -26,7 +26,6 @@ export default function Menu({ title }: HeaderItem) {
         setIsOpen(false);
       }
     };
-
 
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
@@ -121,7 +120,7 @@ type ListItemProps = React.ComponentPropsWithoutRef<"li"> & {
   children?: React.ReactNode;
 };
 
-export const  ListItem: React.FC<ListItemProps> = ({
+export const ListItem: React.FC<ListItemProps> = ({
   title,
   children,
   href,
@@ -145,4 +144,3 @@ export const  ListItem: React.FC<ListItemProps> = ({
     </li>
   );
 };
-

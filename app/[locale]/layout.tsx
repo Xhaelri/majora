@@ -1,3 +1,4 @@
+// app/[locale]/layout.tsx
 import type { Metadata } from "next";
 import { Meow_Script, Noto_Sans_Arabic } from "next/font/google";
 import "./globals.css";
@@ -6,9 +7,9 @@ import Footer from "@/components/Footer/Footer";
 import { Toaster } from "@/components/ui/sonner";
 import { SessionProvider } from "next-auth/react";
 import CartProvider from "@/context/CartContext";
-import { hasLocale, NextIntlClientProvider } from "next-intl";
+import { NextIntlClientProvider } from "next-intl";
 import { routing } from "@/i18n/routing";
-import { getMessages } from "next-intl/server";
+import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 const corinthia = Meow_Script({
@@ -71,7 +72,7 @@ export const metadata: Metadata = {
     canonical: "",
     languages: {
       "en-US": "",
-      "ar": "",
+      ar: "",
     },
   },
   icons: {
@@ -80,19 +81,40 @@ export const metadata: Metadata = {
   },
 };
 
+interface RootLayoutProps {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}
+
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
+
 export default async function RootLayout({
   children,
   params,
-}: Readonly<{
-  children: React.ReactNode;
-  params: Promise<{ locale: string }>;
-}>) {
-
+}: RootLayoutProps) {
   const { locale } = await params;
-  if (!hasLocale(routing.locales, locale)) {
-    notFound()
+
+  console.log("📄 Layout locale:", locale);
+
+  // Validate locale
+  if (!routing.locales.includes(locale as "ar" | "en")) {
+    console.log("📄 Invalid locale in layout, redirecting to 404");
+    notFound();
   }
+
+  // IMPORTANT: Set the request locale for static generation
+  setRequestLocale(locale);
+
+  // Get messages for the current locale
   const messages = await getMessages();
+  console.log(
+    "📄 Layout messages loaded for",
+    locale,
+    "- Keys:",
+    Object.keys(messages).slice(0, 5)
+  );
 
   return (
     <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>

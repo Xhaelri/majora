@@ -1,5 +1,5 @@
 import { XCircle, ArrowLeft } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
 
 export default async function CheckoutFailedPage({
@@ -13,7 +13,10 @@ export default async function CheckoutFailedPage({
   const t = await getTranslations("checkout.failed");
 
   return (
-    <div dir={isRTL ? "rtl" : "ltr"} className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div
+      dir={isRTL ? "rtl" : "ltr"}
+      className="min-h-screen flex items-center justify-center bg-gray-50 px-4"
+    >
       <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
         <div className="mb-6">
           <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
@@ -26,7 +29,7 @@ export default async function CheckoutFailedPage({
         <div className="border-t border-b py-4 my-6">
           <div className="text-sm text-gray-600">
             <p className="mb-2">{t("possibleReasons")}</p>
-            <ul className="space-y-1" >
+            <ul className="space-y-1">
               <li>• {t("reason1")}</li>
               <li>• {t("reason2")}</li>
               <li>• {t("reason3")}</li>

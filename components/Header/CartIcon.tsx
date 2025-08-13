@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useCart } from "@/context/CartContext";
-import Link from "../Link/Link";
+import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { useLocale } from "next-intl";
 

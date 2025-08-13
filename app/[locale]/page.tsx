@@ -1,30 +1,30 @@
-// page.tsx - Optimized version
+// app/[locale]/page.tsx - Pass locale to components
 import Hero from "@/components/Hero/Hero";
-import { routing } from "@/i18n/routing";
+import Hero2 from "@/components/Hero/Hero2";
 import BestSellers from "@/components/Best-Sellers/BestSellers";
 import Sets from "@/components/Sets/Sets";
 import Tops from "@/components/Tops-Shirts/Tops-Shirts";
 import Dresses from "@/components/Dresses/Dresses";
 import type { Metadata } from "next";
+import { routing } from "@/i18n/routing";
+import { setRequestLocale } from 'next-intl/server';
 
-// Generate static params for all locales at build time
 export async function generateStaticParams() {
   return routing.locales.map((locale) => ({
-    lang: locale,
+    locale: locale, 
   }));
 }
 
-// Add metadata per locale if needed
+interface PageProps {
+  params: Promise<{ locale: "en" | "ar" }>;
+}
+
 export async function generateMetadata({
   params,
-}: {
-  params: Promise<{ lang: "en" | "ar" }>;
-}): Promise<Metadata> {
-  const { lang } = await params;
-
-  // You can customize metadata per locale here
-  const isArabic = lang === "ar";
-
+}: PageProps): Promise<Metadata> {
+  const { locale } = await params;
+  const isArabic = locale === "ar";
+  
   return {
     title: isArabic
       ? "سكرة | أزياء نسائية وملابس"
@@ -38,19 +38,25 @@ export async function generateMetadata({
   };
 }
 
-// Force static generation for better performance
 export const dynamic = "force-static";
-export const revalidate = 3600; // Revalidate every hour
+export const revalidate = 3600;
 
-export default async function Home() {
+export default async function Home({ params }: PageProps) {
+  const { locale } = await params;
+  
+  // Enable static rendering - this is crucial!
+  setRequestLocale(locale);
+  
   return (
     <>
-      <Hero />
+      <Hero>
+        <Hero2 />
+      </Hero>
+      
       <BestSellers />
       <Sets />
       <Tops />
       <Dresses />
-      {/* <Bottoms /> */}
     </>
   );
 }

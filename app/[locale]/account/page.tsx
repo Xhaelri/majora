@@ -4,7 +4,7 @@ import { getAccountDetails } from "@/server/db/prisma";
 import Sidebar from "./components/sideBar";
 import Orders from "./components/orders";
 import AccountDetails from "./components/accountDetails";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import SignOut from "./SignOut";
 import { getTranslations } from "next-intl/server";
 
@@ -13,7 +13,7 @@ type Props = {
 };
 
 export default async function Page({ searchParams }: Props) {
-  const t = await getTranslations('auth.signin');
+  const t = await getTranslations("auth.signin");
   const session = await auth();
   const params = await searchParams;
 
@@ -37,16 +37,14 @@ export default async function Page({ searchParams }: Props) {
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            {t('authenticationRequired')}
+            {t("authenticationRequired")}
           </h2>
-          <p className="text-gray-600 mb-4">
-            {t('pleaseLogin')}
-          </p>
+          <p className="text-gray-600 mb-4">{t("pleaseLogin")}</p>
           <Link
             href="/signin"
             className="inline-flex items-center px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors duration-200"
           >
-            {t('signIn')}
+            {t("signIn")}
           </Link>
         </div>
       </div>

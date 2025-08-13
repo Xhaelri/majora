@@ -8,7 +8,7 @@ import Reduce from "@/public/assets/minus.svg";
 import { useCart } from "@/context/CartContext";
 import { toast } from "sonner";
 import Check from "@/public/assets/check.svg";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 type Props = {
   item: CartItemWithVariant;
@@ -17,12 +17,28 @@ type Props = {
 const CartItemCard = ({ item }: Props) => {
   const { removeFromCartContext, updateQuantityContext } = useCart();
   const [isMutating, setIsMutating] = useState(false);
-  const t = useTranslations("cart");
+  const t = useTranslations("cartPage");
+  const locale = useLocale();
+  const isRTL = locale === "ar";
 
   if (!item.productVariant) {
     console.log("Product variant not found");
   }
   const img = item.productVariant.images?.[0];
+
+  // Get product name based on locale
+  const productName = isRTL && item.productVariant.product.nameAr
+    ? item.productVariant.product.nameAr
+    : item.productVariant.product.name;
+
+  // Get size and color names based on locale
+  const sizeName = isRTL && item.productVariant.size.nameAr
+    ? item.productVariant.size.nameAr
+    : item.productVariant.size.name;
+
+  const colorName = isRTL && item.productVariant.color.nameAr
+    ? item.productVariant.color.nameAr
+    : item.productVariant.color.name;
 
   const handleRemoveFromCart = async () => {
     try {
@@ -79,7 +95,7 @@ const CartItemCard = ({ item }: Props) => {
           {img && (
             <Image
               src={img.url.trimStart()}
-              alt={img.altText}
+              alt={isRTL ? img.altTextAr || img.altText : img.altText}
               fill
               className="object-cover"
             />
@@ -98,7 +114,7 @@ const CartItemCard = ({ item }: Props) => {
         <div>
           <div className="flex justify-between items-start lg:block">
             <p className="text-sm font-medium pr-4 lg:pr-0 line-clamp-1">
-              {item.productVariant.product.name}
+              {productName}
             </p>
             <button
               className="cursor-pointer absolute top-0 right-0 lg:hidden"
@@ -153,9 +169,9 @@ const CartItemCard = ({ item }: Props) => {
             </div>
 
             {/* Size and Color */}
-            <div className="flex gap-3 lg:gap-3 text-sm text-muted-foreground lg:justify-end lg:order-2 lg:mt-0  ">
-              <p>{item.productVariant.size.name}</p>
-              <p>{item.productVariant.color.name}</p>
+            <div className="flex gap-3 lg:gap-3 text-sm text-muted-foreground lg:justify-end lg:order-2 lg:mt-0">
+              <p>{sizeName}</p>
+              <p>{colorName}</p>
             </div>
           </div>
         </div>

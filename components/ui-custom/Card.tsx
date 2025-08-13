@@ -4,9 +4,9 @@ import formatPrice from "@/utils/formatPrice";
 import Image from "next/image";
 import React, { useState } from "react";
 import { FullProduct } from "@/types/product";
-import Link from "../Link/Link";
+import { Link } from "@/i18n/navigation";
 import slugifyAdvanced from "@/utils/slugify";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 type CardProps = {
   productData: FullProduct;
@@ -14,6 +14,7 @@ type CardProps = {
 
 const Card = ({ productData }: CardProps) => {
   const locale = useLocale();
+  const t = useTranslations("product");
   const isRTL = locale === "ar";
   const primaryVariant = productData.variants?.[0];
 
@@ -38,6 +39,7 @@ const Card = ({ productData }: CardProps) => {
 
   const [imageSrc, setImageSrc] = useState(primaryImageUrl);
   const isDesktop = useMediaQuery("(min-width:768px)");
+  
   return (
     <div>
       {isDesktop ? (
@@ -52,7 +54,7 @@ const Card = ({ productData }: CardProps) => {
           >
             {isOnSale ? (
               <div className="bg-foreground text-secondary absolute top-0 right-0 h-8 w-15 z-5 flex items-center justify-center">
-                <p>Sale</p>
+                <p>{t('sale')}</p>
               </div>
             ) : null}
             <Image
@@ -84,7 +86,7 @@ const Card = ({ productData }: CardProps) => {
             </div>
             {isOnSale ? (
               <h2 className="text-red-500 text-nowrap text-sm">
-                SAVE {formatPrice(discountAmount)}
+                {t('save')} {formatPrice(discountAmount)}
               </h2>
             ) : null}
           </div>
@@ -97,7 +99,7 @@ const Card = ({ productData }: CardProps) => {
           <div className="w-full aspect-[2/3] relative cursor-pointer">
             {isOnSale ? (
               <div className="bg-foreground text-secondary absolute top-0 right-0 h-5 w-11 text-sm  md:h-7 md:w-14 md:text-md z-5 flex items-center justify-center">
-                <p>Sale</p>
+                <p>{t('sale')}</p>
               </div>
             ) : null}
             <Image
@@ -129,7 +131,7 @@ const Card = ({ productData }: CardProps) => {
             </div>
             {isOnSale ? (
               <h2 className="text-red-500 text-nowrap text-sm">
-                SAVE {formatPrice(discountAmount)}
+                {t('save')} {formatPrice(discountAmount)}
               </h2>
             ) : null}
           </div>

@@ -11,7 +11,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 // import useMediaQuery from "@/hooks/useMediaQuery";
-import Link from "../Link/Link";
+import { Link } from "@/i18n/navigation";
 import { Menu, mobileMenue } from "@/constants/constants";
 import { Accordion, AccordionItem, AccordionTrigger2 } from "../ui/accordion";
 import { useSession } from "next-auth/react";

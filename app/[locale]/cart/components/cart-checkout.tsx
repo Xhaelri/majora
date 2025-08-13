@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { CartItemWithVariant } from "@/types/product";
 import formatPrice from "@/utils/formatPrice";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 type Props = {
   cartItems: CartItemWithVariant[];
@@ -10,6 +11,7 @@ type Props = {
 
 const CartCheckOut = ({ cartItems }: Props) => {
   const router = useRouter();
+  const t = useTranslations("cartPage");
 
   // Subtotal = full price before discount
   const subtotal = cartItems.reduce((sum, item) => {
@@ -33,13 +35,13 @@ const CartCheckOut = ({ cartItems }: Props) => {
     <div className="mx-auto px-7 space-y-4 lg:px-0 lg:mx-0">
       <div className="space-y-1">
         <div className="flex text-sm font-light justify-between">
-          <p>Subtotal</p>
+          <p>{t('subtotal')}</p>
           <p>{formatPrice(subtotal)}</p>
         </div>
 
         {saleDiscount > 0 && (
           <div className="flex text-sm font-light justify-between">
-            <p>Sale Discount</p>
+            <p>{t('saleDiscount')}</p>
             <p className="text-red-500">- {formatPrice(saleDiscount)}</p>
           </div>
         )}
@@ -47,7 +49,7 @@ const CartCheckOut = ({ cartItems }: Props) => {
         <div className="border-t border-gray-200 my-2"></div>
 
         <div className="flex text-sm justify-between font-semibold uppercase">
-          <h1>Total</h1>
+          <h1>{t('total')}</h1>
           <h1>{formatPrice(total)}</h1>
         </div>
       </div>
@@ -59,7 +61,7 @@ const CartCheckOut = ({ cartItems }: Props) => {
         onClick={() => router.push("/checkout")}
         disabled={cartItems.length === 0}
       >
-        Checkout
+        {t('checkout')}
       </Button>
     </div>
   );
