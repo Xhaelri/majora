@@ -2,11 +2,11 @@ import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
 const nextConfig: NextConfig = {
-  env: {
-    DATABASE_URL: process.env.DATABASE_URL,
-  },
-  // Make sure environment variables are available at build time
-  serverExternalPackages: ["@prisma/client"],
+  // env: {
+  //   DATABASE_URL: process.env.DATABASE_URL,
+  // },
+  // // Make sure environment variables are available at build time
+  // serverExternalPackages: ["@prisma/client"],
   typescript: {
     // Skip type checking only in production
     ignoreBuildErrors: process.env.NODE_ENV === "production",

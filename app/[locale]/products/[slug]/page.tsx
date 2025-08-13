@@ -1,29 +1,29 @@
-import { getAllProductSlugs, getProductBySlug } from "@/server/db/prisma";
+import {  getProductBySlug } from "@/server/db/prisma";
 import { notFound } from "next/navigation";
 import ProductDetails from "./ProductDetails";
-import { routing } from "@/i18n/routing";
+// import { routing } from "@/i18n/routing";
 
-export async function generateStaticParams() {
-  try {
-    const slugs = await getAllProductSlugs(); 
+// export async function generateStaticParams() {
+//   try {
+//     const slugs = await getAllProductSlugs(); 
 
-    const params = [];
-    // Generate params for all locale/slug combinations
-    for (const locale of routing.locales) {
-      for (const slug of slugs) {
-        params.push({
-          locale: locale,
-          slug: slug,
-        });
-      }
-    }
+//     const params = [];
+//     // Generate params for all locale/slug combinations
+//     for (const locale of routing.locales) {
+//       for (const slug of slugs) {
+//         params.push({
+//           locale: locale,
+//           slug: slug,
+//         });
+//       }
+//     }
     
-    return params;
-  } catch (error) {
-    console.error("Error generating static params:", error);
-    return [];
-  }
-}
+//     return params;
+//   } catch (error) {
+//     console.error("Error generating static params:", error);
+//     return [];
+//   }
+// }
 
 // Update Props to match your URL structure
 type Props = {
@@ -63,7 +63,7 @@ export async function generateMetadata({ params }: Props) {
 
 const ProductPage = async ({ params }: Props) => {
   try {
-    const { locale, slug } = await params;
+    const { slug } = await params;
     const product = await getProductBySlug(slug);
 
     if (!product) {
