@@ -18,6 +18,7 @@ import DiscountSection from "../components/DiscountSection";
 import BillingForm from "../components/BillingForm";
 import PaymentIframe from "../components/PaymentIframe";
 import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
 
 interface AppliedDiscount {
   code: string;
@@ -351,12 +352,13 @@ export default function BuyNowCheckoutPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4 text-red-600">{t('error')}</h1>
           <p className="mb-4">{error}</p>
-          <button
+          <Button
+          variant={"cartBuyNow"}
+          size={"cartBuyNow"}
             onClick={() => router.push("/products")}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
           >
             {t('continueShopping')}
-          </button>
+          </Button>
         </div>
       </div>
     );
