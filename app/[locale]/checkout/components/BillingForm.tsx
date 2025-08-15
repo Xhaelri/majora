@@ -267,7 +267,7 @@ const BillingForm = ({
           className="mt-6 w-full bg-black text-white py-3 px-4 hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {loading ? (
-            <div className="flex items-center justify-center">
+            <div className="flex items-center gap-2 justify-center">
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
               {t('billing.processing')}
             </div>
