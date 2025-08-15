@@ -1,40 +1,16 @@
-import { Prisma } from "../lib/generated/prisma";
+import { Prisma } from "@prisma/client";
 
-
-
-// for product details page and card
-export type FullProduct = Prisma.ProductGetPayload<{
+export const fullProductArgs = Prisma.validator<Prisma.ProductDefaultArgs>()({
   include: {
-    category: true;
+    category: true,
     variants: {
       include: {
-        size: true;
-        color: true;
-        images: true;
-        product:true;
-      };
-    };
-    reviews: true;
-  };
-}>;
+        size: true,
+        color: true,
+        images: true,
+      },
+    },
+  },
+});
 
-
-//for items in the car
-export type CartItemWithVariant = Prisma.CartItemGetPayload<{
-  include: {
-    productVariant: {
-      include: {
-        color: true;
-        size: true;
-        images: true;
-        product: true;
-      };
-    };
-  };
-}>;
-
-// for getCartData function
-export type GetCartDataResult = {
-  items: CartItemWithVariant[];
-  count: number;
-};
+export type FullProduct = Prisma.ProductGetPayload<typeof fullProductArgs>;

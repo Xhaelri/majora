@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import AvailabilityPing from "@/components/ui-custom/Availability";
-import { FullProduct } from "@/types/product";
+import { FullProduct } from "@/types/product"; // <-- Import new types
 import formatPrice from "@/utils/formatPrice";
 import ProductDetailsCarousel from "./components/ProductDetailsCarousel";
 import AddToCartButton from "./components/AddToCartButton";
@@ -12,19 +12,8 @@ import { useLocale, useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import BuyNowButton from "./components/BuyNowButton";
 
-type Image = {
-  url: string;
-  altText: string;
-  altTextAr?: string | null;
-};
-
-type Variant = {
-  id: string;
-  stock: number;
-  size: { id: string; name: string; nameAr?: string | null };
-  color: { id: string; name: string; nameAr?: string | null };
-  images?: Image[]; // Make images optional to avoid undefined errors
-};
+// Define the variant type based on your FullProduct structure
+type ProductVariant = FullProduct['variants'][0];
 
 type Props = {
   product: FullProduct;
@@ -34,23 +23,24 @@ const ProductDetails = ({ product }: Props) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const t = useTranslations();
-  const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
+  // Fix: Use proper type instead of null
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
 
   // Effect to initialize state and sync FROM the URL (e.g., on load or back/forward)
   useEffect(() => {
     const variantId = searchParams.get("variant");
-    let initialVariant: Variant | undefined;
+    let initialVariant: ProductVariant | undefined;
 
     if (variantId) {
       initialVariant = product.variants.find(
-        (v: { id: string }) => v.id === variantId
+        (v) => v.id === variantId
       );
     }
 
     // If no valid variant in URL, find the first available one
     if (!initialVariant) {
       initialVariant = product.variants.find(
-        (v: { stock: number }) => v.stock > 0
+        (v) => v.stock > 0
       );
     }
 
@@ -72,39 +62,35 @@ const ProductDetails = ({ product }: Props) => {
   }, [selectedVariant, router, searchParams]);
 
   // Memoize derived values for performance
-  const uniqueSizes = useMemo<Variant["size"][]>(
+  const uniqueSizes = useMemo(
     () =>
       Array.from(
         new Map(
-          product.variants.map((v: Variant) => [v.size.id, v.size])
+          product.variants.map((v) => [v.size.id, v.size])
         ).values()
-      ) as Variant["size"][],
+      ),
     [product.variants]
   );
 
-  const getAvailableColorsForSize = (sizeId: string): Variant["color"][] =>
+  const getAvailableColorsForSize = (sizeId: string) =>
     Array.from(
       new Map(
         product.variants
-          .filter((v: Variant) => v.size.id === sizeId)
-          .map((v: Variant) => [v.color.id, v.color])
+          .filter((v) => v.size.id === sizeId)
+          .map((v) => [v.color.id, v.color])
       ).values()
-    ) as Variant["color"][];
+    );
 
   const handleSizeClick = (sizeId: string) => {
     const variant =
       product.variants.find(
-        (v: {
-          size: { id: string };
-          color: { id: string | undefined };
-          stock: number;
-        }) =>
+        (v) =>
           v.size.id === sizeId &&
           v.color.id === selectedVariant?.color.id &&
           v.stock > 0
       ) ||
       product.variants.find(
-        (v: { size: { id: string }; stock: number }) =>
+        (v) =>
           v.size.id === sizeId && v.stock > 0
       );
 
@@ -115,11 +101,7 @@ const ProductDetails = ({ product }: Props) => {
 
   const handleColorClick = (colorId: string) => {
     const variant = product.variants.find(
-      (v: {
-        color: { id: string };
-        size: { id: string | undefined };
-        stock: number;
-      }) =>
+      (v) =>
         v.color.id === colorId &&
         v.size.id === selectedVariant?.size.id &&
         v.stock > 0
@@ -179,9 +161,9 @@ const ProductDetails = ({ product }: Props) => {
                 {t("product.size")}
               </h1>
               <div className="space-x-3">
-                {uniqueSizes.map((size: Variant["size"]) => {
+                {uniqueSizes.map((size) => {
                   const isDisabled = !product.variants.some(
-                    (v: Variant) => v.size.id === size.id && v.stock > 0
+                    (v) => v.size.id === size.id && v.stock > 0
                   );
                   return (
                     <Button
@@ -210,9 +192,9 @@ const ProductDetails = ({ product }: Props) => {
                 </h1>
                 <div className="space-x-3">
                   {getAvailableColorsForSize(selectedVariant.size.id).map(
-                    (color: Variant["color"]) => {
+                    (color) => {
                       const isDisabled = !product.variants.some(
-                        (v: Variant) =>
+                        (v) =>
                           v.size.id === selectedVariant.size.id &&
                           v.color.id === color.id &&
                           v.stock > 0
@@ -223,11 +205,11 @@ const ProductDetails = ({ product }: Props) => {
                           variant="color"
                           size="color"
                           onClick={() => handleColorClick(color.id)}
-                          className={
+                          className={`w-fit ${
                             selectedVariant?.color.id === color.id
                               ? "bg-foreground text-secondary"
                               : ""
-                          }
+                          }`}
                           disabled={isDisabled}
                         >
                           {isRTL && color.nameAr ? color.nameAr : color.name}
@@ -273,18 +255,12 @@ const ProductDetails = ({ product }: Props) => {
           </div>
           <div className="pt-5">
             {(selectedVariant?.stock ?? 0) > 0 && (
-              // In your ProductDetails component, replace the BuyNowButton usage with:
-
-              <div className="pt-5">
-                {(selectedVariant?.stock ?? 0) > 0 && (
-                  <BuyNowButton
-                    productVariantId={selectedVariant?.id || null}
-                    quantity={1}
-                    disabled={selectedVariant?.stock == 0}
-                    className="flex-1"
-                  />
-                )}
-              </div>
+              <BuyNowButton
+                productVariantId={selectedVariant?.id || null}
+                quantity={1}
+                disabled={selectedVariant?.stock === 0}
+                className="flex-1"
+              />
             )}
           </div>
         </div>

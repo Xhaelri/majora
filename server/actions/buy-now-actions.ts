@@ -1,9 +1,8 @@
-// buy-now-actions.ts
 "use server";
 
 import { db } from "@/lib/prisma";
 import { auth } from "@/auth";
-import { validateDiscountCode } from "./checkout-actions"; // Reuse discount validation
+import { validateDiscountCode } from "./checkout-actions"; 
 
 interface BillingData {
   email: string;
@@ -31,7 +30,6 @@ interface BuyNowSessionResult {
   error?: string;
 }
 
-// Get product variant details for buy now
 export async function getBuyNowItemDetails(productVariantId: string, quantity: number = 1) {
   try {
     const variant = await db.productVariant.findUnique({
@@ -64,7 +62,7 @@ export async function getBuyNowItemDetails(productVariantId: string, quantity: n
             url: true,
             altText: true,
           },
-          take: 1 // Only get the first image
+          take: 1 
         }
       }
     });
@@ -91,7 +89,6 @@ export async function getBuyNowItemDetails(productVariantId: string, quantity: n
   }
 }
 
-// Create buy now checkout session
 export async function createBuyNowCheckoutSession(
   item: BuyNowItem,
   billingData: BillingData,
@@ -106,7 +103,6 @@ export async function createBuyNowCheckoutSession(
   }
 
   try {
-    // Get product variant details
     const itemDetails = await getBuyNowItemDetails(item.productVariantId, item.quantity);
     if (itemDetails.error || !itemDetails.item) {
       return { error: itemDetails.error || "Failed to get product details" };
@@ -114,7 +110,6 @@ export async function createBuyNowCheckoutSession(
 
     const { productVariant } = itemDetails.item;
     
-    // Calculate pricing
     const unitPrice = productVariant.product.salePrice ?? productVariant.product.price;
     const originalUnitPrice = productVariant.product.price;
     const subtotal = originalUnitPrice * item.quantity;
@@ -123,7 +118,6 @@ export async function createBuyNowCheckoutSession(
       : 0;
     const orderAmount = subtotal - saleDiscount;
 
-    // Validate discount code if provided
     let couponDiscount = 0;
     let appliedDiscountCodeId: string | undefined = undefined;
     if (discountCode) {
@@ -146,12 +140,11 @@ export async function createBuyNowCheckoutSession(
       return { error: "Invalid order total calculated." };
     }
 
-    // Create the buy now order
     const order = await db.order.create({
       data: {
         userId: user.id,
         status: "PENDING",
-        orderType: "BUY_NOW", // Mark as buy now order
+        orderType: "BUY_NOW", 
         isBuyNow: true,
         subtotal,
         totalAmount,
@@ -180,7 +173,6 @@ export async function createBuyNowCheckoutSession(
       },
     });
 
-    // Create Paymob payment session (similar to existing logic)
     const authResponse = await fetch("https://accept.paymob.com/api/auth/tokens", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -194,7 +186,6 @@ export async function createBuyNowCheckoutSession(
     const authData = await authResponse.json();
     const authToken = authData.token;
 
-    // Create Paymob order
     const orderResponse = await fetch("https://accept.paymob.com/api/ecommerce/orders", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -220,7 +211,6 @@ export async function createBuyNowCheckoutSession(
     const orderData = await orderResponse.json();
     const paymobOrderId = orderData.id;
 
-    // Update order with Paymob details
     await db.order.update({
       where: { id: order.id },
       data: {
@@ -229,7 +219,6 @@ export async function createBuyNowCheckoutSession(
       },
     });
 
-    // Create payment key
     const baseUrl = process.env.NEXTAUTH_URL || "https://sekra-seven.vercel.app";
 
     const paymentKeyResponse = await fetch("https://accept.paymob.com/api/acceptance/payment_keys", {

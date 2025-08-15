@@ -5,7 +5,6 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import Credentials from "next-auth/providers/credentials";
 import { Environments } from "./constants/constants";
 import bcrypt from "bcryptjs";
-import { mergeGuestCartWithUserCart } from "./server/actions/cart";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(db),
@@ -106,10 +105,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             });
 
             user.id = newUser.id;
-            await mergeGuestCartWithUserCart(user.id);
           } else {
             user.id = existingUser.id;
-            await mergeGuestCartWithUserCart(user.id);
           }
         } catch (error) {
           console.error("Error creating user:", error);

@@ -1,8 +1,8 @@
 
 import { db } from "@/lib/prisma";
-import { FullProduct } from "@/types/product";
+import { fullProductArgs, FullProduct } from "@/types/product"; // <-- Import new types
 
-export const getAllProducts = async () => {
+export const getAllProducts = async (): Promise<FullProduct[] | null> => {
   try {
     const products: FullProduct[] = await db.product.findMany({
       include: {
@@ -24,26 +24,15 @@ export const getAllProducts = async () => {
   }
 };
 
-export async function getProductBySlug(slug: string) {
+export async function getProductBySlug(slug: string): Promise<FullProduct | null> {
   return db.product.findUnique({
     where: { slug },
-    include: {
-      category: true,
-      reviews: true,
-      variants: {
-        include: {
-          size: true,
-          color: true,
-          images: true,
-          product: true,
-        },
-      },
-    },
+    ...fullProductArgs,
   });
 }
 
 // Get products by category
-export async function getProductsByCategory(categorySlug: string) {
+export async function getProductsByCategory(categorySlug: string): Promise<FullProduct[]> {
   try {
     const products = await db.product.findMany({
       where: {
@@ -54,17 +43,7 @@ export async function getProductsByCategory(categorySlug: string) {
           },
         },
       },
-      include: {
-        category: true,
-        variants: {
-          include: {
-            size: true,
-            color: true,
-            images: true,
-            product: true,
-          },
-        },
-      },
+      ...fullProductArgs,
     });
     return products;
   } catch (error) {
@@ -115,17 +94,7 @@ export async function getSortedProducts(sort: SortOption) {
 
   const products = await db.product.findMany({
     orderBy,
-    include: {
-      category: true,
-      variants: {
-        include: {
-          size: true,
-          color: true,
-          images: true,
-          product: true,
-        },
-      },
-    },
+      ...fullProductArgs,
   });
 
   return products;

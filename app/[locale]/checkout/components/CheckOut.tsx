@@ -39,7 +39,7 @@ interface BillingData {
 }
 
 export default function CheckoutPage() {
-  const { items: cartItems, count } = useCart();
+  const { items: cartItems, totalQuantity:count } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [paymentKey, setPaymentKey] = useState<string | null>(null);
@@ -49,7 +49,8 @@ export default function CheckoutPage() {
 
   // Discount state
   const [discountCode, setDiscountCode] = useState("");
-  const [appliedDiscount, setAppliedDiscount] = useState<AppliedDiscount | null>(null);
+  const [appliedDiscount, setAppliedDiscount] =
+    useState<AppliedDiscount | null>(null);
   const [discountLoading, setDiscountLoading] = useState(false);
 
   const [billingData, setBillingData] = useState<BillingData>({
@@ -113,7 +114,10 @@ export default function CheckoutPage() {
           if (orderAmount > 0) {
             setDiscountLoading(true);
             try {
-              const result = await validateDiscountCode(urlDiscountCode, orderAmount);
+              const result = await validateDiscountCode(
+                urlDiscountCode,
+                orderAmount
+              );
               if (result.discount) {
                 setAppliedDiscount(result.discount);
               } else if (result.error) {
@@ -128,14 +132,13 @@ export default function CheckoutPage() {
         }
       } catch (error) {
         console.error("Failed to load user data:", error);
-      }finally {
+      } finally {
         setInitializing(false);
       }
     };
 
-      loadUserDataAndDiscount();
+    loadUserDataAndDiscount();
   }, [session, searchParams, cartItems]);
-
 
   const handleGovernorateChange = useCallback(async (governorate: string) => {
     if (governorate) {
@@ -189,7 +192,10 @@ export default function CheckoutPage() {
     setError(null);
 
     try {
-      const result = await validateDiscountCode(discountCode, subtotal - saleDiscount);
+      const result = await validateDiscountCode(
+        discountCode,
+        subtotal - saleDiscount
+      );
 
       if (result.error) {
         setError(result.error);
@@ -285,8 +291,6 @@ export default function CheckoutPage() {
     }
   };
 
-
-
   if (count === 0) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -298,7 +302,7 @@ export default function CheckoutPage() {
     );
   }
 
-    if (initializing || session === undefined) {
+  if (initializing || session === undefined) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
@@ -309,12 +313,11 @@ export default function CheckoutPage() {
     );
   }
 
-
   return (
     <div className="container mx-auto py-5">
       <h1 className="text-2xl font-bold mb-8">Checkout</h1>
 
-      <div className="flex flex-col-reverse lg:flex-row gap-8">
+      <div className="flex flex-col lg:flex-row gap-8">
         {/* Left Column - Forms and Cart Summary */}
         <div className="space-y-8 lg:max-w-1/2 order-1">
           {/* Discount Code Section */}
@@ -376,7 +379,9 @@ export default function CheckoutPage() {
                     {item.productVariant.size.name} •{" "}
                     {item.productVariant.color.name}
                   </p>
-                  <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
+                  <p className="text-xs text-gray-500">
+                    Quantity {item.quantity}
+                  </p>
                 </div>
                 <div className="text-sm font-medium flex-shrink-0">
                   {formatPrice(
@@ -428,7 +433,7 @@ export default function CheckoutPage() {
 
           {/* Security Badge */}
           <div className="mt-4 p-3 bg-green-50 border border-green-200 ">
-            <div className="flex items-center">
+            <div className="flex items-center justify-center gap-3">
               <svg
                 className="w-5 h-5 text-green-600 mr-2"
                 fill="currentColor"

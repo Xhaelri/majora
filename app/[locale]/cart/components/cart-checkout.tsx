@@ -1,25 +1,25 @@
 "use client"
 import { Button } from "@/components/ui/button";
-import { CartItemWithVariant } from "@/types/product";
+import { CartItem  } from "@/types/cartTypes";
 import formatPrice from "@/utils/formatPrice";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 type Props = {
-  cartItems: CartItemWithVariant[];
+  cartItems: CartItem[];
 };
 
 const CartCheckOut = ({ cartItems }: Props) => {
   const router = useRouter();
   const t = useTranslations("cartPage");
 
-  // Subtotal = full price before discount
+  
   const subtotal = cartItems.reduce((sum, item) => {
     const fullPrice = item.productVariant.product.price;
     return sum + fullPrice * item.quantity;
   }, 0);
 
-  // Discount from salePrice
+  
   const saleDiscount = cartItems.reduce((sum, item) => {
     const { price, salePrice } = item.productVariant.product;
     if (salePrice && salePrice < price) {

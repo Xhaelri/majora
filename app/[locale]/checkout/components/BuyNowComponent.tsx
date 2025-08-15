@@ -382,7 +382,7 @@ export default function BuyNowCheckoutPage() {
     <div className="container mx-auto py-5">
       <h1 className="text-2xl font-bold mb-8">Checkout</h1>
 
-      <div className="flex flex-col-reverse lg:flex-row gap-8">
+      <div className="flex flex-col lg:flex-row gap-8">
         {/* Left Column - Forms */}
         <div className="space-y-8 lg:max-w-1/2 order-1">
           {!showPayment && (
@@ -438,7 +438,7 @@ export default function BuyNowCheckoutPage() {
                   {buyNowItem.productVariant.color.name}
                 </p>
                 <p className="text-xs text-gray-500">
-                  Qty: {buyNowItem.quantity}
+                  Quantity {buyNowItem.quantity}
                 </p>
               </div>
               <div className="text-sm font-medium flex-shrink-0">
@@ -494,7 +494,7 @@ export default function BuyNowCheckoutPage() {
 
           {/* Security Badge */}
           <div className="mt-4 p-3 bg-green-50 border border-green-200 ">
-            <div className="flex items-center">
+            <div className="flex items-center justify-center gap-3">
               <svg
                 className="w-5 h-5 text-green-600 mr-2"
                 fill="currentColor"

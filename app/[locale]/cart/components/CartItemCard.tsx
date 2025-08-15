@@ -1,4 +1,4 @@
-import { CartItemWithVariant } from "@/types/product";
+import { CartItem } from "@/types/cartTypes"; 
 import formatPrice from "@/utils/formatPrice";
 import Image from "next/image";
 import React, { useState } from "react";
@@ -11,7 +11,7 @@ import Check from "@/public/assets/check.svg";
 import { useTranslations, useLocale } from "next-intl";
 
 type Props = {
-  item: CartItemWithVariant;
+  item: CartItem;
 };
 
 const CartItemCard = ({ item }: Props) => {
@@ -43,7 +43,7 @@ const CartItemCard = ({ item }: Props) => {
   const handleRemoveFromCart = async () => {
     try {
       setIsMutating(true);
-      await removeFromCartContext(item.productVariantId);
+      await removeFromCartContext(item.productVariant.id);
       toast.custom(() => (
         <div className="bg-black text-white w-full px-4 py-3 text-sm rounded-none flex items-center justify-center gap-2">
           <Check />
@@ -61,7 +61,7 @@ const CartItemCard = ({ item }: Props) => {
   const handleAddQuantity = async () => {
     try {
       setIsMutating(true);
-      await updateQuantityContext(item.productVariantId, item.quantity + 1);
+      await updateQuantityContext(item.productVariant.id, item.quantity + 1);
     } catch (error) {
       console.log(error);
       toast.error(<p className="font-semibold uppercase">{t('failedToUpdate')}</p>);
@@ -78,7 +78,7 @@ const CartItemCard = ({ item }: Props) => {
 
     try {
       setIsMutating(true);
-      await updateQuantityContext(item.productVariantId, item.quantity - 1);
+      await updateQuantityContext(item.productVariant.id, item.quantity - 1);
     } catch (error) {
       console.log(error);
       toast.error(<p className="font-semibold uppercase">{t('failedToUpdate')}</p>);
@@ -150,6 +150,7 @@ const CartItemCard = ({ item }: Props) => {
                     : "cursor-pointer"
                 }`}
                 onClick={handleReduceQuantity}
+                disabled={isMutating}
               >
                 <Reduce />
               </button>
@@ -163,6 +164,7 @@ const CartItemCard = ({ item }: Props) => {
                     : "cursor-pointer"
                 }`}
                 onClick={handleAddQuantity}
+                disabled={isMutating}
               >
                 <Add />
               </button>

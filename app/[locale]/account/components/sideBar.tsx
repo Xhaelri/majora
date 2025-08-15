@@ -28,7 +28,7 @@ export default async function Sidebar({ activeTab }: SidebarProps) {
                 <li className="w-1/2 lg:w-auto">
                   <Link
                     href="/account?tab=orders"
-                    className={`flex items-center px-3 py-2 text-sm font-medium transition-colors duration-200 ${
+                    className={`flex items-center gap-3 px-3 py-2 text-sm font-medium transition-colors duration-200 ${
                       activeTab === "orders"
                         ? "bg-black text-white"
                         : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
@@ -53,7 +53,7 @@ export default async function Sidebar({ activeTab }: SidebarProps) {
                 <li className="w-1/2 lg:w-auto">
                   <Link
                     href="/account?tab=account"
-                    className={`flex items-center px-3 py-2 text-sm font-medium transition-colors duration-200 ${
+                    className={`flex items-center gap-3 px-3 py-2 text-sm font-medium transition-colors duration-200 ${
                       activeTab === "account"
                         ? "bg-black text-white"
                         : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"

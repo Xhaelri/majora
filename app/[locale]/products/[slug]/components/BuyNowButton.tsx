@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
-// import { useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 
 interface BuyNowButtonProps {
-  productVariantId: string|null;
+  productVariantId: string | null;
   quantity?: number;
   disabled?: boolean;
   className?: string;
@@ -19,7 +19,7 @@ export default function BuyNowButton({
   quantity = 1,
   disabled = false,
 }: BuyNowButtonProps) {
-  // const t = useTranslations();
+  const t = useTranslations("product");
   const router = useRouter();
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
@@ -30,7 +30,9 @@ export default function BuyNowButton({
     // Check if user is authenticated
     if (!session?.user) {
       toast.error("Please sign in to continue with your purchase");
-      router.push("/auth/signin?callbackUrl=" + encodeURIComponent(window.location.href));
+      router.push(
+        "/auth/signin?callbackUrl=" + encodeURIComponent(window.location.href)
+      );
       return;
     }
 
@@ -48,7 +50,6 @@ export default function BuyNowButton({
 
       // Navigate to buy now checkout page
       router.push("/checkout/buy-now");
-      
     } catch (error) {
       console.error("Buy Now error:", error);
       toast.error("Failed to proceed with Buy Now. Please try again.");
@@ -64,7 +65,11 @@ export default function BuyNowButton({
       onClick={handleBuyNow}
       disabled={isLoading || disabled}
     >
-      {isLoading ? "Processing..." : "Buy Now"}
+      {isLoading ? (
+        <p className=" text-sm font-normal">{t("processing")}</p>
+      ) : (
+        <p className=" text-sm font-normal">{t("buyItNow")}</p>
+      )}
     </Button>
   );
 }

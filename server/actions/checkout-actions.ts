@@ -1,9 +1,8 @@
-// Updated checkout-actions.ts - Modified to support both cart and buy-now
 "use server";
 
 import { db } from "@/lib/prisma";
 import { auth } from "@/auth";
-import { getCartData } from "./cart";
+import { getCartDataForAuthUser } from "./cart";
 
 interface BillingData {
   email: string;
@@ -32,7 +31,6 @@ interface DiscountValidationResult {
   discount?: AppliedDiscount;
 }
 
-// Keep existing discount validation function unchanged
 export async function validateDiscountCode(
   code: string,
   orderAmount: number
@@ -98,7 +96,6 @@ export async function validateDiscountCode(
   }
 }
 
-// Keep existing applyDiscount function unchanged
 export async function applyDiscount(discountCode: string, orderAmount: number) {
   try {
     const result = await validateDiscountCode(discountCode, orderAmount);
@@ -122,7 +119,6 @@ export async function applyDiscount(discountCode: string, orderAmount: number) {
   }
 }
 
-// Modified createCheckoutSession - now only handles cart orders
 export async function createCheckoutSession(
   billingData: BillingData,
   discountCode?: string,
@@ -139,8 +135,7 @@ export async function createCheckoutSession(
     return { error: "Shipping cost is not determined." };
   }
 
-  // Only handle cart items - no more buy now logic here
-  const cartData = await getCartData();
+  const cartData = await getCartDataForAuthUser();
   const cartItems = cartData.items;
   const cartCount = cartData.count;
 
@@ -148,13 +143,11 @@ export async function createCheckoutSession(
     return { error: "No items to checkout." };
   }
 
-  // Calculate subtotal from database prices
   const subtotal = cartItems.reduce(
     (acc, item) => acc + item.productVariant.product.price * item.quantity,
     0
   );
 
-  // Calculate sale discount from database prices
   const saleDiscount = cartItems.reduce((acc, item) => {
     const { price, salePrice } = item.productVariant.product;
     if (salePrice && salePrice < price) {
@@ -163,10 +156,8 @@ export async function createCheckoutSession(
     return acc;
   }, 0);
 
-  // Calculate order amount after sale discount
   const orderAmount = subtotal - saleDiscount;
 
-  // Re-validate discount code server-side
   let couponDiscount = 0;
   let appliedDiscountCodeId: string | undefined = undefined;
   if (discountCode) {
@@ -192,12 +183,11 @@ export async function createCheckoutSession(
     return { error: "Invalid order total calculated." };
   }
 
-  // Create the cart order - mark as CART type
   const order = await db.order.create({
     data: {
       userId: user.id,
       status: "PENDING",
-      orderType: "CART", // Explicitly mark as cart order
+      orderType: "CART",
       isBuyNow: false,
       subtotal,
       totalAmount,

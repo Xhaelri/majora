@@ -3,54 +3,24 @@
 import { db } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
-import { nanoid } from "nanoid";
-import { GetCartDataResult } from "@/types/product";
+import { CartItem, getCartDataForAuthUserResult } from "@/types/cartTypes";
 
-export type GuestCartItem = {
+export type LocalCartItem = {
   productVariantId: string;
   quantity: number;
 };
 
-// Helper function to handle errors consistently
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) return error.message;
   return String(error);
 }
 
-async function getCartUser() {
+async function getAuthenticatedUser() {
   const session = await auth();
-
-  if (session?.user?.id) {
-    return db.user.findUnique({
-      where: { id: session.user.id },
-    });
+  if (!session?.user?.id) {
+    throw new Error("User not authenticated");
   }
-
-  const anonymousId = (await cookies()).get("guest_cart_id")?.value;
-  if (anonymousId) {
-    const guestUser = await db.user.findUnique({
-      where: { anonymousId, isGuest: true },
-    });
-    if (guestUser) return guestUser;
-  }
-
-  const newAnonymousId = nanoid();
-  const guestUser = await db.user.create({
-    data: {
-      isGuest: true,
-      anonymousId: newAnonymousId,
-    },
-  });
-
-  (await cookies()).set("guest_cart_id", newAnonymousId, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 30, // 30 days
-  });
-
-  return guestUser;
+  return session.user.id;
 }
 
 async function getOrCreateCart(userId: string) {
@@ -69,38 +39,54 @@ async function getOrCreateCart(userId: string) {
   return cart;
 }
 
-// Helper function to get cart items with full relations
-async function getCartItemsWithFullData(cartId: string) {
-  return db.cartItem.findMany({
-    where: { cartId },
-    include: {
-      productVariant: {
-        include: {
-          color: true,
-          size: true,
-          images: {
-            select: {
-              url: true,
-              altText: true,
-            },
-            take: 1,
-          },
-          product: true,
+export async function getProductVariants(localCartItems: LocalCartItem[]) {
+  try {
+    const productVariantIds = localCartItems.map(
+      (item) => item.productVariantId
+    );
+
+    const variants = await db.productVariant.findMany({
+      where: {
+        id: {
+          in: productVariantIds,
         },
       },
-    },
-    orderBy: {
-      createdAt: "asc",
-    },
-  });
+      include: {
+        product: true,
+        color: true,
+        size: true,
+        images: {
+          select: {
+            url: true,
+            altText: true,
+            altTextAr: true,
+          },
+          take: 2,
+        },
+      },
+    });
+
+    const cartItems = localCartItems.map((localItem) => {
+      const variantDetail = variants.find(
+        (v) => v.id === localItem.productVariantId
+      );
+      return {
+        productVariant: variantDetail,
+        quantity: localItem.quantity,
+      };
+    });
+
+    return { success: true, items: cartItems as unknown as CartItem[] };
+  } catch (error) {
+    console.error("Get product variants error:", error);
+    return { success: false, error: getErrorMessage(error), items: [] };
+  }
 }
 
 export async function addToCart(productVariantId: string, quantity = 1) {
   try {
-    const user = await getCartUser();
-    if (!user) throw new Error("Could not identify user.");
-
-    const cart = await getOrCreateCart(user.id);
+    const userId = await getAuthenticatedUser();
+    const cart = await getOrCreateCart(userId);
 
     await db.cartItem.upsert({
       where: {
@@ -121,10 +107,8 @@ export async function addToCart(productVariantId: string, quantity = 1) {
       },
     });
 
-    const updatedItems = await getCartItemsWithFullData(cart.id);
-    const count = updatedItems.reduce((sum, item) => sum + item.quantity, 0);
-
-    return { success: true, count, updatedItems };
+    const updatedItems = await getCartItemsByCartId(cart.id);
+    return { success: true, updatedItems };
   } catch (error) {
     console.error("Add to cart error:", error);
     return { success: false, error: getErrorMessage(error) };
@@ -136,10 +120,8 @@ export async function updateCartItemQuantity(
   quantity: number
 ) {
   try {
-    const user = await getCartUser();
-    if (!user) throw new Error("Could not identify user.");
-
-    const cart = await db.cart.findUnique({ where: { userId: user.id } });
+    const userId = await getAuthenticatedUser();
+    const cart = await db.cart.findUnique({ where: { userId } });
     if (!cart) throw new Error("Cart not found.");
 
     if (quantity <= 0) {
@@ -153,10 +135,8 @@ export async function updateCartItemQuantity(
       });
     }
 
-    const updatedItems = await getCartItemsWithFullData(cart.id);
-    const count = updatedItems.reduce((sum, item) => sum + item.quantity, 0);
-
-    return { success: true, count, updatedItems };
+    const updatedItems = await getCartItemsByCartId(cart.id);
+    return { success: true, updatedItems };
   } catch (error) {
     console.error("Update cart item error:", error);
     return { success: false, error: getErrorMessage(error) };
@@ -165,101 +145,72 @@ export async function updateCartItemQuantity(
 
 export async function removeFromCart(productVariantId: string) {
   try {
-    const user = await getCartUser();
-    if (!user) throw new Error("Could not identify user.");
-
-    const cart = await db.cart.findUnique({ where: { userId: user.id } });
+    const userId = await getAuthenticatedUser();
+    const cart = await db.cart.findUnique({ where: { userId } });
     if (!cart) return { success: true };
 
     await db.cartItem.deleteMany({
       where: { cartId: cart.id, productVariantId },
     });
 
-    const updatedItems = await getCartItemsWithFullData(cart.id);
-    const count = updatedItems.reduce((sum, item) => sum + item.quantity, 0);
-
-    return { success: true, count, updatedItems };
+    const updatedItems = await getCartItemsByCartId(cart.id);
+    return { success: true, updatedItems };
   } catch (error) {
     console.error("Remove from cart error:", error);
     return { success: false, error: getErrorMessage(error) };
   }
 }
-export async function mergeGuestCartWithUserCart(authenticatedUserId: string) {
+
+export async function mergeLocalStorageCart(localCartItems: LocalCartItem[]) {
   try {
-    const anonymousId = (await cookies()).get("guest_cart_id")?.value;
-    if (!anonymousId) return { success: true };
+    const userId = await getAuthenticatedUser();
+    const cart = await getOrCreateCart(userId);
 
-    const guestUser = await db.user.findUnique({
-      where: { anonymousId, isGuest: true },
-      include: { cart: { include: { items: true } } },
-    });
-
-    const guestCart = guestUser?.cart;
-    if (!guestCart || guestCart.items.length === 0) {
-      if (guestUser)
-        await db.user
-          .delete({ where: { id: guestUser.id } })
-          .catch(console.error);
-      (await cookies()).delete("guest_cart_id");
-      return { success: true };
-    }
-
-    // Use transaction for atomicity
     await db.$transaction(async (tx) => {
-      const authUserCart =
-        (await tx.cart.findUnique({
-          where: { userId: authenticatedUserId },
-          include: { items: true },
-        })) ||
-        (await tx.cart.create({
-          data: { userId: authenticatedUserId },
-          include: { items: true },
-        }));
-
-      // Use upsert for better performance
-      for (const guestItem of guestCart.items) {
+      for (const localItem of localCartItems) {
         await tx.cartItem.upsert({
           where: {
             cartId_productVariantId: {
-              cartId: authUserCart.id,
-              productVariantId: guestItem.productVariantId,
+              cartId: cart.id,
+              productVariantId: localItem.productVariantId,
             },
           },
           update: {
             quantity: {
-              increment: guestItem.quantity,
+              increment: localItem.quantity,
             },
           },
           create: {
-            cartId: authUserCart.id,
-            productVariantId: guestItem.productVariantId,
-            quantity: guestItem.quantity,
+            cartId: cart.id,
+            productVariantId: localItem.productVariantId,
+            quantity: localItem.quantity,
           },
         });
       }
-
-      await tx.user.delete({ where: { id: guestUser.id } });
     });
 
-    (await cookies()).delete("guest_cart_id");
     revalidatePath("/cart");
     revalidatePath("/");
     return { success: true };
   } catch (error) {
-    console.error("Merge cart error:", error);
+    console.error("Merge localStorage cart error:", error);
     return { success: false, error: getErrorMessage(error) };
   }
 }
 
-export async function getCartData(): Promise<GetCartDataResult> {
-  // unstable_noStore();
+export async function getCartDataForAuthUser(): Promise<getCartDataForAuthUserResult> {
+  let userId;
+  try {
+    userId = await getAuthenticatedUser();
+  } catch (error) {
+    console.log(error);
+
+    return { items: [], count: 0 };
+  }
 
   try {
-    const user = await getCartUser();
-    if (!user) return { items: [], count: 0 };
-
     const cart = await db.cart.findUnique({
-      where: { userId: user.id },
+      where: { userId },
       include: {
         items: {
           include: {
@@ -267,84 +218,52 @@ export async function getCartData(): Promise<GetCartDataResult> {
               include: {
                 color: true,
                 size: true,
-                images: {
-                  select: {
-                    url: true,
-                    altText: true,
-                  },
-                  take: 1,
-                },
                 product: true,
+                images: {
+                  select: { url: true, altText: true, altTextAr: true },
+                  take: 2,
+                },
               },
             },
           },
-          orderBy: {
-            createdAt: "asc",
-          },
+          orderBy: { createdAt: "asc" },
         },
       },
     });
 
     const items = cart?.items || [];
     const count = items.reduce((sum, item) => sum + item.quantity, 0);
-    return { items, count };
-  } catch (error) {
-    console.error("Get cart data error:", error);
-    return { items: [], count: 0 };
+    return { items: items as CartItem[], count };
+  } catch (dbError) {
+    console.error("Get cart data database error:", dbError);
+
+    throw new Error("Failed to fetch cart data.");
   }
 }
 
-export async function applyDiscount(code: string, subtotal: number) {
-  const discountCode = await db.discountCode.findUnique({
-    where: { code, isActive: true },
+async function getCartItemsByCartId(cartId: string) {
+  return db.cartItem.findMany({
+    where: { cartId },
+    include: {
+      productVariant: {
+        include: {
+          product: true,
+          color: true,
+          size: true,
+          images: {
+            select: {
+              url: true,
+              altText: true,
+              altTextAr: true,
+            },
+            take: 2,
+          },
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "asc",
+    },
   });
-
-  if (!discountCode) {
-    return { error: "Invalid discount code." };
-  }
-
-  if (discountCode.expiresAt && new Date() > discountCode.expiresAt) {
-    return { error: "This discount code has expired." };
-  }
-
-  if (discountCode.minOrderAmount && subtotal < discountCode.minOrderAmount) {
-    return {
-      error: `Minimum order of ${discountCode.minOrderAmount} is required.`,
-    };
-  }
-
-  let discountAmount = 0;
-  if (discountCode.discountType === "PERCENTAGE") {
-    discountAmount = (subtotal * discountCode.value) / 100;
-  } else {
-    discountAmount = discountCode.value;
-  }
-
-  return {
-    success: "Discount applied!",
-    discountAmount,
-    discountCode: discountCode.code,
-  };
 }
-
-export async function clearCart() {
-  const session = await auth();
-  if (!session?.user) {
-    return { error: "User not authenticated." };
-  }
-
-  const cart = await db.cart.findUnique({
-    where: { userId: session.user.id },
-    select: { id: true },
-  });
-
-  if (cart) {
-    await db.cartItem.deleteMany({
-      where: { cartId: cart.id },
-    });
-  }
-
-  return { success: "Cart cleared." };
-}
-
 

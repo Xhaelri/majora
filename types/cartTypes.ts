@@ -1,20 +1,9 @@
+import { CartItemWithProduct } from "@/lib/cart-utils";
 
-import { ProductVariant, Product, Size, Color } from '../lib/generated/prisma'; 
+export type CartItem = CartItemWithProduct;
 
-
-export type CleanProductVariant = Omit<ProductVariant, 'createdAt' | 'updatedAt' | 'productId' | 'sizeId' | 'sku'>;
-
-export type CartProductVariant = CleanProductVariant & {
-
-  product: Pick<Product, 'id' | 'name' | 'slug' | 'price' | 'salePrice' | 'isLimitedEdition'> & {
-    images: { url: string; altText: string }[];
-  };
-  size: Pick<Size, 'id' | 'name'>;
-  color: Pick<Color, 'id' | 'name'>;
-};
-
-export interface CartItem {
-  productVariant: CartProductVariant;
+export interface LocalCartItem {
+  productVariantId: string;
   quantity: number;
 }
 
@@ -24,4 +13,22 @@ export interface CartState {
   totalPrice: number;
   isLoading: boolean;
   error: string | null;
+}
+
+export interface CartActionResult {
+  success: boolean;
+  error?: string;
+  updatedItems?: CartItem[];
+}
+
+export interface getCartDataForAuthUserResult {
+  items: CartItem[];
+  count: number;
+}
+
+export interface DiscountResult {
+  success?: string;
+  error?: string;
+  discountAmount?: number;
+  discountCode?: string;
 }

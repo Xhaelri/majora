@@ -3,9 +3,7 @@ import  CartPage  from "./CartPage";
 
 function cart() {
   return (
-    <>
       <CartPage />
-    </>
   );
 }
 

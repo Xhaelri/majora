@@ -7,7 +7,7 @@ import Image from "next/image";
 import { useLocale } from "next-intl";
 
 export default function CartIcon() {
-  const { count } = useCart();
+  const { totalQuantity: count } = useCart();
 
   const locale = useLocale();
   const isRTL = locale === "ar";

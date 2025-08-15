@@ -1,4 +1,4 @@
-// @/lib/product-utils.ts
+
 
 import { FullProduct } from "@/types/product";
 
@@ -38,7 +38,7 @@ export function filterByPriceRange(products: FullProduct[], priceRange: { from: 
   });
 }
 
-// Sort products
+
 export function sortProducts(products: FullProduct[], sortOption: SortOption) {
   const sortedProducts = [...products];
   
@@ -57,11 +57,11 @@ export function sortProducts(products: FullProduct[], sortOption: SortOption) {
       return sortedProducts.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
     case "featured":
       return sortedProducts.sort((a, b) => {
-        // First sort by limited edition (true first)
+        
         if (a.isLimitedEdition !== b.isLimitedEdition) {
           return a.isLimitedEdition ? -1 : 1;
         }
-        // Then by creation date (newest first)
+        
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
     default:

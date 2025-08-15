@@ -3,11 +3,9 @@
 import { z } from "zod";
 import { db } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import { auth, signIn } from "@/auth";
+import {  signIn, signOut } from "@/auth";
 import { AuthError } from "next-auth";
-import { mergeGuestCartWithUserCart } from "./cart";
 import { getTranslations } from "next-intl/server";
-
 
 type TranslationFunction = Awaited<ReturnType<typeof getTranslations>>;
 
@@ -212,13 +210,15 @@ export async function loginAction(
       };
     }
 
-    await mergeGuestCartWithUserCart(user.id);
-
+    
     await signIn("credentials", {
       email,
       password,
       redirect: false,
     });
+
+    
+    
 
     return {
       success: true,
@@ -304,15 +304,14 @@ export async function signupAction(
       },
     });
 
+    
     await db.cart.create({
       data: {
         userId: user.id,
       },
     });
 
-    await mergeGuestCartWithUserCart(user.id);
-
-    // If there's a callbackUrl, redirect to signin with it, otherwise just signin
+    
     const redirectUrl = callbackUrl ? `/signin?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/signin";
 
     return {
@@ -334,17 +333,14 @@ export async function signupAction(
 export async function handleGoogleSignIn(formData?: FormData) {
   const callbackUrl = formData?.get("callbackUrl") as string;
   
+  
   await signIn("google", { 
     redirectTo: callbackUrl || "/" 
   });
   
-  const session = await auth();
-  if (session?.user) {
-    await mergeGuestCartWithUserCart(session?.user?.id);
-  }
+  
+  
 }
-
-import { signOut } from "@/auth";
 
 export async function signOutAction() {
   await signOut({ redirectTo: "/signin" });
