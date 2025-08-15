@@ -40,7 +40,7 @@ interface BillingData {
 }
 
 export default function CheckoutPage() {
-  const t = useTranslations("common");
+  const  t  = useTranslations('checkout');
 
   const { items: cartItems, totalQuantity: count } = useCart();
   const [loading, setLoading] = useState(false);
@@ -298,8 +298,8 @@ export default function CheckoutPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">{t("checkout.emptyCart")}</h1>
-          <p>{t("checkout.addItemsMessage")}</p>
+          <h1 className="text-2xl font-bold mb-4">{t("emptyCart")}</h1>
+          <p>{t("addItemsMessage")}</p>
         </div>
       </div>
     );
@@ -310,7 +310,7 @@ export default function CheckoutPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-          <p className="mt-2">{t("checkout.loading")}</p>
+          <p className="mt-2">{t("loading")}</p>
         </div>
       </div>
     );
@@ -318,7 +318,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="container mx-auto py-5">
-      <h1 className="text-2xl font-bold mb-8">{t("checkout.title")}</h1>
+      <h1 className="text-2xl font-bold mb-8">{t("title")}</h1>
 
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Left Column - Forms and Cart Summary */}
@@ -355,7 +355,7 @@ export default function CheckoutPage() {
         {/* Right Column - Order Summary */}
         <div className="bg-white p-6 shadow-sm border h-fit sticky top-4 lg:max-w-1/2 order-2">
           <h2 className="text-xl font-semibold mb-6">
-            {t("checkout.orderSummary")}
+            {t("orderSummary")}
           </h2>
 
           {/* Cart Items */}
@@ -385,7 +385,7 @@ export default function CheckoutPage() {
                     {item.productVariant.color.name}
                   </p>
                   <p className="text-xs text-gray-500">
-                    {t("checkout.summary.quantity")} {item.quantity}
+                    {t("summary.quantity")} {item.quantity}
                   </p>
                 </div>
                 <div className="text-sm font-medium flex-shrink-0">
@@ -402,10 +402,10 @@ export default function CheckoutPage() {
           <div className="border-t pt-4 space-y-2">
             <div className="flex justify-between text-sm">
               <span>
-                {t("checkout.summary.subtotal")} ({count}{" "}
+                {t("summary.subtotal")} ({count}{" "}
                 {count === 1
-                  ? t("checkout.summary.item")
-                  : t("checkout.summary.items")}
+                  ? t("summary.item")
+                  : t("summary.items")}
                 )
               </span>
               <span>{formatPrice(subtotal)}</span>
@@ -413,7 +413,7 @@ export default function CheckoutPage() {
 
             {saleDiscount > 0 && (
               <div className="flex justify-between text-sm text-red-600">
-                <span>{t("checkout.summary.saleDiscount")}</span>
+                <span>{t("summary.saleDiscount")}</span>
                 <span>-{formatPrice(saleDiscount)}</span>
               </div>
             )}
@@ -421,7 +421,7 @@ export default function CheckoutPage() {
             {discountAmount > 0 && (
               <div className="flex justify-between text-sm text-red-600">
                 <span>
-                  {t("checkout.summary.couponDiscount")} (
+                  {t("summary.couponDiscount")} (
                   {appliedDiscount?.code})
                 </span>
                 <span>-{formatPrice(discountAmount)}</span>
@@ -429,18 +429,18 @@ export default function CheckoutPage() {
             )}
 
             <div className="flex justify-between text-sm">
-              <span>{t("checkout.summary.delivery")}</span>
+              <span>{t("summary.delivery")}</span>
               <span className={shippingCost === null ? "text-gray-500" : ""}>
                 {shippingCost === null
-                  ? t("checkout.summary.selectGovernorate")
+                  ? t("summary.selectGovernorate")
                   : shippingCost === 0
-                  ? t("checkout.summary.free")
+                  ? t("summary.free")
                   : formatPrice(shippingCost)}
               </span>
             </div>
 
             <div className="border-t pt-2 flex justify-between font-semibold text-lg">
-              <span>{t("checkout.summary.total")}</span>
+              <span>{t("summary.total")}</span>
               <span>{formatPrice(total)}</span>
             </div>
           </div>
@@ -460,7 +460,7 @@ export default function CheckoutPage() {
                 />
               </svg>
               <span className="text-sm text-green-700">
-                {t("checkout.securePayment")}
+                {t("securePayment")}
               </span>
             </div>
           </div>

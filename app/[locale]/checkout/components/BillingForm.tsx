@@ -63,17 +63,17 @@ const BillingForm = ({
   handleInputChange,
   handleProceedToPayment,
 }: Props) => {
-  const  t  = useTranslations('common');
+  const  t  = useTranslations('checkout');
 
   return (
     <>
       <div className="bg-white p-6 shadow-sm border">
-        <h2 className="text-xl font-semibold mb-6">{t('checkout.billingInformation')}</h2>
+        <h2 className="text-xl font-semibold mb-6">{t('billingInformation')}</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium mb-2">
-              {t('checkout.billing.email')} {t('checkout.billing.required')}
+              {t('billing.email')} {t('billing.required')}
             </label>
             <input
               type="email"
@@ -81,14 +81,14 @@ const BillingForm = ({
               value={billingData.email}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={t('checkout.billing.emailPlaceholder')}
+              placeholder={t('billing.emailPlaceholder')}
               required
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-2">
-              {t('checkout.billing.phoneNumber')} {t('checkout.billing.required')}
+              {t('billing.phoneNumber')} {t('billing.required')}
             </label>
             <input
               type="tel"
@@ -96,17 +96,17 @@ const BillingForm = ({
               value={billingData.phoneNumber}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={t('checkout.billing.phoneNumberPlaceholder')}
+              placeholder={t('billing.phoneNumberPlaceholder')}
               required
             />
             <p className="text-xs text-gray-500 mt-1">
-              {t('checkout.billing.phoneFormat')}
+              {t('billing.phoneFormat')}
             </p>
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-2">
-              {t('checkout.billing.firstName')} {t('checkout.billing.required')}
+              {t('billing.firstName')} {t('billing.required')}
             </label>
             <input
               type="text"
@@ -114,14 +114,14 @@ const BillingForm = ({
               value={billingData.firstName}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={t('checkout.billing.firstNamePlaceholder')}
+              placeholder={t('billing.firstNamePlaceholder')}
               required
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-2">
-              {t('checkout.billing.lastName')} {t('checkout.billing.required')}
+              {t('billing.lastName')} {t('billing.required')}
             </label>
             <input
               type="text"
@@ -129,14 +129,14 @@ const BillingForm = ({
               value={billingData.lastName}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={t('checkout.billing.lastNamePlaceholder')}
+              placeholder={t('billing.lastNamePlaceholder')}
               required
             />
           </div>
 
           <div className="md:col-span-2">
             <label className="block text-sm font-medium mb-2">
-              {t('checkout.billing.streetAddress')} {t('checkout.billing.required')}
+              {t('billing.streetAddress')} {t('billing.required')}
             </label>
             <input
               type="text"
@@ -144,14 +144,14 @@ const BillingForm = ({
               value={billingData.street}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={t('checkout.billing.streetAddressPlaceholder')}
+              placeholder={t('billing.streetAddressPlaceholder')}
               required
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-2">
-              {t('checkout.billing.building')}
+              {t('billing.building')}
             </label>
             <input
               type="text"
@@ -159,13 +159,13 @@ const BillingForm = ({
               value={billingData.building}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={t('checkout.billing.buildingPlaceholder')}
+              placeholder={t('billing.buildingPlaceholder')}
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-2">
-              {t('checkout.billing.apartment')}
+              {t('billing.apartment')}
             </label>
             <input
               type="text"
@@ -173,13 +173,13 @@ const BillingForm = ({
               value={billingData.apartment}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={t('checkout.billing.apartmentPlaceholder')}
+              placeholder={t('billing.apartmentPlaceholder')}
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-2">
-              {t('checkout.billing.floor')}
+              {t('billing.floor')}
             </label>
             <input
               type="text"
@@ -187,13 +187,13 @@ const BillingForm = ({
               value={billingData.floor}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={t('checkout.billing.floorPlaceholder')}
+              placeholder={t('billing.floorPlaceholder')}
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-2">
-              {t('checkout.billing.city')} {t('checkout.billing.required')}
+              {t('billing.city')} {t('billing.required')}
             </label>
             <input
               type="text"
@@ -201,14 +201,14 @@ const BillingForm = ({
               value={billingData.city}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={t('checkout.billing.cityPlaceholder')}
+              placeholder={t('billing.cityPlaceholder')}
               required
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-2">
-              {t('checkout.billing.governorate')} {t('checkout.billing.required')}
+              {t('billing.governorate')} {t('billing.required')}
             </label>
             <select
               name="state"
@@ -217,7 +217,7 @@ const BillingForm = ({
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             >
-              <option value="">{t('checkout.billing.selectGovernorate')}</option>
+              <option value="">{t('billing.selectGovernorate')}</option>
               {EGYPT_GOVERNORATES.map((gov) => (
                 <option key={gov} value={gov}>
                   {gov}
@@ -228,7 +228,7 @@ const BillingForm = ({
 
           <div>
             <label className="block text-sm font-medium mb-2">
-              {t('checkout.billing.postalCode')}
+              {t('billing.postalCode')}
             </label>
             <input
               type="text"
@@ -236,13 +236,13 @@ const BillingForm = ({
               value={billingData.postalCode}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={t('checkout.billing.postalCodePlaceholder')}
+              placeholder={t('billing.postalCodePlaceholder')}
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-2">
-              {t('checkout.billing.country')}
+              {t('billing.country')}
             </label>
             <select
               name="country"
@@ -269,10 +269,10 @@ const BillingForm = ({
           {loading ? (
             <div className="flex items-center justify-center">
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-              {t('checkout.billing.processing')}
+              {t('billing.processing')}
             </div>
           ) : (
-            t('checkout.billing.proceedToPayment')
+            t('billing.proceedToPayment')
           )}
         </button>
       </div>

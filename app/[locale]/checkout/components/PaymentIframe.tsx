@@ -6,12 +6,13 @@ type Props = {
 };
 
 const PaymentIframe = ({ paymentKey }: Props) => {
-  const  t  = useTranslations('common');
+  const  t  = useTranslations('checkout');
+
 
   return (
     <>
       <div className="bg-white p-6 shadow-sm border lg:min-w-[400px]">
-        <h2 className="text-xl font-semibold mb-6">{t('checkout.completePayment')}</h2>
+        <h2 className="text-xl font-semibold mb-6">{t('completePayment')}</h2>
         <div className="relative">
           <iframe
             src={`https://accept.paymob.com/api/acceptance/iframes/${process.env.NEXT_PUBLIC_PAYMOB_IFRAME_ID}?payment_token=${paymentKey}`}

@@ -78,7 +78,7 @@ interface BuyNowItem {
 }
 
 export default function BuyNowCheckoutPage() {
-  const  t  = useTranslations('common');
+  const  t  = useTranslations('checkout');
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -118,7 +118,7 @@ export default function BuyNowCheckoutPage() {
         // Get buy now data from sessionStorage
         const buyNowDataStr = sessionStorage.getItem("buyNowData");
         if (!buyNowDataStr) {
-          setError(t('checkout.buyNow.sessionExpired'));
+          setError(t('buyNow.sessionExpired'));
           return;
         }
 
@@ -127,7 +127,7 @@ export default function BuyNowCheckoutPage() {
         // Check if data is not too old (15 minutes)
         if (Date.now() - buyNowData.timestamp > 15 * 60 * 1000) {
           sessionStorage.removeItem("buyNowData");
-          setError(t('checkout.buyNow.sessionExpired'));
+          setError(t('buyNow.sessionExpired'));
           return;
         }
 
@@ -138,7 +138,7 @@ export default function BuyNowCheckoutPage() {
         );
 
         if (itemResult.error || !itemResult.item) {
-          setError(itemResult.error || t('checkout.buyNow.failedToLoad'));
+          setError(itemResult.error || t('buyNow.failedToLoad'));
           return;
         }
 
@@ -160,7 +160,7 @@ export default function BuyNowCheckoutPage() {
         }
       } catch (error) {
         console.error("Failed to load buy now data:", error);
-        setError(t('checkout.buyNow.failedToLoadCheckout'));
+        setError(t('buyNow.failedToLoadCheckout'));
       } finally {
         setInitializing(false);
       }
@@ -214,7 +214,7 @@ export default function BuyNowCheckoutPage() {
 
   const handleApplyDiscount = async () => {
     if (!discountCode.trim()) {
-      setError(t('checkout.discount.enterDiscountCode'));
+      setError(t('discount.enterDiscountCode'));
       return;
     }
 
@@ -261,20 +261,20 @@ export default function BuyNowCheckoutPage() {
     ];
     for (const field of required) {
       if (!billingData[field as keyof BillingData]) {
-        setError(t(`checkout.validation.${field}Required`));
+        setError(t(`validation.${field}Required`));
         return false;
       }
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(billingData.email)) {
-      setError(t('checkout.validation.validEmail'));
+      setError(t('validation.validEmail'));
       return false;
     }
 
     const phoneRegex = /^(\+201|01)[0-9]{9}$/;
     if (!phoneRegex.test(billingData.phoneNumber.replace(/\s/g, ""))) {
-      setError(t('checkout.validation.validPhone'));
+      setError(t('validation.validPhone'));
       return false;
     }
 
@@ -284,11 +284,11 @@ export default function BuyNowCheckoutPage() {
   const handleProceedToPayment = async () => {
     if (!validateForm()) return;
     if (shippingCost === null) {
-      setError(t('checkout.validation.selectGovernorate'));
+      setError(t('validation.selectGovernorate'));
       return;
     }
     if (!buyNowItem) {
-      setError(t('checkout.buyNow.productMissing'));
+      setError(t('buyNow.productMissing'));
       return;
     }
 
@@ -339,7 +339,7 @@ export default function BuyNowCheckoutPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-          <p className="mt-2">{t('checkout.loading')}</p>
+          <p className="mt-2">{t('loading')}</p>
         </div>
       </div>
     );
@@ -349,13 +349,13 @@ export default function BuyNowCheckoutPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4 text-red-600">{t('checkout.error')}</h1>
+          <h1 className="text-2xl font-bold mb-4 text-red-600">{t('error')}</h1>
           <p className="mb-4">{error}</p>
           <button
             onClick={() => router.push("/products")}
             className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
           >
-            {t('checkout.continueShopping')}
+            {t('continueShopping')}
           </button>
         </div>
       </div>
@@ -367,7 +367,7 @@ export default function BuyNowCheckoutPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-          <p className="mt-2">{t('checkout.loadingProduct')}</p>
+          <p className="mt-2">{t('loadingProduct')}</p>
         </div>
       </div>
     );
@@ -375,7 +375,7 @@ export default function BuyNowCheckoutPage() {
 
   return (
     <div className="container mx-auto py-5">
-      <h1 className="text-2xl font-bold mb-8">{t('checkout.title')}</h1>
+      <h1 className="text-2xl font-bold mb-8">{t('title')}</h1>
 
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Left Column - Forms */}
@@ -408,7 +408,7 @@ export default function BuyNowCheckoutPage() {
 
         {/* Right Column - Order Summary */}
         <div className="bg-white p-6 shadow-sm border h-fit sticky top-4 lg:max-w-1/2 order-2">
-          <h2 className="text-xl font-semibold mb-6">{t('checkout.orderSummary')}</h2>
+          <h2 className="text-xl font-semibold mb-6">{t('orderSummary')}</h2>
 
           {/* Product Item */}
           <div className="mb-6">
@@ -432,7 +432,7 @@ export default function BuyNowCheckoutPage() {
                   {buyNowItem.productVariant.size.name} • {buyNowItem.productVariant.color.name}
                 </p>
                 <p className="text-xs text-gray-500">
-                  {t('checkout.summary.quantity')} {buyNowItem.quantity}
+                  {t('summary.quantity')} {buyNowItem.quantity}
                 </p>
               </div>
               <div className="text-sm font-medium flex-shrink-0">
@@ -449,38 +449,38 @@ export default function BuyNowCheckoutPage() {
           <div className="border-t pt-4 space-y-2">
             <div className="flex justify-between text-sm">
               <span>
-                {t('checkout.summary.subtotal')} ({buyNowItem.quantity} {buyNowItem.quantity === 1 ? t('checkout.summary.item') : t('checkout.summary.items')})
+                {t('summary.subtotal')} ({buyNowItem.quantity} {buyNowItem.quantity === 1 ? t('summary.item') : t('summary.items')})
               </span>
               <span>{formatPrice(subtotal)}</span>
             </div>
 
             {saleDiscount > 0 && (
               <div className="flex justify-between text-sm text-red-600">
-                <span>{t('checkout.summary.saleDiscount')}</span>
+                <span>{t('summary.saleDiscount')}</span>
                 <span>-{formatPrice(saleDiscount)}</span>
               </div>
             )}
 
             {discountAmount > 0 && (
               <div className="flex justify-between text-sm text-red-600">
-                <span>{t('checkout.summary.couponDiscount')} ({appliedDiscount?.code})</span>
+                <span>{t('summary.couponDiscount')} ({appliedDiscount?.code})</span>
                 <span>-{formatPrice(discountAmount)}</span>
               </div>
             )}
 
             <div className="flex justify-between text-sm">
-              <span>{t('checkout.summary.delivery')}</span>
+              <span>{t('summary.delivery')}</span>
               <span className={shippingCost === null ? "text-gray-500" : ""}>
                 {shippingCost === null
-                  ? t('checkout.summary.selectGovernorate')
+                  ? t('summary.selectGovernorate')
                   : shippingCost === 0
-                  ? t('checkout.summary.free')
+                  ? t('summary.free')
                   : formatPrice(shippingCost)}
               </span>
             </div>
 
             <div className="border-t pt-2 flex justify-between font-semibold text-lg">
-              <span>{t('checkout.summary.total')}</span>
+              <span>{t('summary.total')}</span>
               <span>{formatPrice(total)}</span>
             </div>
           </div>
@@ -500,7 +500,7 @@ export default function BuyNowCheckoutPage() {
                 />
               </svg>
               <span className="text-sm text-green-700">
-                {t('checkout.securePayment')}
+                {t('securePayment')}
               </span>
             </div>
           </div>
