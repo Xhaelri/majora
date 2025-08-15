@@ -23,7 +23,7 @@
     "sets": "SETS",
     "seeAll": "See all"
   },
-  "2": {
+  "common": {
     "shop": "SHOP",
     "searchResults": "Search results for",
     "noProductsFound": "No products found",
@@ -96,7 +96,7 @@
     "addToCart": "Add to Cart",
     "adding": "Adding...",
     "buyItNow": "BUY IT NOW",
-    "processing":"Processing..",
+    "processing": "Processing..",
     "itemAddedToCart": "Item added to shopping bag",
     "addToCartError": "Failed to add item to cart. Please try again."
   },
@@ -199,7 +199,98 @@
     "failedToRemove": "Failed to remove item. Please try again.",
     "failedToUpdate": "Failed to update quantity. Please try again."
   },
+  "cartPage": {
+    "shoppingBag": "Shopping Bag",
+    "emptyCart": "Your cart is empty",
+    "itemDeleted": "Item removed from cart",
+    "failedToRemove": "Failed to remove item",
+    "failedToUpdate": "Failed to update quantity",
+    "subtotal": "Subtotal",
+    "saleDiscount": "Sale Discount",
+    "total": "Total",
+    "checkout": "Checkout"
+  },
   "checkout": {
+    "title": "Checkout",
+    "loading": "Loading...",
+    "loadingProduct": "Loading product...",
+    "error": "Error",
+    "continueShopping": "Continue Shopping",
+    "emptyCart": "Your cart is empty",
+    "addItemsMessage": "Add some items to your cart before checking out.",
+    "orderSummary": "Order Summary",
+    "billingInformation": "Billing Information",
+    "discountCode": "Discount Code",
+    "completePayment": "Complete Payment",
+    "securePayment": "Secure payment powered by Paymob",
+    "buyNow": {
+      "sessionExpired": "Buy now session expired. Please try again.",
+      "failedToLoad": "Failed to load product details",
+      "failedToLoadCheckout": "Failed to load checkout data",
+      "productMissing": "Product information is missing."
+    },
+    "billing": {
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "phoneNumber": "Phone Number",
+      "phoneNumberPlaceholder": "01xxxxxxxxx",
+      "phoneFormat": "Format: 01xxxxxxxxx or +201xxxxxxxxx",
+      "firstName": "First Name",
+      "firstNamePlaceholder": "Ahmed",
+      "lastName": "Last Name",
+      "lastNamePlaceholder": "Mohamed",
+      "streetAddress": "Street Address",
+      "streetAddressPlaceholder": "123 Main Street",
+      "building": "Building",
+      "buildingPlaceholder": "Building A",
+      "apartment": "Apartment",
+      "apartmentPlaceholder": "Apt 101",
+      "floor": "Floor",
+      "floorPlaceholder": "1st Floor",
+      "city": "City",
+      "cityPlaceholder": "Mansoura",
+      "governorate": "Governorate",
+      "selectGovernorate": "Select Governorate",
+      "postalCode": "Postal Code",
+      "postalCodePlaceholder": "12345",
+      "country": "Country",
+      "required": "*",
+      "proceedToPayment": "Proceed to Payment",
+      "processing": "Processing..."
+    },
+    "discount": {
+      "enterCode": "Enter discount code",
+      "apply": "Apply",
+      "applying": "Applying...",
+      "applied": "applied",
+      "youSaved": "You saved",
+      "remove": "Remove",
+      "enterDiscountCode": "Please enter a discount code"
+    },
+    "summary": {
+      "subtotal": "Subtotal",
+      "item": "item",
+      "items": "items",
+      "saleDiscount": "Sale Discount",
+      "couponDiscount": "Coupon Discount",
+      "delivery": "Delivery",
+      "selectGovernorate": "Select governorate",
+      "free": "Free",
+      "total": "Total",
+      "quantity": "Quantity"
+    },
+    "validation": {
+      "emailRequired": "Email is required",
+      "firstNameRequired": "First Name is required",
+      "lastNameRequired": "Last Name is required",
+      "phoneNumberRequired": "Phone Number is required",
+      "streetRequired": "Street Address is required",
+      "cityRequired": "City is required",
+      "stateRequired": "Governorate is required",
+      "validEmail": "Please enter a valid email address",
+      "validPhone": "Please enter a valid Egyptian phone number (01xxxxxxxxx or +201xxxxxxxxx)",
+      "selectGovernorate": "Please select a governorate to calculate shipping."
+    },
     "success": {
       "title": "Thank You for Your Order!",
       "description": "Your payment was successful and your order has been placed.",
@@ -256,16 +347,5 @@
     "menu": "Menu",
     "account": "Account",
     "cart": "Cart"
-  },
-  "cartPage": {
-    "shoppingBag": "Shopping Bag",
-    "emptyCart": "Your cart is empty",
-    "itemDeleted": "Item removed from cart",
-    "failedToRemove": "Failed to remove item",
-    "failedToUpdate": "Failed to update quantity",
-    "subtotal": "Subtotal",
-    "saleDiscount": "Sale Discount",
-    "total": "Total",
-    "checkout": "Checkout"
   }
 }

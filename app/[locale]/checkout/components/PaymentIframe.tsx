@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import React from "react";
 
 type Props = {
@@ -5,10 +6,12 @@ type Props = {
 };
 
 const PaymentIframe = ({ paymentKey }: Props) => {
+  const  t  = useTranslations('common');
+
   return (
     <>
-      <div className="bg-white p-6  shadow-sm border lg:min-w-[400px]">
-        <h2 className="text-xl font-semibold mb-6">Complete Payment</h2>
+      <div className="bg-white p-6 shadow-sm border lg:min-w-[400px]">
+        <h2 className="text-xl font-semibold mb-6">{t('checkout.completePayment')}</h2>
         <div className="relative">
           <iframe
             src={`https://accept.paymob.com/api/acceptance/iframes/${process.env.NEXT_PUBLIC_PAYMOB_IFRAME_ID}?payment_token=${paymentKey}`}

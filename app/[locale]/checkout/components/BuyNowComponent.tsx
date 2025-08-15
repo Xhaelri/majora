@@ -17,6 +17,7 @@ import {
 import DiscountSection from "../components/DiscountSection";
 import BillingForm from "../components/BillingForm";
 import PaymentIframe from "../components/PaymentIframe";
+import { useTranslations } from "next-intl";
 
 interface AppliedDiscount {
   code: string;
@@ -77,6 +78,7 @@ interface BuyNowItem {
 }
 
 export default function BuyNowCheckoutPage() {
+  const  t  = useTranslations('common');
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -116,7 +118,7 @@ export default function BuyNowCheckoutPage() {
         // Get buy now data from sessionStorage
         const buyNowDataStr = sessionStorage.getItem("buyNowData");
         if (!buyNowDataStr) {
-          setError("Buy now session expired. Please try again.");
+          setError(t('checkout.buyNow.sessionExpired'));
           return;
         }
 
@@ -125,7 +127,7 @@ export default function BuyNowCheckoutPage() {
         // Check if data is not too old (15 minutes)
         if (Date.now() - buyNowData.timestamp > 15 * 60 * 1000) {
           sessionStorage.removeItem("buyNowData");
-          setError("Buy now session expired. Please try again.");
+          setError(t('checkout.buyNow.sessionExpired'));
           return;
         }
 
@@ -136,7 +138,7 @@ export default function BuyNowCheckoutPage() {
         );
 
         if (itemResult.error || !itemResult.item) {
-          setError(itemResult.error || "Failed to load product details");
+          setError(itemResult.error || t('checkout.buyNow.failedToLoad'));
           return;
         }
 
@@ -158,7 +160,7 @@ export default function BuyNowCheckoutPage() {
         }
       } catch (error) {
         console.error("Failed to load buy now data:", error);
-        setError("Failed to load checkout data");
+        setError(t('checkout.buyNow.failedToLoadCheckout'));
       } finally {
         setInitializing(false);
       }
@@ -168,7 +170,7 @@ export default function BuyNowCheckoutPage() {
       // Wait for session to load
       loadBuyNowData();
     }
-  }, [session]);
+  }, [session, t]);
 
   const handleGovernorateChange = useCallback(async (governorate: string) => {
     if (governorate) {
@@ -212,7 +214,7 @@ export default function BuyNowCheckoutPage() {
 
   const handleApplyDiscount = async () => {
     if (!discountCode.trim()) {
-      setError("Please enter a discount code");
+      setError(t('checkout.discount.enterDiscountCode'));
       return;
     }
 
@@ -259,27 +261,20 @@ export default function BuyNowCheckoutPage() {
     ];
     for (const field of required) {
       if (!billingData[field as keyof BillingData]) {
-        setError(
-          `${
-            field.charAt(0).toUpperCase() +
-            field.slice(1).replace(/([A-Z])/g, " $1")
-          } is required`
-        );
+        setError(t(`checkout.validation.${field}Required`));
         return false;
       }
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(billingData.email)) {
-      setError("Please enter a valid email address");
+      setError(t('checkout.validation.validEmail'));
       return false;
     }
 
     const phoneRegex = /^(\+201|01)[0-9]{9}$/;
     if (!phoneRegex.test(billingData.phoneNumber.replace(/\s/g, ""))) {
-      setError(
-        "Please enter a valid Egyptian phone number (01xxxxxxxxx or +201xxxxxxxxx)"
-      );
+      setError(t('checkout.validation.validPhone'));
       return false;
     }
 
@@ -289,11 +284,11 @@ export default function BuyNowCheckoutPage() {
   const handleProceedToPayment = async () => {
     if (!validateForm()) return;
     if (shippingCost === null) {
-      setError("Please select a governorate to calculate shipping.");
+      setError(t('checkout.validation.selectGovernorate'));
       return;
     }
     if (!buyNowItem) {
-      setError("Product information is missing.");
+      setError(t('checkout.buyNow.productMissing'));
       return;
     }
 
@@ -344,7 +339,7 @@ export default function BuyNowCheckoutPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-          <p className="mt-2">Loading...</p>
+          <p className="mt-2">{t('checkout.loading')}</p>
         </div>
       </div>
     );
@@ -354,13 +349,13 @@ export default function BuyNowCheckoutPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4 text-red-600">Error</h1>
+          <h1 className="text-2xl font-bold mb-4 text-red-600">{t('checkout.error')}</h1>
           <p className="mb-4">{error}</p>
           <button
             onClick={() => router.push("/products")}
             className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
           >
-            Continue Shopping
+            {t('checkout.continueShopping')}
           </button>
         </div>
       </div>
@@ -372,7 +367,7 @@ export default function BuyNowCheckoutPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-          <p className="mt-2">Loading product...</p>
+          <p className="mt-2">{t('checkout.loadingProduct')}</p>
         </div>
       </div>
     );
@@ -380,7 +375,7 @@ export default function BuyNowCheckoutPage() {
 
   return (
     <div className="container mx-auto py-5">
-      <h1 className="text-2xl font-bold mb-8">Checkout</h1>
+      <h1 className="text-2xl font-bold mb-8">{t('checkout.title')}</h1>
 
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Left Column - Forms */}
@@ -412,8 +407,8 @@ export default function BuyNowCheckoutPage() {
         </div>
 
         {/* Right Column - Order Summary */}
-        <div className="bg-white p-6  shadow-sm border h-fit sticky top-4 lg:max-w-1/2 order-2">
-          <h2 className="text-xl font-semibold mb-6">Order Summary</h2>
+        <div className="bg-white p-6 shadow-sm border h-fit sticky top-4 lg:max-w-1/2 order-2">
+          <h2 className="text-xl font-semibold mb-6">{t('checkout.orderSummary')}</h2>
 
           {/* Product Item */}
           <div className="mb-6">
@@ -434,11 +429,10 @@ export default function BuyNowCheckoutPage() {
                   {buyNowItem.productVariant.product.name}
                 </h3>
                 <p className="text-xs text-gray-500">
-                  {buyNowItem.productVariant.size.name} •{" "}
-                  {buyNowItem.productVariant.color.name}
+                  {buyNowItem.productVariant.size.name} • {buyNowItem.productVariant.color.name}
                 </p>
                 <p className="text-xs text-gray-500">
-                  Quantity {buyNowItem.quantity}
+                  {t('checkout.summary.quantity')} {buyNowItem.quantity}
                 </p>
               </div>
               <div className="text-sm font-medium flex-shrink-0">
@@ -455,45 +449,44 @@ export default function BuyNowCheckoutPage() {
           <div className="border-t pt-4 space-y-2">
             <div className="flex justify-between text-sm">
               <span>
-                Subtotal ({buyNowItem.quantity} item
-                {buyNowItem.quantity > 1 ? "s" : ""})
+                {t('checkout.summary.subtotal')} ({buyNowItem.quantity} {buyNowItem.quantity === 1 ? t('checkout.summary.item') : t('checkout.summary.items')})
               </span>
               <span>{formatPrice(subtotal)}</span>
             </div>
 
             {saleDiscount > 0 && (
               <div className="flex justify-between text-sm text-red-600">
-                <span>Sale Discount</span>
+                <span>{t('checkout.summary.saleDiscount')}</span>
                 <span>-{formatPrice(saleDiscount)}</span>
               </div>
             )}
 
             {discountAmount > 0 && (
               <div className="flex justify-between text-sm text-red-600">
-                <span>Coupon Discount ({appliedDiscount?.code})</span>
+                <span>{t('checkout.summary.couponDiscount')} ({appliedDiscount?.code})</span>
                 <span>-{formatPrice(discountAmount)}</span>
               </div>
             )}
 
             <div className="flex justify-between text-sm">
-              <span>Delivery</span>
+              <span>{t('checkout.summary.delivery')}</span>
               <span className={shippingCost === null ? "text-gray-500" : ""}>
                 {shippingCost === null
-                  ? "Select governorate"
+                  ? t('checkout.summary.selectGovernorate')
                   : shippingCost === 0
-                  ? "Free"
+                  ? t('checkout.summary.free')
                   : formatPrice(shippingCost)}
               </span>
             </div>
 
             <div className="border-t pt-2 flex justify-between font-semibold text-lg">
-              <span>Total</span>
+              <span>{t('checkout.summary.total')}</span>
               <span>{formatPrice(total)}</span>
             </div>
           </div>
 
           {/* Security Badge */}
-          <div className="mt-4 p-3 bg-green-50 border border-green-200 ">
+          <div className="mt-4 p-3 bg-green-50 border border-green-200">
             <div className="flex items-center justify-center gap-3">
               <svg
                 className="w-5 h-5 text-green-600 mr-2"
@@ -507,7 +500,7 @@ export default function BuyNowCheckoutPage() {
                 />
               </svg>
               <span className="text-sm text-green-700">
-                Secure payment powered by Paymob
+                {t('checkout.securePayment')}
               </span>
             </div>
           </div>

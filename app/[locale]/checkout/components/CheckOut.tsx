@@ -15,6 +15,7 @@ import Image from "next/image";
 import DiscountSection from "./DiscountSection";
 import BillingForm from "./BillingForm";
 import PaymentIframe from "./PaymentIframe";
+import { useTranslations } from "next-intl";
 
 interface AppliedDiscount {
   code: string;
@@ -39,7 +40,9 @@ interface BillingData {
 }
 
 export default function CheckoutPage() {
-  const { items: cartItems, totalQuantity:count } = useCart();
+  const t = useTranslations("common");
+
+  const { items: cartItems, totalQuantity: count } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [paymentKey, setPaymentKey] = useState<string | null>(null);
@@ -295,8 +298,8 @@ export default function CheckoutPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Your cart is empty</h1>
-          <p>Add some items to your cart before checking out.</p>
+          <h1 className="text-2xl font-bold mb-4">{t("checkout.emptyCart")}</h1>
+          <p>{t("checkout.addItemsMessage")}</p>
         </div>
       </div>
     );
@@ -307,7 +310,7 @@ export default function CheckoutPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-          <p className="mt-2">Loading...</p>
+          <p className="mt-2">{t("checkout.loading")}</p>
         </div>
       </div>
     );
@@ -315,7 +318,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="container mx-auto py-5">
-      <h1 className="text-2xl font-bold mb-8">Checkout</h1>
+      <h1 className="text-2xl font-bold mb-8">{t("checkout.title")}</h1>
 
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Left Column - Forms and Cart Summary */}
@@ -351,7 +354,9 @@ export default function CheckoutPage() {
 
         {/* Right Column - Order Summary */}
         <div className="bg-white p-6 shadow-sm border h-fit sticky top-4 lg:max-w-1/2 order-2">
-          <h2 className="text-xl font-semibold mb-6">Order Summary</h2>
+          <h2 className="text-xl font-semibold mb-6">
+            {t("checkout.orderSummary")}
+          </h2>
 
           {/* Cart Items */}
           <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
@@ -380,7 +385,7 @@ export default function CheckoutPage() {
                     {item.productVariant.color.name}
                   </p>
                   <p className="text-xs text-gray-500">
-                    Quantity {item.quantity}
+                    {t("checkout.summary.quantity")} {item.quantity}
                   </p>
                 </div>
                 <div className="text-sm font-medium flex-shrink-0">
@@ -396,43 +401,52 @@ export default function CheckoutPage() {
           {/* Price Breakdown */}
           <div className="border-t pt-4 space-y-2">
             <div className="flex justify-between text-sm">
-              <span>Subtotal ({count} items)</span>
+              <span>
+                {t("checkout.summary.subtotal")} ({count}{" "}
+                {count === 1
+                  ? t("checkout.summary.item")
+                  : t("checkout.summary.items")}
+                )
+              </span>
               <span>{formatPrice(subtotal)}</span>
             </div>
 
             {saleDiscount > 0 && (
               <div className="flex justify-between text-sm text-red-600">
-                <span>Sale Discount</span>
+                <span>{t("checkout.summary.saleDiscount")}</span>
                 <span>-{formatPrice(saleDiscount)}</span>
               </div>
             )}
 
             {discountAmount > 0 && (
               <div className="flex justify-between text-sm text-red-600">
-                <span>Coupon Discount ({appliedDiscount?.code})</span>
+                <span>
+                  {t("checkout.summary.couponDiscount")} (
+                  {appliedDiscount?.code})
+                </span>
                 <span>-{formatPrice(discountAmount)}</span>
               </div>
             )}
 
             <div className="flex justify-between text-sm">
-              <span>Delivery</span>
+              <span>{t("checkout.summary.delivery")}</span>
               <span className={shippingCost === null ? "text-gray-500" : ""}>
                 {shippingCost === null
-                  ? "Select governorate"
+                  ? t("checkout.summary.selectGovernorate")
                   : shippingCost === 0
-                  ? "Free"
+                  ? t("checkout.summary.free")
                   : formatPrice(shippingCost)}
               </span>
             </div>
 
             <div className="border-t pt-2 flex justify-between font-semibold text-lg">
-              <span>Total</span>
+              <span>{t("checkout.summary.total")}</span>
               <span>{formatPrice(total)}</span>
             </div>
           </div>
 
           {/* Security Badge */}
-          <div className="mt-4 p-3 bg-green-50 border border-green-200 ">
+          <div className="mt-4 p-3 bg-green-50 border border-green-200">
             <div className="flex items-center justify-center gap-3">
               <svg
                 className="w-5 h-5 text-green-600 mr-2"
@@ -446,7 +460,7 @@ export default function CheckoutPage() {
                 />
               </svg>
               <span className="text-sm text-green-700">
-                Secure payment powered by Paymob
+                {t("checkout.securePayment")}
               </span>
             </div>
           </div>
