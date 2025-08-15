@@ -1,35 +1,9 @@
-import { useTranslations } from "next-intl";
+import {
+  EGYPT_GOVERNORATES_AR,
+  EGYPT_GOVERNORATES_EN,
+} from "@/constants/constants";
+import { useLocale, useTranslations } from "next-intl";
 import React from "react";
-
-const EGYPT_GOVERNORATES = [
-  "Alexandria",
-  "Assiut",
-  "Aswan",
-  "Beheira",
-  "Bani Suef",
-  "Cairo",
-  "Dakahlia",
-  "Damietta",
-  "Fayyoum",
-  "Gharbiya",
-  "Giza",
-  "Ismailia",
-  "Kafr El Sheikh",
-  "Luxor",
-  "Marsa Matrouh",
-  "Minya",
-  "Monofiya",
-  "New Valley",
-  "North Sinai",
-  "Port Said",
-  "Qalioubiya",
-  "Qena",
-  "Red Sea",
-  "Sharqiya",
-  "Sohag",
-  "South Sinai",
-  "Suez",
-];
 
 interface BillingData {
   email: string;
@@ -63,17 +37,22 @@ const BillingForm = ({
   handleInputChange,
   handleProceedToPayment,
 }: Props) => {
-  const  t  = useTranslations('checkout');
+  const t = useTranslations("checkout");
+
+  const locale = useLocale();
+  const isRTL = locale === "ar";
 
   return (
     <>
       <div className="bg-white p-6 shadow-sm border">
-        <h2 className="text-xl font-semibold mb-6">{t('billingInformation')}</h2>
+        <h2 className="text-xl font-semibold mb-6">
+          {t("billingInformation")}
+        </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium mb-2">
-              {t('billing.email')} {t('billing.required')}
+              {t("billing.email")} {t("billing.required")}
             </label>
             <input
               type="email"
@@ -81,14 +60,14 @@ const BillingForm = ({
               value={billingData.email}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={t('billing.emailPlaceholder')}
+              placeholder={t("billing.emailPlaceholder")}
               required
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-2">
-              {t('billing.phoneNumber')} {t('billing.required')}
+              {t("billing.phoneNumber")} {t("billing.required")}
             </label>
             <input
               type="tel"
@@ -96,17 +75,17 @@ const BillingForm = ({
               value={billingData.phoneNumber}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={t('billing.phoneNumberPlaceholder')}
+              placeholder={t("billing.phoneNumberPlaceholder")}
               required
             />
             <p className="text-xs text-gray-500 mt-1">
-              {t('billing.phoneFormat')}
+              {t("billing.phoneFormat")}
             </p>
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-2">
-              {t('billing.firstName')} {t('billing.required')}
+              {t("billing.firstName")} {t("billing.required")}
             </label>
             <input
               type="text"
@@ -114,14 +93,14 @@ const BillingForm = ({
               value={billingData.firstName}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={t('billing.firstNamePlaceholder')}
+              placeholder={t("billing.firstNamePlaceholder")}
               required
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-2">
-              {t('billing.lastName')} {t('billing.required')}
+              {t("billing.lastName")} {t("billing.required")}
             </label>
             <input
               type="text"
@@ -129,14 +108,14 @@ const BillingForm = ({
               value={billingData.lastName}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={t('billing.lastNamePlaceholder')}
+              placeholder={t("billing.lastNamePlaceholder")}
               required
             />
           </div>
 
           <div className="md:col-span-2">
             <label className="block text-sm font-medium mb-2">
-              {t('billing.streetAddress')} {t('billing.required')}
+              {t("billing.streetAddress")} {t("billing.required")}
             </label>
             <input
               type="text"
@@ -144,14 +123,14 @@ const BillingForm = ({
               value={billingData.street}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={t('billing.streetAddressPlaceholder')}
+              placeholder={t("billing.streetAddressPlaceholder")}
               required
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-2">
-              {t('billing.building')}
+              {t("billing.building")}
             </label>
             <input
               type="text"
@@ -159,13 +138,13 @@ const BillingForm = ({
               value={billingData.building}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={t('billing.buildingPlaceholder')}
+              placeholder={t("billing.buildingPlaceholder")}
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-2">
-              {t('billing.apartment')}
+              {t("billing.apartment")}
             </label>
             <input
               type="text"
@@ -173,13 +152,13 @@ const BillingForm = ({
               value={billingData.apartment}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={t('billing.apartmentPlaceholder')}
+              placeholder={t("billing.apartmentPlaceholder")}
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-2">
-              {t('billing.floor')}
+              {t("billing.floor")}
             </label>
             <input
               type="text"
@@ -187,13 +166,13 @@ const BillingForm = ({
               value={billingData.floor}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={t('billing.floorPlaceholder')}
+              placeholder={t("billing.floorPlaceholder")}
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-2">
-              {t('billing.city')} {t('billing.required')}
+              {t("billing.city")} {t("billing.required")}
             </label>
             <input
               type="text"
@@ -201,14 +180,14 @@ const BillingForm = ({
               value={billingData.city}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={t('billing.cityPlaceholder')}
+              placeholder={t("billing.cityPlaceholder")}
               required
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-2">
-              {t('billing.governorate')} {t('billing.required')}
+              {t("billing.governorate")} {t("billing.required")}
             </label>
             <select
               name="state"
@@ -217,18 +196,24 @@ const BillingForm = ({
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             >
-              <option value="">{t('billing.selectGovernorate')}</option>
-              {EGYPT_GOVERNORATES.map((gov) => (
-                <option key={gov} value={gov}>
-                  {gov}
-                </option>
-              ))}
+              <option value="">{t("billing.selectGovernorate")}</option>
+              {isRTL
+                ? EGYPT_GOVERNORATES_AR.map((gov) => (
+                    <option key={gov} value={gov}>
+                      {gov}
+                    </option>
+                  ))
+                : EGYPT_GOVERNORATES_EN.map((gov) => (
+                    <option key={gov} value={gov}>
+                      {gov}
+                    </option>
+                  ))}
             </select>
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-2">
-              {t('billing.postalCode')}
+              {t("billing.postalCode")}
             </label>
             <input
               type="text"
@@ -236,13 +221,13 @@ const BillingForm = ({
               value={billingData.postalCode}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder={t('billing.postalCodePlaceholder')}
+              placeholder={t("billing.postalCodePlaceholder")}
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-2">
-              {t('billing.country')}
+              {t("billing.country")}
             </label>
             <select
               name="country"
@@ -269,10 +254,10 @@ const BillingForm = ({
           {loading ? (
             <div className="flex items-center gap-2 justify-center">
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-              {t('billing.processing')}
+              {t("billing.processing")}
             </div>
           ) : (
-            t('billing.proceedToPayment')
+            t("billing.proceedToPayment")
           )}
         </button>
       </div>
