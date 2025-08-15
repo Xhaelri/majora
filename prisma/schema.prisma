@@ -57,18 +57,15 @@ model User {
   emailVerified DateTime?
   image         String?
   name          String?
-  anonymousId   String?   @unique
-  isGuest       Boolean   @default(true)
+
   accounts      Account[]
   cart          Cart?
   orders        Order[]
   reviews       Review[]
   // sessions      Session[]
-
   // Performance indexes
   @@index([createdAt])
-  @@index([isGuest])
-  @@index([email, isGuest]) // Composite for user lookups
+
 }
 
 

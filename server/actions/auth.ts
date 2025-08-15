@@ -192,7 +192,7 @@ export async function loginAction(
       where: { email },
     });
 
-    if (!user || !user.password || user.isGuest) {
+    if (!user || !user.password) {
       return {
         values: formValues,
         message: t("errors.invalidCredentials"),
@@ -283,7 +283,7 @@ export async function signupAction(
       where: { email },
     });
 
-    if (existingUser && !existingUser.isGuest) {
+    if (existingUser) {
       return {
         values: formValues,
         message: t("errors.userExists"),
@@ -300,7 +300,6 @@ export async function signupAction(
         email,
         password: hashedPassword,
         name: `${firstName} ${lastName}`,
-        isGuest: false, 
       },
     });
 
