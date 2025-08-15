@@ -1,6 +1,6 @@
 "use server";
 
-import { updateUserDetailsAction } from "@/server/db/prisma";
+import { updateUserDetailsAction } from "@/server/db-actions/prisma";
 import { revalidatePath } from "next/cache";
 
 interface UserData {

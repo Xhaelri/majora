@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/prisma";
 import { auth } from "@/auth";
-import { getCartDataForAuthUser } from "./cart";
+import { getCartDataForAuthUser } from "./cart-actions";
 
 interface BillingData {
   email: string;

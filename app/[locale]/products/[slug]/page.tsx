@@ -1,11 +1,11 @@
-import {  getProductBySlug } from "@/server/db/prisma";
+import { getProductBySlug } from "@/server/db-actions/prisma";
 import { notFound } from "next/navigation";
 import ProductDetails from "./ProductDetails";
 // import { routing } from "@/i18n/routing";
 
 // export async function generateStaticParams() {
 //   try {
-//     const slugs = await getAllProductSlugs(); 
+//     const slugs = await getAllProductSlugs();
 
 //     const params = [];
 //     // Generate params for all locale/slug combinations
@@ -17,7 +17,7 @@ import ProductDetails from "./ProductDetails";
 //         });
 //       }
 //     }
-    
+
 //     return params;
 //   } catch (error) {
 //     console.error("Error generating static params:", error);
@@ -49,7 +49,9 @@ export async function generateMetadata({ params }: Props) {
       title: product.name,
       description: product.description,
       openGraph: {
-        images: product.variants?.[0]?.images?.[0] ? [product.variants[0].images[0]] : [],
+        images: product.variants?.[0]?.images?.[0]
+          ? [product.variants[0].images[0]]
+          : [],
       },
     };
   } catch (error) {

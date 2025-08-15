@@ -2,7 +2,7 @@ import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/tailwind-utils";
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap  text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
@@ -27,11 +27,11 @@ const buttonVariants = cva(
           "bg-transparent text-primary text-lg font-light shadow-xs cursor-pointer tracking-widest uppercase",
         color:
           "bg-transparent text-primary rounded-full text-sm font-light shadow-xs disabled:pointer-events-none disabled:line-through disabled:opacity-50 [&_svg]:pointer-events-none cursor-pointer tracking-widest uppercase",
-          cartAdd:
+        cartAdd:
           "bg-transparent text-primary text-sm font-normal shadow-xs border-1 border-primary disabled:pointer-events-none  disabled:opacity-50 [&_svg]:pointer-events-none cursor-pointer tracking-widest uppercase",
-          cartBuyNow:
+        cartBuyNow:
           "bg-primary text-secondary text-sm font-normal shadow-xs border-1 border-primary disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none cursor-pointer tracking-widest uppercase",
-          filter:
+        filter:
           "bg-transparent text-primary flex w-full font-light items-center justify-start whitespace-nowrap cursor-pointer border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
       },
       size: {

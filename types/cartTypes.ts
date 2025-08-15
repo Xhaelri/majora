@@ -1,4 +1,4 @@
-import { CartItemWithProduct } from "@/lib/cart-utils";
+import { CartItemWithProduct } from "@/utils/cart-utils";
 
 export type CartItem = CartItemWithProduct;
 

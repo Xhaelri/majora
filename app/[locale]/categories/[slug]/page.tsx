@@ -2,12 +2,12 @@ import CardGrid from "@/components/ui-custom/CardGrid";
 import {
   getCategoryBySlug,
   getProductsByCategory,
-} from "@/server/db/prisma";
+} from "@/server/db-actions/prisma";
 import {
   processProducts,
   SortOption,
   FilterOptions,
-} from "@/lib/product-utils";
+} from "@/utils/product-utils";
 import React from "react";
 import { default as Filtering } from "../components/FilterOptions";
 

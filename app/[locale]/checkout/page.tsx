@@ -1,7 +1,7 @@
 // checkout/page.tsx
 import React from "react";
 import Checkout from "./components/CheckOut";
-import { getCartDataForAuthUser } from "../../../server/actions/cart";
+import { getCartDataForAuthUser } from "../../../server/actions/cart-actions";
 import { redirect } from "next/navigation";
 
 export default async function CheckoutPage() {

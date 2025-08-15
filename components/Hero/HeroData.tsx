@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { Button } from "../ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/tailwind-utils";
 import { motion, easeOut } from "framer-motion";
 import { useLocale } from "next-intl";
 
@@ -82,26 +82,27 @@ function HeroData({ button, title, desc, variant }: HeroDataProps) {
   };
 
   return (
-<motion.div
-  variants={containerVariants}
-  initial="hidden"
-  animate="visible"
-  exit="exit"
-  className={cn(
-    "absolute z-10 p-4 text-secondary",
-    variant === "center"
-      ? "flex flex-col items-center justify-center inset-0"
-      : isRTL
-      ? "right-0 bottom-10 items-end text-right"
-      : "left-0 bottom-10 items-start text-left"
-  )}
->
-
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      className={cn(
+        "absolute z-10 p-4 text-secondary",
+        variant === "center"
+          ? "flex flex-col items-center justify-center inset-0"
+          : isRTL
+          ? "right-0 bottom-10 items-end text-right"
+          : "left-0 bottom-10 items-start text-left"
+      )}
+    >
       <div className="relative">
         <div className=" w-20 h-0  rounded-full shadow-[0_0_160px_80px_rgba(0,0,0,0.7)] absolute inset-0 mx-auto my-auto -z-10"></div>
         <motion.h1
           variants={childVariants}
-          className={`text-5xl  md:text-7xl font-extralight mb-2 relative ${isRTL && "mb-5"}`}
+          className={`text-5xl  md:text-7xl font-extralight mb-2 relative ${
+            isRTL && "mb-5"
+          }`}
         >
           {title}
         </motion.h1>
@@ -116,8 +117,7 @@ function HeroData({ button, title, desc, variant }: HeroDataProps) {
         <Button
           variant="hero"
           size="hero"
-          className="tracking-widest text-md cursor-pointer" 
-        
+          className="tracking-widest text-md cursor-pointer"
         >
           {button}
         </Button>

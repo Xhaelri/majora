@@ -7,7 +7,7 @@ import { useActionState, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import React from "react";
 import { useFormStatus } from "react-dom";
-import { loginAction, type LoginState } from "@/server/actions/auth";
+import { loginAction, type LoginState } from "@/server/actions/auth-actions";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { useCart } from "@/context/CartContext";
@@ -24,8 +24,8 @@ function Form() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { update } = useSession();
-  const t = useTranslations('auth.signin');
-  
+  const t = useTranslations("auth.signin");
+
   // Use ref to track if we've already handled this success
   const processedSuccess = useRef(false);
 
@@ -37,25 +37,25 @@ function Form() {
     const handleLoginSuccess = async () => {
       if (state.success && !processedSuccess.current) {
         processedSuccess.current = true;
-        
+
         toast.custom(() => (
           <div className="bg-black text-white w-full px-4 py-3 text-sm rounded-none flex items-center justify-center gap-2">
             <Check />
-            <p className="font-semibold uppercase">{t('loginSuccessful')}</p>
+            <p className="font-semibold uppercase">{t("loginSuccessful")}</p>
           </div>
         ));
-        
+
         refreshCart();
-        
+
         try {
           await update();
         } catch (error) {
-          console.error('Session update failed:', error);
+          console.error("Session update failed:", error);
         }
-        
+
         // Check for callback URL first, then use state redirect, then default
-        const callbackUrl = searchParams.get('callbackUrl');
-        const redirectUrl = callbackUrl || state.redirect || '/account';
+        const callbackUrl = searchParams.get("callbackUrl");
+        const redirectUrl = callbackUrl || state.redirect || "/account";
         router.push(redirectUrl);
       }
     };
@@ -65,7 +65,7 @@ function Form() {
     } else if (state.message && state.toastType === "error") {
       toast.error(state.message);
     }
-    
+
     if (!state.success) {
       processedSuccess.current = false;
     }
@@ -78,19 +78,19 @@ function Form() {
     searchParams,
     router,
     refreshCart,
-    update
+    update,
   ]);
 
   return (
     <div className="w-full lg:px-20">
       <form action={dispatch} noValidate className="w-full space-y-4">
         {/* Hidden input to pass callbackUrl to server action */}
-        <input 
-          type="hidden" 
-          name="callbackUrl" 
-          value={searchParams.get('callbackUrl') || ''} 
+        <input
+          type="hidden"
+          name="callbackUrl"
+          value={searchParams.get("callbackUrl") || ""}
         />
-        
+
         <div>
           <div className="relative flex gap-2 items-center rounded-md border focus-within:ring-1 focus-within:ring-ring pl-2">
             <Mail className="h-5 w-5 text-muted-foreground" />
@@ -98,7 +98,7 @@ function Form() {
               id="email"
               name="email"
               type="email"
-              placeholder={t('email')}
+              placeholder={t("email")}
               className="border-0 focus-visible:ring-0 shadow-none"
               aria-describedby="email-error"
               defaultValue={state?.values?.email || ""}
@@ -121,7 +121,7 @@ function Form() {
               id="password"
               name="password"
               type={showPassword ? "text" : "password"}
-              placeholder={t('password')}
+              placeholder={t("password")}
               className="border-0 focus-visible:ring-0 shadow-none"
               aria-describedby="password-error"
               defaultValue={state?.values?.password || ""}
@@ -150,7 +150,7 @@ function Form() {
           size={"login"}
           disabled={pending}
         >
-          {pending ? t('loggingIn') : t('login')}
+          {pending ? t("loggingIn") : t("login")}
         </Button>
       </form>
     </div>

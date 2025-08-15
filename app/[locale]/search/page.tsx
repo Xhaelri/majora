@@ -8,19 +8,21 @@ import {
   FilterOptions,
   processProducts,
   SortOption,
-} from "@/lib/product-utils";
+} from "@/utils/product-utils";
 import { getTranslations } from "next-intl/server";
-
 
 export async function generateMetadata({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-    const resolvedSearchParams = await searchParams;
+  const resolvedSearchParams = await searchParams;
 
   const t = await getTranslations("common"); // Use 'common' namespace
-  const query = typeof resolvedSearchParams.q === "string" ? resolvedSearchParams.q.trim() : "";
+  const query =
+    typeof resolvedSearchParams.q === "string"
+      ? resolvedSearchParams.q.trim()
+      : "";
   const title = query ? `${t("searchResults")} "${query}"` : t("search");
 
   return {
@@ -34,7 +36,7 @@ export default async function SearchPage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-      const resolvedSearchParams = await searchParams;
+  const resolvedSearchParams = await searchParams;
 
   const t = await getTranslations("common"); // Use 'common' namespace
   const rawQuery = resolvedSearchParams["q"];
@@ -62,37 +64,36 @@ export default async function SearchPage({
     };
   }
 
-const products = await db.product.findMany({
-  where: {
-    OR: [
-      {
-        name: {
-          contains: query,
-          mode: "insensitive",
+  const products = await db.product.findMany({
+    where: {
+      OR: [
+        {
+          name: {
+            contains: query,
+            mode: "insensitive",
+          },
         },
-      },
-      {
-        nameAr: {
-          contains: query,
-          mode: "insensitive",
+        {
+          nameAr: {
+            contains: query,
+            mode: "insensitive",
+          },
         },
-      },
-    ],
-  },
-  include: {
-    category: true,
-    variants: {
-      include: {
-        size: true,
-        color: true,
-        images: true,
-        product: true,
-      },
+      ],
     },
-    reviews: true,
-  },
-});
-
+    include: {
+      category: true,
+      variants: {
+        include: {
+          size: true,
+          color: true,
+          images: true,
+          product: true,
+        },
+      },
+      reviews: true,
+    },
+  });
 
   const processedProducts = processProducts(products, sortOption, filters);
 

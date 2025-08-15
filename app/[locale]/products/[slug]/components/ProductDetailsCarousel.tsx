@@ -7,7 +7,7 @@ import {
   CarouselItem,
   type CarouselApi,
 } from "@/components/ui/carouselProduct";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/tailwind-utils";
 import Image from "next/image";
 import useMediaQuery from "@/hooks/useMediaQuery";
 import { ImageDialog } from "@/components/ui-custom/ImageDialog";

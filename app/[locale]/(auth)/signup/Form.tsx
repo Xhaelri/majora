@@ -5,7 +5,7 @@ import { useActionState, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import React from "react";
 import { useFormStatus } from "react-dom";
-import { signupAction, type SignupState } from "@/server/actions/auth";
+import { signupAction, type SignupState } from "@/server/actions/auth-actions";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -16,7 +16,7 @@ function Form() {
   const [showPassword, setShowPassword] = useState(false);
   const [state, dispatch] = useActionState(signupAction, initialState);
   const { pending } = useFormStatus();
-  const t = useTranslations('auth.signup');
+  const t = useTranslations("auth.signup");
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -30,8 +30,8 @@ function Form() {
         toast.success(state.message);
         if (state.redirect) {
           // Pass callbackUrl to signin page if it exists
-          const callbackUrl = searchParams.get('callbackUrl');
-          const redirectUrl = callbackUrl 
+          const callbackUrl = searchParams.get("callbackUrl");
+          const redirectUrl = callbackUrl
             ? `${state.redirect}?callbackUrl=${encodeURIComponent(callbackUrl)}`
             : state.redirect;
           router.push(redirectUrl);
@@ -46,12 +46,12 @@ function Form() {
     <form action={dispatch} noValidate className="w-full lg:px-20">
       <div className="w-full space-y-4">
         {/* Hidden input to pass callbackUrl to server action */}
-        <input 
-          type="hidden" 
-          name="callbackUrl" 
-          value={searchParams.get('callbackUrl') || ''} 
+        <input
+          type="hidden"
+          name="callbackUrl"
+          value={searchParams.get("callbackUrl") || ""}
         />
-        
+
         <div className="flex w-full justify-center gap-2 items-start">
           <div className="w-full">
             <div className="relative flex gap-2 items-center rounded-md border focus-within:ring-1 focus-within:ring-ring pl-2">
@@ -60,7 +60,7 @@ function Form() {
                 id="firstName"
                 name="firstName"
                 type="text"
-                placeholder={t('firstName')}
+                placeholder={t("firstName")}
                 className="border-0 focus-visible:ring-0 shadow-none"
                 aria-describedby="firstName-error"
                 defaultValue={state?.values?.firstName || ""}
@@ -83,7 +83,7 @@ function Form() {
                 id="lastName"
                 name="lastName"
                 type="text"
-                placeholder={t('lastName')}
+                placeholder={t("lastName")}
                 className="border-0 focus-visible:ring-0 shadow-none"
                 aria-describedby="lastName-error"
                 defaultValue={state?.values?.lastName || ""}
@@ -107,7 +107,7 @@ function Form() {
               id="email"
               name="email"
               type="email"
-              placeholder={t('email')}
+              placeholder={t("email")}
               className="border-0 focus-visible:ring-0 shadow-none"
               aria-describedby="email-error"
               defaultValue={state?.values?.email || ""}
@@ -130,7 +130,7 @@ function Form() {
               id="password"
               name="password"
               type={showPassword ? "text" : "password"}
-              placeholder={t('password')}
+              placeholder={t("password")}
               className="border-0 focus-visible:ring-0 shadow-none"
               aria-describedby="password-error"
               defaultValue={state?.values?.password || ""}
@@ -159,7 +159,7 @@ function Form() {
           size={"login"}
           disabled={pending}
         >
-          {pending ? t('signingUp') : t('signUp')}
+          {pending ? t("signingUp") : t("signUp")}
         </Button>
       </div>
     </form>

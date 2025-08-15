@@ -15,7 +15,7 @@ import {
   removeFromCart,
   mergeLocalStorageCart,
   getProductVariants,
-} from "@/server/actions/cart";
+} from "@/server/actions/cart-actions";
 import { useSession } from "next-auth/react";
 import { CartItem, CartState, LocalCartItem } from "@/types/cartTypes";
 
@@ -186,30 +186,30 @@ export default function CartProvider({ children }: { children: ReactNode }) {
 
   // Helper function to apply optimistic update for authenticated users
   const applyOptimisticUpdate = (
-    operation: 'add' | 'update' | 'remove',
+    operation: "add" | "update" | "remove",
     productVariantId: string,
     quantity?: number
   ) => {
     setCartState((prev) => {
       const items = [...prev.items];
       const existingIndex = items.findIndex(
-        item => item.productVariant.id === productVariantId
+        (item) => item.productVariant.id === productVariantId
       );
 
       switch (operation) {
-        case 'add':
+        case "add":
           if (existingIndex >= 0) {
             // Update existing item
             items[existingIndex] = {
               ...items[existingIndex],
-              quantity: items[existingIndex].quantity + (quantity || 1)
+              quantity: items[existingIndex].quantity + (quantity || 1),
             };
           }
           // Note: For new items, we'd need product data which we don't have immediately
           // So we'll only do optimistic updates for existing items in add operation
           break;
 
-        case 'update':
+        case "update":
           if (existingIndex >= 0) {
             if ((quantity || 0) <= 0) {
               // Remove item
@@ -218,13 +218,13 @@ export default function CartProvider({ children }: { children: ReactNode }) {
               // Update quantity
               items[existingIndex] = {
                 ...items[existingIndex],
-                quantity: quantity || 0
+                quantity: quantity || 0,
               };
             }
           }
           break;
 
-        case 'remove':
+        case "remove":
           if (existingIndex >= 0) {
             items.splice(existingIndex, 1);
           }
@@ -234,7 +234,7 @@ export default function CartProvider({ children }: { children: ReactNode }) {
       return {
         ...prev,
         items,
-        error: null
+        error: null,
       };
     });
   };
@@ -252,22 +252,22 @@ export default function CartProvider({ children }: { children: ReactNode }) {
     quantity: number
   ) => {
     setCartState((prev) => ({ ...prev, error: null }));
-    
+
     if (session?.user) {
       // Authenticated user - apply optimistic update first
       const existingItem = cartState.items.find(
-        item => item.productVariant.id === productVariantId
+        (item) => item.productVariant.id === productVariantId
       );
 
       // Only apply optimistic update if item already exists (we have the product data)
       if (existingItem) {
-        applyOptimisticUpdate('add', productVariantId, quantity);
+        applyOptimisticUpdate("add", productVariantId, quantity);
       }
 
       try {
         // Perform server operation
         const result = await addToCart(productVariantId, quantity);
-        
+
         if (result.success && result.updatedItems) {
           // Server operation succeeded - update with server data
           setCartState((prev) => ({ ...prev, items: result.updatedItems }));
@@ -295,7 +295,7 @@ export default function CartProvider({ children }: { children: ReactNode }) {
         const existingItemIndex = localCart.findIndex(
           (item) => item.productVariantId === productVariantId
         );
-        
+
         let updatedLocalCart: LocalCartItem[];
         if (existingItemIndex >= 0) {
           updatedLocalCart = localCart.map((item) =>
@@ -306,14 +306,14 @@ export default function CartProvider({ children }: { children: ReactNode }) {
         } else {
           updatedLocalCart = [...localCart, { productVariantId, quantity }];
         }
-        
+
         setLocalStorageCart(updatedLocalCart);
-        
+
         // Update UI state immediately
         const existingCartItemIndex = cartState.items.findIndex(
-          item => item.productVariant.id === productVariantId
+          (item) => item.productVariant.id === productVariantId
         );
-        
+
         if (existingCartItemIndex >= 0) {
           // Item exists in cart - just update quantity
           setCartState((prev) => ({
@@ -343,15 +343,18 @@ export default function CartProvider({ children }: { children: ReactNode }) {
     newQuantity: number
   ) => {
     setCartState((prev) => ({ ...prev, error: null }));
-    
+
     if (session?.user) {
       // Authenticated user - apply optimistic update first
-      applyOptimisticUpdate('update', productVariantId, newQuantity);
+      applyOptimisticUpdate("update", productVariantId, newQuantity);
 
       try {
         // Perform server operation
-        const result = await updateCartItemQuantity(productVariantId, newQuantity);
-        
+        const result = await updateCartItemQuantity(
+          productVariantId,
+          newQuantity
+        );
+
         if (result.success && result.updatedItems) {
           // Server operation succeeded - update with server data
           setCartState((prev) => ({ ...prev, items: result.updatedItems }));
@@ -376,7 +379,7 @@ export default function CartProvider({ children }: { children: ReactNode }) {
       try {
         // Get current localStorage cart
         const currentLocalCart = getLocalStorageCart();
-        
+
         // Update localStorage first
         let updatedLocalCart: LocalCartItem[];
         if (newQuantity <= 0) {
@@ -392,7 +395,7 @@ export default function CartProvider({ children }: { children: ReactNode }) {
               : item
           );
         }
-        
+
         // Save to localStorage
         setLocalStorageCart(updatedLocalCart);
 
@@ -428,15 +431,15 @@ export default function CartProvider({ children }: { children: ReactNode }) {
 
   const removeFromCartContext = async (productVariantId: string) => {
     setCartState((prev) => ({ ...prev, error: null }));
-    
+
     if (session?.user) {
       // Authenticated user - apply optimistic update first
-      applyOptimisticUpdate('remove', productVariantId);
+      applyOptimisticUpdate("remove", productVariantId);
 
       try {
         // Perform server operation
         const result = await removeFromCart(productVariantId);
-        
+
         if (result.success && result.updatedItems) {
           // Server operation succeeded - update with server data
           setCartState((prev) => ({ ...prev, items: result.updatedItems }));
@@ -464,10 +467,10 @@ export default function CartProvider({ children }: { children: ReactNode }) {
         const updatedLocalCart = currentLocalCart.filter(
           (item) => item.productVariantId !== productVariantId
         );
-        
+
         // Save updated cart to localStorage
         setLocalStorageCart(updatedLocalCart);
-        
+
         // Update UI state immediately
         setCartState((prev) => ({
           ...prev,

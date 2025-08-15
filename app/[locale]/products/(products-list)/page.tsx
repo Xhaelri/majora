@@ -1,5 +1,5 @@
 import CardGrid from "@/components/ui-custom/CardGrid";
-import { getAllProducts } from "@/server/db/prisma";
+import { getAllProducts } from "@/server/db-actions/prisma";
 import React from "react";
 
 const page = async () => {

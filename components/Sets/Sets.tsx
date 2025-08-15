@@ -4,7 +4,7 @@ import { Button } from "../ui/button";
 import CardGrid from "../ui-custom/CardGrid";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { getProductsByCategory } from "@/server/db/prisma";
+import { getProductsByCategory } from "@/server/db-actions/prisma";
 
 const Sets = async () => {
   const products = await getProductsByCategory("sets");

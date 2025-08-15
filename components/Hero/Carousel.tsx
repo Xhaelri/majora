@@ -8,7 +8,7 @@ import {
   CarouselItem,
   type CarouselApi,
 } from "@/components/ui/carousel";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/tailwind-utils";
 import Image from "next/image";
 import { heroImages, heroData } from "@/constants/constants";
 import { AnimatePresence } from "framer-motion";
@@ -70,15 +70,13 @@ export default function CarouselWithPagination() {
                   />
                   <AnimatePresence mode="wait">
                     <div className="container relative z-10 h-full w-full">
-                        <HeroData
-                          key={current}
-                          button={t(heroData[index]?.button) || "SHOP"}
-                          title={t(heroData[index]?.title)}
-                          desc={
-                            heroData[index]?.desc && t(heroData[index]?.desc)
-                          }
-                          variant={heroData[index]?.variant}
-                        /> 
+                      <HeroData
+                        key={current}
+                        button={t(heroData[index]?.button) || "SHOP"}
+                        title={t(heroData[index]?.title)}
+                        desc={heroData[index]?.desc && t(heroData[index]?.desc)}
+                        variant={heroData[index]?.variant}
+                      />
                     </div>
                   </AnimatePresence>
                 </CardContent>

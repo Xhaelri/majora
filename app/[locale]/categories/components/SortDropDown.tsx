@@ -7,7 +7,7 @@ import {
   SelectLabel,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/tailwind-utils";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { ChevronDown } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -15,7 +15,7 @@ import { useCallback } from "react";
 import { useTranslations } from "next-intl";
 
 export default function SortDropDown() {
-  const t = useTranslations('sort');
+  const t = useTranslations("sort");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -41,21 +41,21 @@ export default function SortDropDown() {
           "w-44"
         )}
       >
-        <SelectValue placeholder={t('sortBy')} />
+        <SelectValue placeholder={t("sortBy")} />
         <SelectPrimitive.Icon asChild>
           <ChevronDown className="h-4 w-4 opacity-50" />
         </SelectPrimitive.Icon>
       </SelectPrimitive.Trigger>
       <SelectContent>
         <SelectGroup>
-          <SelectLabel>{t('sortingOptions')}</SelectLabel>
-          <SelectItem value="featured">{t('featured')}</SelectItem>
-          <SelectItem value="name-asc">{t('nameAsc')}</SelectItem>
-          <SelectItem value="name-desc">{t('nameDesc')}</SelectItem>
-          <SelectItem value="price-asc">{t('priceAsc')}</SelectItem>
-          <SelectItem value="price-desc">{t('priceDesc')}</SelectItem>
-          <SelectItem value="date-desc">{t('dateDesc')}</SelectItem>
-          <SelectItem value="date-asc">{t('dateAsc')}</SelectItem>
+          <SelectLabel>{t("sortingOptions")}</SelectLabel>
+          <SelectItem value="featured">{t("featured")}</SelectItem>
+          <SelectItem value="name-asc">{t("nameAsc")}</SelectItem>
+          <SelectItem value="name-desc">{t("nameDesc")}</SelectItem>
+          <SelectItem value="price-asc">{t("priceAsc")}</SelectItem>
+          <SelectItem value="price-desc">{t("priceDesc")}</SelectItem>
+          <SelectItem value="date-desc">{t("dateDesc")}</SelectItem>
+          <SelectItem value="date-asc">{t("dateAsc")}</SelectItem>
         </SelectGroup>
       </SelectContent>
     </Select>
