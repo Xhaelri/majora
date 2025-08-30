@@ -1,31 +1,7 @@
-import { getProductBySlug } from "@/server/db-actions/prisma";
 import { notFound } from "next/navigation";
 import ProductDetails from "./ProductDetails";
-// import { routing } from "@/i18n/routing";
+import { getProductBySlug } from "@/server/db-actions/product-actions";
 
-// export async function generateStaticParams() {
-//   try {
-//     const slugs = await getAllProductSlugs();
-
-//     const params = [];
-//     // Generate params for all locale/slug combinations
-//     for (const locale of routing.locales) {
-//       for (const slug of slugs) {
-//         params.push({
-//           locale: locale,
-//           slug: slug,
-//         });
-//       }
-//     }
-
-//     return params;
-//   } catch (error) {
-//     console.error("Error generating static params:", error);
-//     return [];
-//   }
-// }
-
-// Update Props to match your URL structure
 type Props = {
   params: Promise<{
     locale: string;
@@ -36,14 +12,16 @@ type Props = {
 export async function generateMetadata({ params }: Props) {
   try {
     const { slug } = await params;
-    const product = await getProductBySlug(slug);
+    const result = await getProductBySlug(slug);
 
-    if (!product) {
+    if (!result.success || !result.data) {
       return {
         title: "Product Not Found",
         description: "The requested product could not be found.",
       };
     }
+
+    const product = result.data;
 
     return {
       title: product.name,
@@ -66,13 +44,13 @@ export async function generateMetadata({ params }: Props) {
 const ProductPage = async ({ params }: Props) => {
   try {
     const { slug } = await params;
-    const product = await getProductBySlug(slug);
+    const result = await getProductBySlug(slug);
 
-    if (!product) {
+    if (!result.success || !result.data) {
       notFound();
     }
 
-    return <ProductDetails product={product} />;
+    return <ProductDetails product={result.data} />;
   } catch (error) {
     console.error("Error loading product:", error);
     throw error;

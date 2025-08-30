@@ -4,16 +4,15 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import AvailabilityPing from "@/components/ui-custom/Availability";
-import { FullProduct } from "@/types/product"; // <-- Import new types
 import formatPrice from "@/utils/formatPrice";
 import ProductDetailsCarousel from "./components/ProductDetailsCarousel";
 import AddToCartButton from "./components/AddToCartButton";
 import { useLocale, useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import BuyNowButton from "./components/BuyNowButton";
+import { FullProduct } from "@/types/product-types";
 
-// Define the variant type based on your FullProduct structure
-type ProductVariant = FullProduct['variants'][0];
+type ProductVariant = FullProduct["variants"][0];
 
 type Props = {
   product: FullProduct;
@@ -23,28 +22,21 @@ const ProductDetails = ({ product }: Props) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const t = useTranslations();
-  // Fix: Use proper type instead of null
-  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
 
-  // Effect to initialize state and sync FROM the URL (e.g., on load or back/forward)
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant>();
+
   useEffect(() => {
     const variantId = searchParams.get("variant");
     let initialVariant: ProductVariant | undefined;
 
     if (variantId) {
-      initialVariant = product.variants.find(
-        (v) => v.id === variantId
-      );
+      initialVariant = product.variants.find((v) => v.id === variantId);
     }
 
-    // If no valid variant in URL, find the first available one
     if (!initialVariant) {
-      initialVariant = product.variants.find(
-        (v) => v.stock > 0
-      );
+      initialVariant = product.variants.find((v) => v.stock > 0);
     }
 
-    // If all are out of stock, default to the first variant
     if (!initialVariant && product.variants.length > 0) {
       initialVariant = product.variants[0];
     }
@@ -54,56 +46,51 @@ const ProductDetails = ({ product }: Props) => {
     }
   }, [product.variants, searchParams]);
 
-  // Effect to sync state TO the URL when the user makes a selection
   useEffect(() => {
     if (selectedVariant && selectedVariant.id !== searchParams.get("variant")) {
       router.replace(`?variant=${selectedVariant.id}`, { scroll: false });
     }
   }, [selectedVariant, router, searchParams]);
 
-  // Memoize derived values for performance
-  const uniqueSizes = useMemo(
-    () =>
-      Array.from(
-        new Map(
-          product.variants.map((v) => [v.size.id, v.size])
-        ).values()
-      ),
-    [product.variants]
-  );
+  // Get unique sizes from variants (now working with string values)
+  const uniqueSizes = useMemo(() => {
+    const sizeSet = new Set<string>();
+    product.variants.forEach(variant => {
+      sizeSet.add(variant.size);
+    });
+    return Array.from(sizeSet);
+  }, [product.variants]);
 
-  const getAvailableColorsForSize = (sizeId: string) =>
-    Array.from(
-      new Map(
-        product.variants
-          .filter((v) => v.size.id === sizeId)
-          .map((v) => [v.color.id, v.color])
-      ).values()
-    );
+  // Get available colors for a specific size
+  const getAvailableColorsForSize = (size: string) => {
+    const colorSet = new Set<string>();
+    product.variants
+      .filter((v) => v.size === size)
+      .forEach(variant => {
+        colorSet.add(variant.color);
+      });
+    return Array.from(colorSet);
+  };
 
-  const handleSizeClick = (sizeId: string) => {
+  const handleSizeClick = (size: string) => {
     const variant =
       product.variants.find(
         (v) =>
-          v.size.id === sizeId &&
-          v.color.id === selectedVariant?.color.id &&
+          v.size === size &&
+          v.color === selectedVariant?.color &&
           v.stock > 0
-      ) ||
-      product.variants.find(
-        (v) =>
-          v.size.id === sizeId && v.stock > 0
-      );
+      ) || product.variants.find((v) => v.size === size && v.stock > 0);
 
     if (variant) {
       setSelectedVariant(variant);
     }
   };
 
-  const handleColorClick = (colorId: string) => {
+  const handleColorClick = (color: string) => {
     const variant = product.variants.find(
       (v) =>
-        v.color.id === colorId &&
-        v.size.id === selectedVariant?.size.id &&
+        v.color === color &&
+        v.size === selectedVariant?.size &&
         v.stock > 0
     );
     if (variant) {
@@ -111,7 +98,6 @@ const ProductDetails = ({ product }: Props) => {
     }
   };
 
-  // Derive images and price from the current state
   const imagesForCarousel = selectedVariant?.images ?? [];
   const discountAmount = product.salePrice
     ? product.price - product.salePrice
@@ -163,22 +149,22 @@ const ProductDetails = ({ product }: Props) => {
               <div className="space-x-3">
                 {uniqueSizes.map((size) => {
                   const isDisabled = !product.variants.some(
-                    (v) => v.size.id === size.id && v.stock > 0
+                    (v) => v.size === size && v.stock > 0
                   );
                   return (
                     <Button
-                      key={size.id}
+                      key={size}
                       variant="stock"
                       size="stock"
-                      onClick={() => handleSizeClick(size.id)}
+                      onClick={() => handleSizeClick(size)}
                       className={`${
-                        selectedVariant?.size.id === size.id
+                        selectedVariant?.size === size
                           ? "bg-foreground text-secondary"
                           : ""
                       } ${isRTL ? "w-fit" : ""}`}
                       disabled={isDisabled}
                     >
-                      {isRTL && size.nameAr ? size.nameAr : size.name}
+                      {size}
                     </Button>
                   );
                 })}
@@ -191,28 +177,28 @@ const ProductDetails = ({ product }: Props) => {
                   {t("product.color")}
                 </h1>
                 <div className="space-x-3">
-                  {getAvailableColorsForSize(selectedVariant.size.id).map(
+                  {getAvailableColorsForSize(selectedVariant.size).map(
                     (color) => {
                       const isDisabled = !product.variants.some(
                         (v) =>
-                          v.size.id === selectedVariant.size.id &&
-                          v.color.id === color.id &&
+                          v.size === selectedVariant.size &&
+                          v.color === color &&
                           v.stock > 0
                       );
                       return (
                         <Button
-                          key={color.id}
+                          key={color}
                           variant="color"
                           size="color"
-                          onClick={() => handleColorClick(color.id)}
+                          onClick={() => handleColorClick(color)}
                           className={`w-fit ${
-                            selectedVariant?.color.id === color.id
+                            selectedVariant?.color === color
                               ? "bg-foreground text-secondary"
                               : ""
                           }`}
                           disabled={isDisabled}
                         >
-                          {isRTL && color.nameAr ? color.nameAr : color.name}
+                          {color}
                         </Button>
                       );
                     }

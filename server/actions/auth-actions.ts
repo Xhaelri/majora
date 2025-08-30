@@ -300,6 +300,7 @@ export async function signupAction(
         email,
         password: hashedPassword,
         name: `${firstName} ${lastName}`,
+        role: "USER",
       },
     });
 

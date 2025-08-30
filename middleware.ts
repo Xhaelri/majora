@@ -49,45 +49,57 @@ export default async function middleware(request: NextRequest) {
     (page) => pathWithoutLocale.startsWith(page) || pathWithoutLocale === page
   );
 
-  // Only do auth checks if we're on auth or protected pages
-  if (isAuthPage || isProtectedPage) {
+  // Check for admin routes
+  const isAdminPage = pathWithoutLocale.startsWith("/admin");
+
+  if (isAuthPage || isProtectedPage || isAdminPage) {
     try {
       const session = await auth();
 
+      // Redirect authenticated users away from auth pages
       if (isAuthPage && session?.user) {
-        // Authenticated user trying to access login/signup
-        return NextResponse.redirect(
-          new URL(`/${locale}/account`, request.url)
-        );
+        const redirectTo = session.user.role === "ADMIN" || session.user.role === "SUPER_ADMIN" 
+          ? `/${locale}/admin/dashboard` 
+          : `/${locale}/account`;
+        return NextResponse.redirect(new URL(redirectTo, request.url));
       }
 
+      // Protect regular user pages
       if (isProtectedPage && !session?.user) {
-        // Unauthenticated user trying to access protected route
         const redirectUrl = new URL(`/${locale}/signin`, request.url);
         redirectUrl.searchParams.set("callbackUrl", pathname);
         return NextResponse.redirect(redirectUrl);
       }
+
+      // Protect admin pages
+      if (isAdminPage) {
+        if (!session?.user) {
+          const redirectUrl = new URL(`/${locale}/signin`, request.url);
+          redirectUrl.searchParams.set("callbackUrl", pathname);
+          return NextResponse.redirect(redirectUrl);
+        }
+
+        // Check if user has admin role
+        if (session.user.role !== "ADMIN" && session.user.role !== "SUPER_ADMIN") {
+          return NextResponse.redirect(new URL(`/${locale}/unauthorized`, request.url));
+        }
+      }
     } catch (error) {
       console.error("Middleware error:", error);
-      if (isProtectedPage) {
+      if (isProtectedPage || isAdminPage) {
         const fallbackUrl = new URL(`/${locale}/signin`, request.url);
         return NextResponse.redirect(fallbackUrl);
       }
     }
   }
 
-  // Return the intl middleware response
   return response;
 }
 
-// Configure which paths the middleware should run on
 export const config = {
   matcher: [
-    // Skip all internal paths (_next, api, etc.)
     "/((?!api|_next|_vercel|.*\\..*).*)",
-    // Include the root path
     "/",
-    // Include locale paths
     "/(ar|en)/:path*",
   ],
 };

@@ -7,14 +7,6 @@ import { toast } from "sonner";
 import { Check } from "lucide-react";
 import { useTranslations } from 'next-intl';
 
-interface UserData {
-  email: string | null;
-  firstName: string | null;
-  lastName: string | null;
-  address: string | null;
-  phone: string | null;
-  name: string | null;
-}
 
 interface AccountDetailsProps {
   user: UserData;
@@ -80,7 +72,7 @@ export default function AccountDetails({ user, userId }: AccountDetailsProps) {
   const currentUserData = state.data || user;
 
   return (
-    <section className="container mx-auto p-4 sm:p-6 ">
+    <section className="container mx-auto p-4 sm:p-6">
       <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
@@ -93,12 +85,10 @@ export default function AccountDetails({ user, userId }: AccountDetailsProps) {
           <div className="flex flex-col sm:flex-row items-center mb-8 gap-6">
             <div className="text-center sm:text-left">
               <h3 className="text-xl sm:text-2xl font-semibold text-gray-900">
-                {currentUserData.name ||
-                  `${currentUserData.firstName || ""} ${currentUserData.lastName || ""}`.trim() ||
-                  t('user')}
+                {currentUserData.name || `${currentUserData.firstName} ${currentUserData.lastName}`.trim()}
               </h3>
               <p className="text-gray-600 mt-1">
-                {currentUserData.email || t('noEmailProvided')}
+                {currentUserData.email}
               </p>
             </div>
           </div>
@@ -112,15 +102,16 @@ export default function AccountDetails({ user, userId }: AccountDetailsProps) {
                   htmlFor="firstName"
                   className="block text-sm font-medium text-gray-900 mb-2"
                 >
-                  {t('firstName')}
+                  {t('firstName')} *
                 </label>
                 <input
                   type="text"
                   name="firstName"
                   id="firstName"
-                  defaultValue={currentUserData.firstName || ""}
+                  defaultValue={currentUserData.firstName}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
                   placeholder={t('enterFirstName')}
+                  required
                 />
               </div>
               <div>
@@ -128,15 +119,16 @@ export default function AccountDetails({ user, userId }: AccountDetailsProps) {
                   htmlFor="lastName"
                   className="block text-sm font-medium text-gray-900 mb-2"
                 >
-                  {t('lastName')}
+                  {t('lastName')} *
                 </label>
                 <input
                   type="text"
                   name="lastName"
                   id="lastName"
-                  defaultValue={currentUserData.lastName || ""}
+                  defaultValue={currentUserData.lastName}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
                   placeholder={t('enterLastName')}
+                  required
                 />
               </div>
             </div>
@@ -147,13 +139,13 @@ export default function AccountDetails({ user, userId }: AccountDetailsProps) {
                 htmlFor="email"
                 className="block text-sm font-medium text-gray-900 mb-2"
               >
-                {t('emailAddress')}
+                {t('emailAddress')} *
               </label>
               <input
                 type="email"
                 name="email"
                 id="email"
-                defaultValue={currentUserData.email || ""}
+                defaultValue={currentUserData.email}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
                 placeholder={t('enterEmailAddress')}
                 required

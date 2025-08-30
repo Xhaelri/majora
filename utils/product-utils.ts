@@ -1,6 +1,4 @@
-
-
-import { FullProduct } from "@/types/product";
+import { FullProduct } from "@/types/product-types";
 
 export type SortOption =
   | "featured"
@@ -37,7 +35,6 @@ export function filterByPriceRange(products: FullProduct[], priceRange: { from: 
     return price >= priceRange.from && price <= priceRange.to;
   });
 }
-
 
 export function sortProducts(products: FullProduct[], sortOption: SortOption) {
   const sortedProducts = [...products];

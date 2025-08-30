@@ -1,35 +1,16 @@
+// server/actions/checkout-actions.ts
+
 "use server";
 
 import { db } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { getCartDataForAuthUser } from "./cart-actions";
-
-interface BillingData {
-  email: string;
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  apartment: string;
-  floor: string;
-  street: string;
-  building: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  country: string;
-}
-
-interface AppliedDiscount {
-  code: string;
-  amount: number;
-  type: "PERCENTAGE" | "FIXED";
-  value: number;
-}
-
-interface DiscountValidationResult {
-  error?: string;
-  discount?: AppliedDiscount;
-}
+import {
+  BillingData,
+  CheckoutSessionResult,
+  DiscountValidationResult,
+} from "@/types/checkout-types";
+import { CartItemUI, OrderItem } from "@/types/cart-types";
 
 export async function validateDiscountCode(
   code: string,
@@ -82,11 +63,7 @@ export async function validateDiscountCode(
         code: discountCode.code,
         amount: discountAmount,
         type:
-          discountCode.discountType === "FIXED_AMOUNT"
-            ? "FIXED"
-            : discountCode.discountType === "PERCENTAGE"
-            ? "PERCENTAGE"
-            : "FIXED",
+          discountCode.discountType === "PERCENTAGE" ? "PERCENTAGE" : "FIXED",
         value: discountCode.value,
       },
     };
@@ -119,11 +96,44 @@ export async function applyDiscount(discountCode: string, orderAmount: number) {
   }
 }
 
+// Convert CartItemUI to OrderItem with proper structure
+function createOrderItemFromCartUI(cartItem: CartItemUI): OrderItem {
+  const priceAtPurchase = cartItem.salePrice ?? cartItem.price;
+
+  return {
+    quantity: cartItem.quantity,
+    productSnapshot: {
+      id: cartItem.productId,
+      name: cartItem.name,
+      nameAr: cartItem.nameAr,
+      slug: cartItem.slug,
+      description: cartItem.description,
+      descriptionAr: cartItem.descriptionAr,
+      price: cartItem.price,
+      salePrice: cartItem.salePrice,
+      categoryId: null, // We don't store categoryId in CartItemUI
+      isAvailable: true, // Assume available if in cart
+      isLimitedEdition: cartItem.isLimitedEdition,
+    },
+    variantSnapshot: {
+      id: cartItem.variantId,
+      size: cartItem.size,
+      color: cartItem.color,
+      colorHex: cartItem.colorHex,
+      stock: cartItem.stock,
+      images: cartItem.images,
+    },
+    productId: cartItem.productId,
+    variantId: cartItem.variantId,
+    priceAtPurchase,
+  };
+}
+
 export async function createCheckoutSession(
   billingData: BillingData,
   discountCode?: string,
   shippingCost?: number
-) {
+): Promise<CheckoutSessionResult> {
   const session = await auth();
   const user = session?.user;
 
@@ -143,13 +153,15 @@ export async function createCheckoutSession(
     return { error: "No items to checkout." };
   }
 
+  // Calculate subtotal using original prices
   const subtotal = cartItems.reduce(
-    (acc, item) => acc + item.productVariant.product.price * item.quantity,
+    (acc, item) => acc + item.price * item.quantity,
     0
   );
 
+  // Calculate sale discount (difference between original and sale prices)
   const saleDiscount = cartItems.reduce((acc, item) => {
-    const { price, salePrice } = item.productVariant.product;
+    const { price, salePrice } = item;
     if (salePrice && salePrice < price) {
       return acc + (price - salePrice) * item.quantity;
     }
@@ -183,12 +195,16 @@ export async function createCheckoutSession(
     return { error: "Invalid order total calculated." };
   }
 
+  // Convert cart items to order items format
+  const orderItems: OrderItem[] = cartItems.map(createOrderItemFromCartUI);
+
   const order = await db.order.create({
     data: {
       userId: user.id,
       status: "PENDING",
       orderType: "CART",
       isBuyNow: false,
+      items: orderItems as any, // Cast to any to satisfy Prisma's JsonValue type
       subtotal,
       totalAmount,
       discountAmount: saleDiscount + couponDiscount,
@@ -206,15 +222,6 @@ export async function createCheckoutSession(
       billingState: billingData.state,
       billingPostalCode: billingData.postalCode,
       billingCountry: billingData.country,
-      orderItems: {
-        create: cartItems.map((item) => ({
-          productVariantId: item.productVariantId,
-          quantity: item.quantity,
-          priceAtPurchase:
-            item.productVariant.product.salePrice ??
-            item.productVariant.product.price,
-        })),
-      },
     },
   });
 
@@ -248,14 +255,10 @@ export async function createCheckoutSession(
           amount_cents: Math.round(totalAmount * 100),
           currency: "EGP",
           merchant_order_id: order.id,
-          items: cartItems.map((item) => ({
-            name: item.productVariant.product.name,
-            amount_cents: Math.round(
-              (item.productVariant.product.salePrice ??
-                item.productVariant.product.price) * 100
-            ),
-            description:
-              item.productVariant.product.description ?? "No description",
+          items: orderItems.map((item) => ({
+            name: item.productSnapshot.name,
+            amount_cents: Math.round(item.priceAtPurchase * 100),
+            description: item.productSnapshot.description ?? "No description",
             quantity: item.quantity,
           })),
         }),
@@ -340,7 +343,6 @@ export async function createCheckoutSession(
   }
 }
 
-// Keep all other existing functions unchanged
 export async function getShippingRate(governorate: string) {
   try {
     const rate = await db.shippingRate.findUnique({
@@ -386,12 +388,17 @@ export async function clearUserCart(userId: string) {
     });
 
     if (cart) {
-      await db.cartItem.deleteMany({
-        where: { cartId: cart.id },
+      await db.cart.update({
+        where: { id: cart.id },
+        data: { 
+          items: [] as any, 
+          updatedAt: new Date()
+        },
       });
+      console.log(`Cart cleared for user ${userId}`);
       return { success: "Cart cleared successfully" };
     }
-    return { error: "Cart not found" };
+    return { success: "Cart was already empty" };
   } catch (error) {
     console.error("Error clearing cart:", error);
     return { error: "Failed to clear cart" };

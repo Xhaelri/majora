@@ -10,31 +10,28 @@ import {
 import { cn } from "@/lib/tailwind-utils";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { ChevronDown } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback } from "react";
 import { useTranslations } from "next-intl";
 
-export default function SortDropDown() {
-  const t = useTranslations("sort"); // Use 'sort' namespace
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+// Define sort options
+export type SortOption = 
+  | "featured" 
+  | "name-asc" 
+  | "name-desc" 
+  | "price-asc" 
+  | "price-desc" 
+  | "date-desc" 
+  | "date-asc";
 
-  const createQueryString = useCallback(
-    (name: string, value: string) => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set(name, value);
-      return params.toString();
-    },
-    [searchParams]
-  );
+type Props = {
+  sortBy: SortOption;
+  onSortChange: (value: SortOption) => void;
+};
+
+export default function ClientSortDropdown({ sortBy, onSortChange }: Props) {
+  const t = useTranslations("sort");
 
   return (
-    <Select
-      onValueChange={(value) => {
-        router.push(pathname + "?" + createQueryString("sort", value));
-      }}
-    >
+    <Select value={sortBy} onValueChange={onSortChange}>
       <SelectPrimitive.Trigger
         className={cn(
           "flex h-9 w-full font-light items-center justify-between whitespace-nowrap cursor-pointer border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",

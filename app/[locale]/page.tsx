@@ -1,4 +1,3 @@
-// app/[locale]/page.tsx - Pass locale to components
 import Hero from "@/components/Hero/Hero";
 import Hero2 from "@/components/Hero/Hero2";
 import BestSellers from "@/components/Best-Sellers/BestSellers";
@@ -7,11 +6,11 @@ import Tops from "@/components/Tops-Shirts/Tops-Shirts";
 import Dresses from "@/components/Dresses/Dresses";
 import type { Metadata } from "next";
 import { routing } from "@/i18n/routing";
-import { setRequestLocale } from 'next-intl/server';
+import { setRequestLocale } from "next-intl/server";
 
 export async function generateStaticParams() {
   return routing.locales.map((locale) => ({
-    locale: locale, 
+    locale: locale,
   }));
 }
 
@@ -24,7 +23,7 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { locale } = await params;
   const isArabic = locale === "ar";
-  
+
   return {
     title: isArabic
       ? "سكرة | أزياء نسائية وملابس"
@@ -43,16 +42,14 @@ export const revalidate = 3600;
 
 export default async function Home({ params }: PageProps) {
   const { locale } = await params;
-  
-  // Enable static rendering - this is crucial!
+
   setRequestLocale(locale);
-  
+
   return (
     <>
       <Hero>
         <Hero2 />
       </Hero>
-      
       <BestSellers />
       <Sets />
       <Tops />

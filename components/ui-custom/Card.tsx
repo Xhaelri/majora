@@ -3,10 +3,10 @@ import useMediaQuery from "@/hooks/useMediaQuery";
 import formatPrice from "@/utils/formatPrice";
 import Image from "next/image";
 import React, { useState } from "react";
-import { FullProduct } from "@/types/product";
 import { Link } from "@/i18n/navigation";
 import slugifyAdvanced from "@/utils/slugify";
 import { useLocale, useTranslations } from "next-intl";
+import { FullProduct } from "@/types/product-types";
 
 type CardProps = {
   productData: FullProduct;
@@ -18,14 +18,18 @@ const Card = ({ productData }: CardProps) => {
   const isRTL = locale === "ar";
   const primaryVariant = productData.variants?.[0];
 
-  const primaryImageUrl = primaryVariant?.images?.[0]?.url || "";
+  // Since images are now just strings (URLs), we access them directly
+  const primaryImageUrl = primaryVariant?.images?.[0] || "";
+  const hoverImageUrl = primaryVariant?.images?.[1] || primaryImageUrl;
 
-  const hoverImageUrl = primaryVariant?.images?.[1]?.url || primaryImageUrl;
+  // Generate alt text from product name or image filename
+  const generateAltText = (imageUrl: string) => {
+    if (!imageUrl) return productData.name;
+    const filename = imageUrl.split('/').pop()?.split('.')[0];
+    return filename || productData.name;
+  };
 
-  const imageAltText = isRTL
-    ? primaryVariant?.images?.[0]?.altTextAr
-    : primaryVariant?.images?.[0]?.altText ||
-      primaryVariant?.images?.[0]?.altText;
+  const imageAltText = generateAltText(primaryImageUrl);
 
   const isOnSale =
     productData.salePrice !== null && productData.salePrice < productData.price;
@@ -59,9 +63,9 @@ const Card = ({ productData }: CardProps) => {
             ) : null}
             <Image
               src={imageSrc}
-              alt={imageAltText!}
-              width={"300"}
-              height={"500"}
+              alt={imageAltText}
+              width={300}
+              height={500}
               className="object-cover "
               loading={"lazy"}
             />
@@ -74,7 +78,7 @@ const Card = ({ productData }: CardProps) => {
             {isRTL ? productData.nameAr : productData.name}
           </h1>
           <div className="text-md font-extralight tracking-widest flex flex-col items-center">
-            <div className="flex flex-col xl:flex-row gap-0 lg:gap-2 ">
+            <div className="flex flex-col gap-0 lg:gap-2 ">
               {isOnSale ? (
                 <h2 className="line-through text-nowrap text-sm">
                   {formatPrice(originalPrice)}
@@ -104,9 +108,9 @@ const Card = ({ productData }: CardProps) => {
             ) : null}
             <Image
               src={imageSrc}
-              alt={imageAltText!}
-              width={"300"}
-              height={"500"}
+              alt={imageAltText}
+              width={300}
+              height={500}
               className="object-cover"
               loading={"eager"}
             />

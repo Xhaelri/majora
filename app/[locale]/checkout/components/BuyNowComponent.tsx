@@ -46,40 +46,34 @@ interface BuyNowItem {
   id: string;
   quantity: number;
   productVariantId: string;
-  productVariant: {
+  productVariant?: {
     id: string;
+    productId: string;
+    size: string;
+    color: string;
+    colorHex: string;
+    stock: number;
+    images: string[];
     createdAt: Date;
     updatedAt: Date;
-    productId: string;
-    sizeId: string;
-    colorId: string;
-    stock: number;
-    sku: string | null;
     product: {
       id: string;
       name: string;
+      nameAr: string;
+      description: string;
+      descriptionAr: string;
+      slug: string;
       price: number;
       salePrice: number | null;
-      description: string | null;
+      isLimitedEdition: boolean;
+      isAvailable: boolean;
+      categoryId: string | null;
     };
-    size: {
-      id: string;
-      name: string;
-    };
-    color: {
-      id: string;
-      name: string;
-    };
-    images: Array<{
-      id: string;
-      url: string;
-      altText: string;
-    }>;
   };
 }
 
 export default function BuyNowCheckoutPage() {
-  const  t  = useTranslations('checkout');
+  const t = useTranslations('checkout');
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -168,7 +162,6 @@ export default function BuyNowCheckoutPage() {
     };
 
     if (session !== undefined) {
-      // Wait for session to load
       loadBuyNowData();
     }
   }, [session, t]);
@@ -189,12 +182,12 @@ export default function BuyNowCheckoutPage() {
   }, [billingData.state, handleGovernorateChange]);
 
   // Calculate totals
-  const subtotal = buyNowItem
+  const subtotal = buyNowItem?.productVariant
     ? buyNowItem.productVariant.product.price * buyNowItem.quantity
     : 0;
 
   const saleDiscount =
-    buyNowItem && buyNowItem.productVariant.product.salePrice
+    buyNowItem?.productVariant && buyNowItem.productVariant.product.salePrice
       ? (buyNowItem.productVariant.product.price -
           buyNowItem.productVariant.product.salePrice) *
         buyNowItem.quantity
@@ -315,7 +308,6 @@ export default function BuyNowCheckoutPage() {
       if (result.paymentKey) {
         setPaymentKey(result.paymentKey);
         setShowPayment(true);
-        // Clear the session storage as we're now in payment flow
         sessionStorage.removeItem("buyNowData");
       }
     } catch (error) {
@@ -353,8 +345,8 @@ export default function BuyNowCheckoutPage() {
           <h1 className="text-2xl font-bold mb-4 text-red-600">{t('error')}</h1>
           <p className="mb-4">{error}</p>
           <Button
-          variant={"cartBuyNow"}
-          size={"cartBuyNow"}
+            variant={"cartBuyNow"}
+            size={"cartBuyNow"}
             onClick={() => router.push("/products")}
           >
             {t('continueShopping')}
@@ -364,7 +356,7 @@ export default function BuyNowCheckoutPage() {
     );
   }
 
-  if (!buyNowItem) {
+  if (!buyNowItem?.productVariant) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
@@ -418,8 +410,11 @@ export default function BuyNowCheckoutPage() {
               <div className="w-16 h-16 bg-gray-200 rounded-md flex-shrink-0 overflow-hidden">
                 {buyNowItem.productVariant.images?.[0] && (
                   <Image
-                    src={buyNowItem.productVariant.images[0].url.trimStart()}
-                    alt={buyNowItem.productVariant.images[0].altText}
+                    src={buyNowItem.productVariant.images[0].startsWith('http') 
+                      ? buyNowItem.productVariant.images[0] 
+                      : `/${buyNowItem.productVariant.images[0]}`
+                    }
+                    alt={buyNowItem.productVariant.product.name}
                     className="w-full h-full object-cover"
                     width={64}
                     height={64}
@@ -431,7 +426,7 @@ export default function BuyNowCheckoutPage() {
                   {buyNowItem.productVariant.product.name}
                 </h3>
                 <p className="text-xs text-gray-500">
-                  {buyNowItem.productVariant.size.name} • {buyNowItem.productVariant.color.name}
+                  {buyNowItem.productVariant.size} • {buyNowItem.productVariant.color}
                 </p>
                 <p className="text-xs text-gray-500">
                   {t('summary.quantity')} {buyNowItem.quantity}

@@ -4,10 +4,10 @@ import { Button } from "../ui/button";
 import CardGrid from "../ui-custom/CardGrid";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { getProductsByCategory } from "@/server/db-actions/prisma";
+import { getProductsByCategoryName } from "@/server/db-actions/product-actions";
 
 const Tops = async () => {
-  const products = await getProductsByCategory("tops-shirts");
+  const products = await getProductsByCategoryName("tops-shirts");
   const t = await getTranslations("sections");
   const tCommon = await getTranslations("Common2");
 

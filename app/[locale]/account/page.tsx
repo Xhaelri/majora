@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import React from "react";
-import { getAccountDetails } from "@/server/db-actions/prisma";
+import { getAccountDetails } from "@/server/actions/user-actions";
 import Sidebar from "./components/sideBar";
 import Orders from "./components/orders";
 import AccountDetails from "./components/accountDetails";

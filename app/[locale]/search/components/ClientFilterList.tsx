@@ -8,19 +8,50 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import useMediaQuery from "@/hooks/useMediaQuery";
-import { Accordion, AccordionItem } from "../../../../components/ui/accordion";
+import { Accordion, AccordionItem } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import FilterIcon from "@/public/assets/filter-alt-2-svgrepo-com.svg";
-import FilterOptions from "./FilterOptions";
+import ClientFilterOptions from "./ClientFilterOptions";
 import { useTranslations } from "next-intl";
+import type { Category } from "@prisma/client";
 
-export default function FilterList() {
-  const t = useTranslations("filters"); // Use 'filters' namespace
+// Define filter types
+export type FilterOptions = {
+  availability?: "in-stock" | "out-of-stock";
+  priceRange?: { from: number; to: number };
+  categories?: string[];
+};
+
+type Props = {
+  filters: FilterOptions;
+  onUpdateFilter: (
+    key: keyof FilterOptions,
+    value: "in-stock" | "out-of-stock" | { from: number; to: number } | string[] | undefined
+  ) => void;
+  categories: Category[];
+  resultCount: number;
+  totalCount: number;
+};
+
+export default function ClientFilterList({ 
+  filters, 
+  onUpdateFilter, 
+  categories, 
+  // resultCount, 
+  // totalCount 
+}: Props) {
+  const t = useTranslations("filters");
   const [open, setOpen] = useState(false);
   const isDesktop = useMediaQuery("(min-width:1024px)");
 
   return (
-    <div>
+    <div className="flex items-center gap-4">
+      {/* Results count
+      <span className="text-sm text-gray-600">
+        {resultCount} of {totalCount} products
+      </span> */}
+
+      {/* Mobile filter button */}
       {!isDesktop && (
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
@@ -43,8 +74,12 @@ export default function FilterList() {
               collapsible
               className="flex flex-col w-full px-5"
             >
-              <AccordionItem value="">
-                <FilterOptions />
+              <AccordionItem value="filters">
+                <ClientFilterOptions
+                  filters={filters}
+                  onUpdateFilter={onUpdateFilter}
+                  categories={categories}
+                />
               </AccordionItem>
             </Accordion>
           </SheetContent>

@@ -32,7 +32,9 @@
     "closeIcon": "أيقونة الإغلاق",
     "products": "المنتجات",
     "categories": "الفئات",
-    "showAllResults": "إظهار جميع النتائج لـ"
+    "showAllResults": "إظهار جميع النتائج لـ",
+    "clearFilters": "إزالة التصفيات",
+    "allProducts": "كل المنتجات"
   },
   "menu": "القائمة",
   "NotFound": {
@@ -69,7 +71,8 @@
     "inStock": "متوفر",
     "outOfStock": "غير متوفر",
     "minPrice": "الحد الأدنى للسعر",
-    "maxPrice": "الحد الأقصى للسعر"
+    "maxPrice": "الحد الأقصى للسعر",
+    "categories": "الفئات"
   },
   "sort": {
     "sortBy": "ترتيب حسب",
@@ -197,7 +200,7 @@
   "cartPage": {
     "shoppingBag": "حقيبة التسوق",
     "emptyCart": "حقيبة التسوق فارغة",
-    "itemDeleted": "تم حذف المنتج",
+    "itemDeleted": "تم حذف المنتج من حقيبة التسوق",
     "failedToRemove": "فشل في حذف المنتج. يرجى المحاولة مرة أخرى.",
     "failedToUpdate": "فشل في تحديث الكمية. يرجى المحاولة مرة أخرى.",
     "subtotal": "المجموع الفرعي",
@@ -206,7 +209,7 @@
     "checkout": "إتمام الطلب"
   },
   "cart": {
-    "itemDeleted": "تم حذف المنتج",
+    "itemDeleted": "تم حذف المنتج من حقيبة التسوق",
     "failedToRemove": "فشل في حذف المنتج. يرجى المحاولة مرة أخرى.",
     "failedToUpdate": "فشل في تحديث الكمية. يرجى المحاولة مرة أخرى."
   },

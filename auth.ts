@@ -66,6 +66,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim(),
             firstName: user.firstName ?? "",
             lastName: user.lastName ?? "",
+            role: user.role,
           };
         } catch (error) {
           console.error("Auth error:", error);
@@ -95,18 +96,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 firstName,
                 lastName,
                 image: user.image,
+                role: "USER", // Default role for new users
               },
             });
 
             await db.cart.create({
               data: {
                 userId: newUser.id,
+                items: [],
               },
             });
 
             user.id = newUser.id;
+            user.role = newUser.role;
           } else {
             user.id = existingUser.id;
+            user.role = existingUser.role;
           }
         } catch (error) {
           console.error("Error creating user:", error);
@@ -129,6 +134,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           token.firstName = dbUser.firstName;
           token.lastName = dbUser.lastName;
           token.image = dbUser.image;
+          token.role = dbUser.role; // Add role to token
         } else {
           // Fallback to user object data
           token.sub = user.id;
@@ -137,6 +143,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           token.firstName = user.firstName;
           token.lastName = user.lastName;
           token.image = user.image;
+          token.role = user.role; // Add role to token
         }
       }
 
@@ -152,6 +159,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             token.firstName = dbUser.firstName;
             token.lastName = dbUser.lastName;
             token.image = dbUser.image;
+            token.role = dbUser.role; // Add role to token
           }
         } catch (error) {
           console.error("Error refreshing token:", error);
@@ -169,6 +177,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.firstName = token.firstName as string;
         session.user.lastName = token.lastName as string;
         session.user.image = token.image as string;
+        session.user.role = token.role as string;
       }
 
       return session;

@@ -1,4 +1,4 @@
-import { CartItem } from "@/types/cartTypes"; 
+import { CartItem } from "@/types/cart-types";
 import formatPrice from "@/utils/formatPrice";
 import Image from "next/image";
 import React, { useState } from "react";
@@ -10,9 +10,9 @@ import { toast } from "sonner";
 import Check from "@/public/assets/check.svg";
 import { useTranslations, useLocale } from "next-intl";
 
-type Props = {
+interface Props {
   item: CartItem;
-};
+}
 
 const CartItemCard = ({ item }: Props) => {
   const { removeFromCartContext, updateQuantityContext } = useCart();
@@ -21,38 +21,31 @@ const CartItemCard = ({ item }: Props) => {
   const locale = useLocale();
   const isRTL = locale === "ar";
 
-  if (!item.productVariant) {
-    console.log("Product variant not found");
-  }
-  const img = item.productVariant.images?.[0];
+  // Get the first image from the variant
+  const img = item.images?.[0];
 
   // Get product name based on locale
-  const productName = isRTL && item.productVariant.product.nameAr
-    ? item.productVariant.product.nameAr
-    : item.productVariant.product.name;
+  const productName = isRTL && item.nameAr ? item.nameAr : item.name;
 
-  // Get size and color names based on locale
-  const sizeName = isRTL && item.productVariant.size.nameAr
-    ? item.productVariant.size.nameAr
-    : item.productVariant.size.name;
-
-  const colorName = isRTL && item.productVariant.color.nameAr
-    ? item.productVariant.color.nameAr
-    : item.productVariant.color.name;
+  // Size and color are stored directly in the variant
+  const sizeName = item.size;
+  const colorName = item.color;
 
   const handleRemoveFromCart = async () => {
     try {
       setIsMutating(true);
-      await removeFromCartContext(item.productVariant.id);
+      await removeFromCartContext(item.variantId);
       toast.custom(() => (
         <div className="bg-black text-white w-full px-4 py-3 text-sm rounded-none flex items-center justify-center gap-2">
           <Check />
-          <p className="font-semibold uppercase">{t('itemDeleted')}</p>
+          <p className="font-semibold uppercase">{t("itemDeleted")}</p>
         </div>
       ));
     } catch (error) {
       console.log(error);
-      toast.error(<p className="font-semibold uppercase">{t('failedToRemove')}</p>);
+      toast.error(
+        <p className="font-semibold uppercase">{t("failedToRemove")}</p>
+      );
     } finally {
       setIsMutating(false);
     }
@@ -61,10 +54,12 @@ const CartItemCard = ({ item }: Props) => {
   const handleAddQuantity = async () => {
     try {
       setIsMutating(true);
-      await updateQuantityContext(item.productVariant.id, item.quantity + 1);
+      await updateQuantityContext(item.variantId, item.quantity + 1);
     } catch (error) {
       console.log(error);
-      toast.error(<p className="font-semibold uppercase">{t('failedToUpdate')}</p>);
+      toast.error(
+        <p className="font-semibold uppercase">{t("failedToUpdate")}</p>
+      );
     } finally {
       setIsMutating(false);
     }
@@ -78,10 +73,12 @@ const CartItemCard = ({ item }: Props) => {
 
     try {
       setIsMutating(true);
-      await updateQuantityContext(item.productVariant.id, item.quantity - 1);
+      await updateQuantityContext(item.variantId, item.quantity - 1);
     } catch (error) {
       console.log(error);
-      toast.error(<p className="font-semibold uppercase">{t('failedToUpdate')}</p>);
+      toast.error(
+        <p className="font-semibold uppercase">{t("failedToUpdate")}</p>
+      );
     } finally {
       setIsMutating(false);
     }
@@ -94,8 +91,8 @@ const CartItemCard = ({ item }: Props) => {
         <div className="relative aspect-[2/3]">
           {img && (
             <Image
-              src={img.url.trimStart()}
-              alt={isRTL ? img.altTextAr || img.altText : img.altText}
+              src={img.startsWith('http') ? img : `/${img}`}
+              alt={productName}
               fill
               className="object-cover"
             />
@@ -103,6 +100,7 @@ const CartItemCard = ({ item }: Props) => {
           <button
             className="cursor-pointer absolute top-2 right-2 hidden lg:block lg:bg-white/90 lg:p-1"
             onClick={handleRemoveFromCart}
+            disabled={isMutating}
           >
             <Close />
           </button>
@@ -119,28 +117,23 @@ const CartItemCard = ({ item }: Props) => {
             <button
               className="cursor-pointer absolute top-0 right-0 lg:hidden"
               onClick={handleRemoveFromCart}
+              disabled={isMutating}
             >
               <Close />
             </button>
           </div>
 
           <div className="flex gap-3 text-sm lg:mt-1">
-            <p
-              className={`${
-                item.productVariant.product.salePrice && "line-through"
-              }`}
-            >
-              {formatPrice(item.productVariant.product.price)}
+            <p className={`${item.salePrice && "line-through"}`}>
+              {formatPrice(item.price)}
             </p>
-            {item.productVariant.product.salePrice && (
-              <p className="text-red-500">
-                {formatPrice(item.productVariant.product.salePrice)}
-              </p>
+            {item.salePrice && (
+              <p className="text-red-500">{formatPrice(item.salePrice)}</p>
             )}
           </div>
 
           {/* Bottom row for controls and details */}
-          <div className="flex  gap-5 lg:gap-3 items-center lg:items-stretch mt-4 lg:mt-2">
+          <div className="flex gap-5 lg:gap-3 items-center lg:items-stretch mt-4 lg:mt-2">
             {/* Quantity Selector */}
             <div className="flex gap-4 items-center lg:justify-start lg:order-1">
               <button
@@ -176,6 +169,23 @@ const CartItemCard = ({ item }: Props) => {
               <p>{colorName}</p>
             </div>
           </div>
+
+          {/* Stock indicator (optional) */}
+          {item.stock < 5 && item.stock > 0 && (
+            <div className="mt-2">
+              <p className="text-xs text-orange-600">
+                {t("lowStock", { count: item.stock })}
+              </p>
+            </div>
+          )}
+
+          {item.stock === 0 && (
+            <div className="mt-2">
+              <p className="text-xs text-red-600">
+                {t("outOfStock")}
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -1,8 +1,8 @@
 import ProductsSectionHeader from "@/components/ui-custom/ProductsSectionHeader";
 import { heroImages } from "@/constants/constants";
-import { getCategoryBySlug } from "@/server/db-actions/prisma";
 import React from "react";
 import FilterBar from "../components/FilterBar";
+import { getCategoryBySlug } from "@/server/db-actions/category-actions";
 
 export default async function Layout({
   children,
@@ -19,8 +19,12 @@ export default async function Layout({
   const category = await getCategoryBySlug(resolvedParams.slug);
 
   const displayName = isRTL
-    ? category?.nameAr || category?.name || resolvedParams.slug
-    : category?.name || category?.nameAr || resolvedParams.slug;
+    ? category?.data?.nameAr ||
+      category?.data?.name ||
+      resolvedParams.slug
+    : category?.data?.name ||
+      category?.data?.nameAr ||
+      resolvedParams.slug;
 
   const formattedName = displayName
     .split("-")

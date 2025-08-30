@@ -7,31 +7,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getAccountDetails } from "@/server/db-actions/prisma";
+import { getAccountDetails } from "@/server/actions/user-actions";
 import { auth } from "@/auth";
 import { getTranslations } from "next-intl/server";
+import { OrderItem } from "@/types/cart-types";
 
-interface ProductVariant {
-  product: {
-    name: string;
-  };
-  size: {
-    name: string;
-  };
-  color: {
-    name: string;
-  };
-}
-
-interface OrderItem {
-  id: string;
-  productVariantId: string;
-  quantity: number;
-  priceAtPurchase: number;
-  productVariant: ProductVariant;
-}
-
-interface Order {
+// Updated interfaces to match what Prisma returns
+interface PrismaOrder {
   id: string;
   orderDate: Date;
   totalAmount: number;
@@ -42,7 +24,7 @@ interface Order {
   billingStreet: string | null;
   status: string;
   paymentProvider: string | null;
-  orderItems: OrderItem[];
+  items: any; 
 }
 
 interface UserData {
@@ -52,7 +34,7 @@ interface UserData {
   address: string | null;
   phone: string | null;
   name: string | null;
-  orders: Order[];
+  orders: PrismaOrder[];
 }
 
 const getStatusColor = (status: string) => {
@@ -61,12 +43,20 @@ const getStatusColor = (status: string) => {
       return "bg-yellow-100 text-yellow-800";
     case "processing":
       return "bg-blue-100 text-blue-800";
+    case "paid":
+      return "bg-green-100 text-green-800";
     case "shipped":
       return "bg-purple-100 text-purple-800";
     case "delivered":
       return "bg-green-100 text-green-800";
     case "cancelled":
       return "bg-red-100 text-red-800";
+    case "failed":
+      return "bg-red-100 text-red-800";
+    case "refunded":
+      return "bg-gray-100 text-gray-800";
+    case "returned":
+      return "bg-gray-100 text-gray-800";
     default:
       return "bg-gray-100 text-gray-800";
   }
@@ -137,7 +127,7 @@ const Orders = async () => {
   }
 
   return (
-    <section className="container mx-auto p-4 sm:p-6  lg:overflow-hidden">
+    <section className="container mx-auto p-4 sm:p-6 lg:overflow-hidden">
       <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-2xl font-bold text-gray-900">
@@ -188,15 +178,13 @@ const Orders = async () => {
                   </TableCell>
                   <TableCell className="text-gray-700">
                     <div className="space-y-1">
-                      {order.orderItems.map((item) => (
-                        <div key={item.id} className="text-sm">
+                      {Array.isArray(order.items) && order.items.map((item: OrderItem, index: number) => (
+                        <div key={index} className="text-sm">
                           <div className="font-medium text-gray-900 text-wrap">
-                            {item.productVariant.product.name}
+                            {item.productSnapshot?.name || 'Unknown Product'}
                           </div>
                           <div className="text-gray-500">
-                            {item.productVariant.size.name} •{" "}
-                            {item.productVariant.color.name} • {t("quantity")}:{" "}
-                            {item.quantity}
+                            {item.variantSnapshot?.size} • {item.variantSnapshot?.color} • {t("quantity")}: {item.quantity}
                           </div>
                         </div>
                       ))}
@@ -216,9 +204,7 @@ const Orders = async () => {
                       <div>{order.billingState || "N/A"}</div>
                       {order.billingCity && (
                         <div className="text-gray-500 text-wrap">
-                          {order.billingState}, {order.billingCity},{" "}
-                          {order.billingStreet}, {order.billingBuilding},{" "}
-                          {order.billingFloor}
+                          {order.billingState}, {order.billingCity}, {order.billingStreet}, {order.billingBuilding}, {order.billingFloor}
                         </div>
                       )}
                     </div>

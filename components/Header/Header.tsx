@@ -2,12 +2,11 @@
 import React, { useEffect, useState } from "react";
 import Logo from "./Logo";
 import MobileMenu from "./MobileMenu";
-import SearchBar from "./SearchBar";
 import CartIcon from "./CartIcon";
 import UserIcon from "./UserIcon";
 import LanguageSelector from "../ui-custom/Languages";
 
-export default function Header() {
+export default function Header({ searchBar }: { searchBar: React.ReactNode }) {
   const [headerState, setHeaderState] = useState("visible");
   const [lastScrollY, setLastScrollY] = useState(0);
 
@@ -57,7 +56,7 @@ export default function Header() {
       <div className="container grid grid-cols-[1fr_1fr] md:grid-cols-[1fr_1fr_1fr] items-center text-primary">
         {/*// uncomment after implementing the header menue */}
         {/* <HeaderMenu /> */}
-        
+
         <div className="flex items-center gap-2 ">
           <MobileMenu />
           <div className="md:hidden">
@@ -71,7 +70,7 @@ export default function Header() {
 
         <div className="flex justify-end">
           <div className="flex gap-3 items-center">
-            <SearchBar />
+            {searchBar}
             <UserIcon />
             {/* <WhishList /> */}
             <CartIcon />

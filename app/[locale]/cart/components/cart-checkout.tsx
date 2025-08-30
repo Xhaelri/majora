@@ -1,6 +1,6 @@
-"use client"
+"use client";
 import { Button } from "@/components/ui/button";
-import { CartItem  } from "@/types/cartTypes";
+import { CartItem } from "@/types/cart-types";
 import formatPrice from "@/utils/formatPrice";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -13,15 +13,13 @@ const CartCheckOut = ({ cartItems }: Props) => {
   const router = useRouter();
   const t = useTranslations("cartPage");
 
-  
   const subtotal = cartItems.reduce((sum, item) => {
-    const fullPrice = item.productVariant.product.price;
+    const fullPrice = item.price;
     return sum + fullPrice * item.quantity;
   }, 0);
 
-  
   const saleDiscount = cartItems.reduce((sum, item) => {
-    const { price, salePrice } = item.productVariant.product;
+    const { price, salePrice } = item;
     if (salePrice && salePrice < price) {
       return sum + (price - salePrice) * item.quantity;
     }
@@ -35,13 +33,13 @@ const CartCheckOut = ({ cartItems }: Props) => {
     <div className="mx-auto px-7 space-y-4 lg:px-0 lg:mx-0">
       <div className="space-y-1">
         <div className="flex text-sm font-light justify-between">
-          <p>{t('subtotal')}</p>
+          <p>{t("subtotal")}</p>
           <p>{formatPrice(subtotal)}</p>
         </div>
 
         {saleDiscount > 0 && (
           <div className="flex text-sm font-light justify-between">
-            <p>{t('saleDiscount')}</p>
+            <p>{t("saleDiscount")}</p>
             <p className="text-red-500">- {formatPrice(saleDiscount)}</p>
           </div>
         )}
@@ -49,7 +47,7 @@ const CartCheckOut = ({ cartItems }: Props) => {
         <div className="border-t border-gray-200 my-2"></div>
 
         <div className="flex text-sm justify-between font-semibold uppercase">
-          <h1>{t('total')}</h1>
+          <h1>{t("total")}</h1>
           <h1>{formatPrice(total)}</h1>
         </div>
       </div>
@@ -61,7 +59,7 @@ const CartCheckOut = ({ cartItems }: Props) => {
         onClick={() => router.push("/checkout")}
         disabled={cartItems.length === 0}
       >
-        {t('checkout')}
+        {t("checkout")}
       </Button>
     </div>
   );

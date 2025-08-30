@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Account {
-  id                String  @id @default(cuid())
+  id                String  @id @default(uuid())
   userId            String
   type              String
   provider          String
@@ -20,185 +20,132 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
+  
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
-  // Performance indexes
   @@index([userId])
   @@index([provider])
 }
 
-// model Session {
-//   id           String   @id @default(cuid())
-//   sessionToken String   @unique
-//   userId       String
-//   expires      DateTime
-//   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-// }
-
-// model VerificationToken {
-//   identifier String
-//   token      String   @unique
-//   expires    DateTime
-
-//   @@unique([identifier, token])
-// }
-
 model User {
   id            String    @id @default(uuid())
-  email         String?   @unique
-  password      String?
-  firstName     String?
-  lastName      String?
-  address       String?
+  email         String    @unique
+  password      String
+  name          String
+  firstName     String
+  lastName      String
   phone         String?
+  address       String?
+  image         String?
+  role          Role      @default(USER)  
+  emailVerified DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  emailVerified DateTime?
-  image         String?
-  name          String?
 
   accounts      Account[]
   cart          Cart?
   orders        Order[]
-  reviews       Review[]
-  // sessions      Session[]
-  // Performance indexes
+  
+  @@index([email])
+  @@index([role])
   @@index([createdAt])
-
-}
-
-
-model Product {
-  id               String           @id @default(uuid())
-  name             String
-  description      String?
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
-  categoryId       String?
-  price            Float
-  isLimitedEdition Boolean          @default(false)
-  salePrice        Float?
-  slug             String           @unique
-  descriptionAr    String?
-  nameAr           String?
-  category         Category?        @relation(fields: [categoryId], references: [id])
-  variants         ProductVariant[]
-  reviews          Review[]
-
-  @@index([categoryId]) // Keep - category browsing
-  @@index([categoryId, price]) // Keep - most common filter combo
-  @@index([isLimitedEdition]) // Keep - business requirement
-  @@index([createdAt]) // Keep - for "new products" listings
-
-}
-model ProductVariant {
-  id         String         @id @default(uuid())
-  productId  String
-  sizeId     String
-  colorId    String
-  stock      Int
-  sku        String?        @unique
-  createdAt  DateTime       @default(now())
-  updatedAt  DateTime       @updatedAt
-  cartItems  CartItem[]
-  orderItems OrderItem[]
-  images     ProductImage[]
-  color      Color          @relation(fields: [colorId], references: [id])
-  product    Product        @relation(fields: [productId], references: [id])
-  size       Size           @relation(fields: [sizeId], references: [id])
-
-  @@unique([productId, sizeId, colorId])
-  @@index([productId]) // Keep - most common query
-  @@index([productId, stock]) // Keep - available variants query
-  @@index([stock]) // Keep - low stock monitoring
-
-}
-
-model ProductImage {
-  id        String         @id @default(uuid())
-  url       String
-  altText   String
-  variantId String
-  altTextAr String?
-  variant   ProductVariant @relation(fields: [variantId], references: [id])
-
-  // Performance indexes
-  @@index([variantId])
 }
 
 model Category {
   id        String    @id @default(uuid())
   name      String    @unique
+  nameAr    String
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  nameAr    String?
+  
   products  Product[]
+  
+  @@index([name])
 }
 
-model Size {
-  id              String           @id @default(uuid())
-  name            String           @unique
-  nameAr          String?
-  productVariants ProductVariant[]
+model Product {
+  id               String           @id @default(uuid())
+  name             String
+  nameAr           String
+  description      String
+  descriptionAr    String
+  slug             String           @unique
+  price            Float
+  salePrice        Float?
+  isLimitedEdition Boolean          @default(false)
+  isAvailable      Boolean          @default(true)
+  categoryId       String
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  
+  category         Category?        @relation(fields: [categoryId], references: [id])
+  variants         ProductVariant[]
+
+  @@index([slug])
+  @@index([categoryId])
+  @@index([categoryId, price])
+  @@index([isLimitedEdition])
+  @@index([isAvailable])
+  @@index([createdAt])
 }
 
-model Color {
-  id              String           @id @default(uuid())
-  name            String           @unique
-  nameAr          String?
-  hex             String?          @db.VarChar(7)
-  productVariants ProductVariant[]
+model ProductVariant {
+  id        String   @id @default(uuid())
+  productId String
+  size      String  // "XS", "S", "M", "L", "XL", "XXL"
+  color     String  // "Red", "Blue", "Black", "White"
+  colorHex  String  // "#FF0000", "#0000FF"
+  stock     Int      @default(0)
+  images    String[] // ["variant-img1.jpg", "variant-img2.jpg"] - at least 1 required
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, size, color])
+  @@index([productId])
+  @@index([productId, stock])
+  @@index([stock])
+  @@index([size])
+  @@index([color])
 }
 
 model Cart {
-  id        String     @id @default(uuid())
-  userId    String     @unique
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  items     CartItem[]
-
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  items     Json     @default("[]")    
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([updatedAt])
 }
-
-model CartItem {
-  id               String         @id @default(uuid())
-  productVariantId String
-  quantity         Int            @default(1)
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-  cartId           String
-  cart             Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
-
-  @@unique([cartId, productVariantId])
-  // Performance indexes
-  @@index([cartId])
-  @@index([productVariantId])
-  @@index([updatedAt]) // For recent cart activity
-}
-
-
 
 model Order {
-  id                   String            @id @default(uuid())
+  id                   String      @id @default(uuid())
   userId               String?
-  orderDate            DateTime          @default(now())
-  status               OrderStatus       @default(PENDING)
-  subtotal             Float
-  totalAmount          Float
-  discountAmount       Float?           
-  shippingCost         Float?
-  paymentProvider      String?           @default("paymob")
-  discountCodeId       String?
-  createdAt            DateTime          @default(now())
-  updatedAt            DateTime          @updatedAt
   
-  // ADD THESE NEW FIELDS
-  orderType            OrderType         @default(CART) // New field to distinguish order types
-  isBuyNow             Boolean           @default(false) // Quick identifier for buy now orders
-
-  // Billing Address fields...
+  // Order details
+  items     Json       @default("[]")     
+  subtotal             Float
+  discountAmount       Float?
+  shippingCost         Float?
+  totalAmount          Float
+  status               OrderStatus @default(PENDING)
+  orderType            OrderType   @default(CART)
+  isBuyNow             Boolean     @default(false)
+  
+  // Payment details
+  paymentProvider      String?     @default("paymob")
+  paymobOrderId        String?     @unique
+  merchantOrderId      String?     @unique
+  paymentTransactionId String?
+  discountCodeId       String?
+  
+  // Billing address
   billingEmail         String?
   billingFirstName     String?
   billingLastName      String?
@@ -211,85 +158,39 @@ model Order {
   billingState         String?
   billingPostalCode    String?
   billingCountry       String?
+  
+  orderDate            DateTime    @default(now())
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
 
-  // Payment Provider Specific Fields
-  paymobOrderId        String?           @unique
-  merchantOrderId      String?           @unique
-  paymentTransactionId String?
+  user                 User?         @relation(fields: [userId], references: [id])
+  discountCode         DiscountCode? @relation(fields: [discountCodeId], references: [id])
 
-  // Relations
-  discountCode         DiscountCode?     @relation(fields: [discountCodeId], references: [id])
-  user                 User?             @relation(fields: [userId], references: [id])
-  orderItems           OrderItem[]
-
-  // Essential indexes - add new index for buy now queries
-  @@index([userId, status])
-  @@index([status, orderDate])
+  @@index([userId])
+  @@index([status])
+  @@index([orderDate])
   @@index([billingEmail])
   @@index([paymobOrderId])
+  @@index([orderType, isBuyNow])
   @@index([createdAt])
-  @@index([orderType, isBuyNow]) // New index for buy now orders
-}
-
-// ADD THIS NEW ENUM
-enum OrderType {
-  CART
-  BUY_NOW
-}
-
-
-model OrderItem {
-  id               String         @id @default(uuid())
-  orderId          String
-  productVariantId String
-  quantity         Int
-  priceAtPurchase  Float
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-  order            Order          @relation(fields: [orderId], references: [id])
-  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
-
-  // Essential indexes - reduced from 4 to 2
-  @@index([orderId]) // Keep - always queried by order
-  @@index([productVariantId, createdAt]) // Keep - for sales analytics
-}
-
-
-
-model Review {
-  id        String   @id @default(uuid())
-  productId String
-  userId    String
-  rating    Int
-  comment   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  product   Product  @relation(fields: [productId], references: [id])
-  user      User     @relation(fields: [userId], references: [id])
-
-  // Essential indexes - reduced from 6 to 3
-  @@index([productId]) // Keep - product review lookups
-  @@index([productId, rating]) // Keep - rating calculations
-  @@index([userId]) // Keep - user review history
-  // REMOVED: Individual rating, createdAt indexes (less critical)
-  // REMOVED: @@index([productId, createdAt]) - less common than rating queries
 }
 
 model DiscountCode {
-  id             String       @id @default(uuid())
-  code           String       @unique
+  id             String    @id @default(uuid())
+  code           String    @unique
+  discountType   String?   // "PERCENTAGE" or "FIXED"
   value          Float
   minOrderAmount Float?
-  isActive       Boolean      @default(true)
+  isActive       Boolean   @default(true)
   expiresAt      DateTime?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  discountType   String? 
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  
   orders         Order[]
 
-  // Essential indexes - reduced from 4 to 2
-  @@index([isActive, expiresAt]) // Keep - valid discount lookups
-  @@index([code, isActive]) // Keep - discount validation
+  @@index([code])
+  @@index([isActive, expiresAt])
+  @@index([code, isActive])
 }
 
 model ShippingRate {
@@ -298,28 +199,29 @@ model ShippingRate {
   cost        Float
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
+  
+  @@index([governorate])
 }
-
-
-// model NewsletterSubscription {
-//   id        String   @id @default(uuid())
-//   email     String   @unique
-//   createdAt DateTime @default(now())
-
-//   // Performance indexes
-//   @@index([createdAt]) // For subscription analytics
-// }
 
 enum OrderStatus {
   PENDING
   PROCESSING
+  PAID
   SHIPPED
-  REFUNDED
   DELIVERED
   CANCELLED
   FAILED
-  PAID
+  REFUNDED
   RETURNED
 }
 
+enum Role {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum OrderType {
+  CART
+  BUY_NOW
+}

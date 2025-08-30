@@ -13,14 +13,8 @@ import useMediaQuery from "@/hooks/useMediaQuery";
 import { ImageDialog } from "@/components/ui-custom/ImageDialog";
 import { useLocale } from "next-intl";
 
-type ProductVariantImage = {
-  url: string;
-  altText: string;
-  altTextAr?: string | null;
-};
-
 type ProductDetailsCarouselProps = {
-  images: ProductVariantImage[];
+  images: string[];
 };
 
 export default function ProductDetailsCarousel({
@@ -79,9 +73,18 @@ export default function ProductDetailsCarousel({
     api?.scrollTo(prevIndex);
   };
 
-  const getAltText = (image: ProductVariantImage) => {
-    return isRTL && image.altTextAr ? image.altTextAr : image.altText;
+  // Helper function to generate alt text from image filename or URL
+  const getAltText = (imageUrl: string, index: number) => {
+    // Extract filename from URL for alt text
+    const filename = imageUrl.split('/').pop()?.split('.')[0];
+    return filename || `Product image ${index + 1}`;
   };
+
+  // Convert string array to format expected by ImageDialog
+  const dialogImages = images.map((imageUrl, index) => ({
+    url: imageUrl,
+    altText: getAltText(imageUrl, index),
+  }));
 
   return isDesktop ? (
     <>
@@ -96,7 +99,7 @@ export default function ProductDetailsCarousel({
             className="w-full max-h-[600px]"
           >
             <CarouselContent className="flex flex-row md:flex-col gap-3 h-fit md:h-full">
-              {images.map((image, index) => (
+              {images.map((imageUrl, index) => (
                 <CarouselItem
                   key={index}
                   className={cn(
@@ -110,8 +113,8 @@ export default function ProductDetailsCarousel({
                   <Card className="w-full h-[150px] overflow-hidden">
                     <CardContent className="p-0 flex w-full h-full items-center justify-center relative">
                       <Image
-                        src={image.url}
-                        alt={getAltText(image)}
+                        src={imageUrl}
+                        alt={getAltText(imageUrl, index)}
                         fill
                         className="object-cover w-full h-full"
                       />
@@ -133,15 +136,15 @@ export default function ProductDetailsCarousel({
             }}
           >
             <CarouselContent className="h-full w-full">
-              {images.map((image, index) => (
+              {images.map((imageUrl, index) => (
                 <CarouselItem key={index}>
                   <Card className="overflow-hidden w-full">
                     <CardContent className="relative  w-full">
                       <Image
-                        src={image.url}
-                        alt={getAltText(image)}
-                        height={"500"}
-                        width={"400"}
+                        src={imageUrl}
+                        alt={getAltText(imageUrl, index)}
+                        height={500}
+                        width={400}
                         className="object-cover cursor-pointer"
                         loading="eager"
                         onClick={() => handleMainImageClick(index)}
@@ -157,7 +160,7 @@ export default function ProductDetailsCarousel({
       <ImageDialog
         isOpen={isDialogOpen}
         onClose={handleDialogClose}
-        images={images}
+        images={dialogImages}
         currentIndex={dialogCurrentIndex}
         onNext={handleDialogNext}
         onPrev={handleDialogPrev}
@@ -174,7 +177,7 @@ export default function ProductDetailsCarousel({
           }}
         >
           <CarouselContent className="h-full w-full">
-            {images.map((image, index) => (
+            {images.map((imageUrl, index) => (
               <CarouselItem
                 key={index}
                 onClick={() => handleMainImageClick(index)}
@@ -183,10 +186,10 @@ export default function ProductDetailsCarousel({
                 <Card className="overflow-hidden w-full">
                   <CardContent className="relative w-full">
                     <Image
-                      src={image.url}
-                      alt={getAltText(image)}
-                      width={"600"}
-                      height={"300"}
+                      src={imageUrl}
+                      alt={getAltText(imageUrl, index)}
+                      width={600}
+                      height={300}
                       className="object-cover"
                       loading={index === 0 ? "eager" : "lazy"}
                     />
@@ -215,7 +218,7 @@ export default function ProductDetailsCarousel({
       <ImageDialog
         isOpen={isDialogOpen}
         onClose={handleDialogClose}
-        images={images}
+        images={dialogImages}
         currentIndex={dialogCurrentIndex}
         onNext={handleDialogNext}
         onPrev={handleDialogPrev}

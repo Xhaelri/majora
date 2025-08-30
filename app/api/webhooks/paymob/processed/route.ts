@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/prisma";
 import crypto from "crypto";
+import { clearUserCart } from "@/server/actions/checkout-actions";
 
 interface PaymobWebhookData {
   obj: {
@@ -85,18 +86,6 @@ function verifyWebhookSignature(
   }
 }
 
-async function clearUserCart(userId: string) {
-  if (!userId) return;
-  try {
-    const cart = await db.cart.findUnique({ where: { userId } });
-    if (cart) {
-      await db.cartItem.deleteMany({ where: { cartId: cart.id } });
-    }
-  } catch (error) {
-    console.error("Error clearing cart:", error);
-  }
-}
-
 function determineOrderStatus(
   transaction: PaymobWebhookData["obj"]
 ): OrderStatus {
@@ -155,13 +144,25 @@ export async function POST(req: NextRequest) {
     }
     // Don't update the status if the order is already paid
     if (order.status === "PAID") {
-        return NextResponse.json({
-            success: true,
-            message: "Webhook processed. Order already marked as PAID.",
-        });
+      return NextResponse.json({
+        success: true,
+        message: "Webhook processed. Order already marked as PAID.",
+      });
     }
 
     const newStatus = determineOrderStatus(transaction);
+
+    
+    // ADD DEBUGGING LOGS
+    console.log("=== WEBHOOK DEBUG INFO ===");
+    console.log("Transaction success:", transaction.success);
+    console.log("Transaction error_occured:", transaction.error_occured);
+    console.log("Determined newStatus:", newStatus);
+    console.log("Order userId:", order.userId);
+    console.log("Order userId type:", typeof order.userId);
+    console.log("Condition check (newStatus === 'PAID'):", newStatus === "PAID");
+    console.log("Condition check (order.userId truthy):", !!order.userId);
+    console.log("Full condition result:", newStatus === "PAID" && !!order.userId);
 
     await db.order.update({
       where: { id: order.id },
@@ -172,8 +173,26 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    if (newStatus === "PAID" && order.userId) {
-      await clearUserCart(order.userId);
+    console.log("Order status updated successfully");
+
+    // Enhanced condition check with more explicit logging
+    if (newStatus === "PAID") {
+      console.log("Status is PAID, checking userId...");
+      if (order.userId) {
+        console.log("UserId exists, attempting to clear cart for user:", order.userId);
+        try {
+          const result = await clearUserCart(order.userId);
+          console.log("Cart clear result:", result);
+          console.log("Cart cleared successfully!");
+        } catch (error) {
+          console.error("Failed to clear cart:", error);
+          console.error("Error stack:", error instanceof Error ? error.stack : 'Unknown error');
+        }
+      } else {
+        console.log("No userId found on order - cart clearing skipped");
+      }
+    } else {
+      console.log("Status is not PAID (status:", newStatus, ") - cart clearing skipped");
     }
 
     return NextResponse.json({

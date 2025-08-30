@@ -32,7 +32,9 @@
     "closeIcon": "Close icon",
     "products": "Products",
     "categories": "Categories",
-    "showAllResults": "Show all results for"
+    "showAllResults": "Show all results for",
+   "clearFilters": "Clear Filters",
+   "allProducts":"All Products"
   },
   "menu": "Menu",
   "NotFound": {
@@ -69,7 +71,8 @@
     "inStock": "In Stock",
     "outOfStock": "Out of Stock",
     "minPrice": "Min",
-    "maxPrice": "Max"
+    "maxPrice": "Max",
+    "categories":"Categories"
   },
   "sort": {
     "sortBy": "Sort by",

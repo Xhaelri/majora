@@ -1,3 +1,4 @@
+// Fixed CheckOut.tsx
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
@@ -40,12 +41,12 @@ interface BillingData {
 }
 
 export default function CheckoutPage() {
-  const  t  = useTranslations('checkout');
+  const t = useTranslations("checkout");
 
   const { items: cartItems, totalQuantity: count } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [paymentKey, setPaymentKey] = useState<string | null>(null);
+  const [paymentKey, setPaymentKey] = useState<string>("");
   const [showPayment, setShowPayment] = useState(false);
   const [shippingCost, setShippingCost] = useState<number | null>(null);
   const [initializing, setInitializing] = useState(true);
@@ -100,12 +101,11 @@ export default function CheckoutPage() {
 
           // Auto-apply the discount code from the cart
           const subtotal = cartItems.reduce((sum, item) => {
-            const fullPrice = item.productVariant.product.price;
-            return sum + fullPrice * item.quantity;
+            return sum + item.price * item.quantity;
           }, 0);
 
           const saleDiscount = cartItems.reduce((sum, item) => {
-            const { price, salePrice } = item.productVariant.product;
+            const { price, salePrice } = item;
             if (salePrice && salePrice < price) {
               return sum + (price - salePrice) * item.quantity;
             }
@@ -158,14 +158,13 @@ export default function CheckoutPage() {
     }
   }, [billingData.state, handleGovernorateChange]);
 
-  // Calculate totals - now only uses cart items
+  // Calculate totals using CartItemUI structure
   const subtotal = cartItems.reduce((sum, item) => {
-    const fullPrice = item.productVariant.product.price;
-    return sum + fullPrice * item.quantity;
+    return sum + item.price * item.quantity;
   }, 0);
 
   const saleDiscount = cartItems.reduce((sum, item) => {
-    const { price, salePrice } = item.productVariant.product;
+    const { price, salePrice } = item;
     if (salePrice && salePrice < price) {
       return sum + (price - salePrice) * item.quantity;
     }
@@ -272,7 +271,6 @@ export default function CheckoutPage() {
     setError(null);
 
     try {
-      // Pass the discount code (not the amount) to server for re-validation
       const result = await createCheckoutSession(
         billingData,
         appliedDiscount?.code,
@@ -281,6 +279,10 @@ export default function CheckoutPage() {
 
       if (result.error) {
         setError(result.error);
+        return;
+      }
+      if (!result.paymentKey) {
+        setError(error);
         return;
       }
 
@@ -354,45 +356,41 @@ export default function CheckoutPage() {
 
         {/* Right Column - Order Summary */}
         <div className="bg-white p-6 shadow-sm border h-fit sticky top-4 lg:max-w-1/2 order-2">
-          <h2 className="text-xl font-semibold mb-6">
-            {t("orderSummary")}
-          </h2>
+          <h2 className="text-xl font-semibold mb-6">{t("orderSummary")}</h2>
 
           {/* Cart Items */}
           <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
             {cartItems.map((item) => (
               <div
-                key={item.id}
+                key={`${item.productId}-${item.variantId}`}
                 className="flex items-center space-x-4 p-2 bg-gray-50 rounded-md"
               >
                 <div className="w-16 h-16 bg-gray-200 rounded-md flex-shrink-0 overflow-hidden">
-                  {item.productVariant.images?.[0] && (
+                  {item.images?.[0] && (
                     <Image
-                      src={item.productVariant.images[0].url.trimStart()}
-                      alt={item.productVariant.images[0].altText}
+                      src={
+                        item.images[0].startsWith("http")
+                          ? item.images[0]
+                          : `/${item.images[0]}`
+                      }
+                      alt={item.name}
                       className="w-full h-full object-cover"
-                      width={16}
-                      height={16}
+                      width={64}
+                      height={64}
                     />
                   )}
                 </div>
                 <div className="flex-grow min-w-0">
-                  <h3 className="text-sm font-medium truncate">
-                    {item.productVariant.product.name}
-                  </h3>
+                  <h3 className="text-sm font-medium truncate">{item.name}</h3>
                   <p className="text-xs text-gray-500">
-                    {item.productVariant.size.name} •{" "}
-                    {item.productVariant.color.name}
+                    {item.size} • {item.color}
                   </p>
                   <p className="text-xs text-gray-500">
                     {t("summary.quantity")} {item.quantity}
                   </p>
                 </div>
                 <div className="text-sm font-medium flex-shrink-0">
-                  {formatPrice(
-                    (item.productVariant.product.salePrice ||
-                      item.productVariant.product.price) * item.quantity
-                  )}
+                  {formatPrice((item.salePrice || item.price) * item.quantity)}
                 </div>
               </div>
             ))}
@@ -403,10 +401,7 @@ export default function CheckoutPage() {
             <div className="flex justify-between text-sm">
               <span>
                 {t("summary.subtotal")} ({count}{" "}
-                {count === 1
-                  ? t("summary.item")
-                  : t("summary.items")}
-                )
+                {count === 1 ? t("summary.item") : t("summary.items")})
               </span>
               <span>{formatPrice(subtotal)}</span>
             </div>
@@ -421,8 +416,7 @@ export default function CheckoutPage() {
             {discountAmount > 0 && (
               <div className="flex justify-between text-sm text-red-600">
                 <span>
-                  {t("summary.couponDiscount")} (
-                  {appliedDiscount?.code})
+                  {t("summary.couponDiscount")} ({appliedDiscount?.code})
                 </span>
                 <span>-{formatPrice(discountAmount)}</span>
               </div>

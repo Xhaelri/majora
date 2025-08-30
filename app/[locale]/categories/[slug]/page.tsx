@@ -1,8 +1,5 @@
 import CardGrid from "@/components/ui-custom/CardGrid";
-import {
-  getCategoryBySlug,
-  getProductsByCategory,
-} from "@/server/db-actions/prisma";
+
 import {
   processProducts,
   SortOption,
@@ -10,6 +7,7 @@ import {
 } from "@/utils/product-utils";
 import React from "react";
 import { default as Filtering } from "../components/FilterOptions";
+import { getCategoryBySlug } from "@/server/db-actions/category-actions";
 
 // export async function generateStaticParams() {
 //   const slugs = await getAllcategories();
@@ -27,11 +25,11 @@ export async function generateMetadata({
   const category = await getCategoryBySlug(resolvedParams.slug);
 
   return {
-    title: category?.name,
+    title: category.data?.name,
   };
 }
 
-const page = async ({
+const CategoryPage = async ({
   params,
   searchParams,
 }: {
@@ -41,9 +39,20 @@ const page = async ({
   const resolvedParams = await params;
   const resolvedSearchParams = await searchParams;
 
-  const categorySlug = resolvedParams.slug;
+  const slug = resolvedParams.slug;
 
-  const categoryProducts = await getProductsByCategory(categorySlug);
+  const result = await getCategoryBySlug(slug);
+
+  // Handle error case
+  if (!result.success || !result.data) {
+    return (
+      <div className="mt-4 flex container">
+        <div>Error loading category: {result.error || "Category not found"}</div>
+      </div>
+    );
+  }
+
+  const categoryProducts = result.data.products; // Now this is FullProduct[]
 
   const sortOption = (resolvedSearchParams["sort"] as SortOption) || "featured";
 
@@ -82,4 +91,4 @@ const page = async ({
   );
 };
 
-export default page;
+export default CategoryPage;

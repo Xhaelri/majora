@@ -2,10 +2,10 @@ import React from "react";
 import SectionTitle from "../ui-custom/SectionTitle";
 import { Button } from "../ui/button";
 import CardGrid from "../ui-custom/CardGrid";
-import { getProductsByCategory } from "@/server/db-actions/prisma";
+import { getProductsByCategoryName } from "@/server/db-actions/product-actions";
 
 const Kimonos = async () => {
-  const products = (await getProductsByCategory("kimonos-kaftans")) ?? [];
+  const products = (await getProductsByCategoryName("kimonos-kaftans")) ?? [];
 
   return (
     <section className="flex flex-col items-center gap-15">
