@@ -55,7 +55,7 @@ const ProductDetails = ({ product }: Props) => {
   // Get unique sizes from variants (now working with string values)
   const uniqueSizes = useMemo(() => {
     const sizeSet = new Set<string>();
-    product.variants.forEach(variant => {
+    product.variants.forEach((variant) => {
       sizeSet.add(variant.size);
     });
     return Array.from(sizeSet);
@@ -66,7 +66,7 @@ const ProductDetails = ({ product }: Props) => {
     const colorSet = new Set<string>();
     product.variants
       .filter((v) => v.size === size)
-      .forEach(variant => {
+      .forEach((variant) => {
         colorSet.add(variant.color);
       });
     return Array.from(colorSet);
@@ -76,9 +76,7 @@ const ProductDetails = ({ product }: Props) => {
     const variant =
       product.variants.find(
         (v) =>
-          v.size === size &&
-          v.color === selectedVariant?.color &&
-          v.stock > 0
+          v.size === size && v.color === selectedVariant?.color && v.stock > 0
       ) || product.variants.find((v) => v.size === size && v.stock > 0);
 
     if (variant) {
@@ -89,9 +87,7 @@ const ProductDetails = ({ product }: Props) => {
   const handleColorClick = (color: string) => {
     const variant = product.variants.find(
       (v) =>
-        v.color === color &&
-        v.size === selectedVariant?.size &&
-        v.stock > 0
+        v.color === color && v.size === selectedVariant?.size && v.stock > 0
     );
     if (variant) {
       setSelectedVariant(variant);
@@ -108,7 +104,7 @@ const ProductDetails = ({ product }: Props) => {
 
   return (
     <section className="container pt-0 lg:py-20">
-      <div className="flex flex-col lg:flex-row items-center justify-center lg:items-start ">
+      <div className="flex flex-col lg:flex-row items-center justify-center lg:items-start gap-10 ">
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           whileInView={{ y: 0, opacity: 100 }}

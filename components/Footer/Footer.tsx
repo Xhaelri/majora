@@ -7,7 +7,7 @@ export default function Footer() {
   const date = new Date();
   
   return (
-    <footer className="bg-primary flex flex-col items-center mt-10">
+    <footer className="bg-primary flex flex-col items-center mt-10 z-50">
       <section className="container flex flex-col justify-center text-sm items-start md:items-center text-primary-foreground">
         <section className="flex space-x-10 items-center mt-5 md:items-center md:justify-center w-full mb-5">
           <h1>{t("socialMedia.instagram")}</h1>

@@ -88,46 +88,36 @@ export default function ProductDetailsCarousel({
 
   return isDesktop ? (
     <>
-      <div className="flex flex-col md:flex-row gap-10 w-full justify-center items-start">
-        <div className="md:w-1/5 w-full order-2 md:order-1 flex justify-center md:justify-start">
-          <Carousel
-            orientation="vertical"
-            opts={{
-              align: "start",
-              direction: isRTL ? "rtl" : "ltr",
-            }}
-            className="w-full max-h-[600px]"
-          >
-            <CarouselContent className="flex flex-row md:flex-col gap-3 h-fit md:h-full">
-              {images.map((imageUrl, index) => (
-                <CarouselItem
-                  key={index}
-                  className={cn(
-                    "basis-1/3 md:basis-1/4 lg:basis-1/5 cursor-pointer",
-                    current === index + 1
-                      ? "opacity-100 border-1 border-gray-800 "
-                      : "opacity-70"
-                  )}
-                  onClick={() => handleThumbClick(index)}
-                >
-                  <Card className="w-full h-[150px] overflow-hidden">
-                    <CardContent className="p-0 flex w-full h-full items-center justify-center relative">
-                      <Image
-                        src={imageUrl}
-                        alt={getAltText(imageUrl, index)}
-                        fill
-                        className="object-cover w-full h-full"
-                      />
-                    </CardContent>
-                  </Card>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-          </Carousel>
+      <div className="flex gap-4 w-full">
+        {/* Thumbnail Column - Full Height */}
+        <div className="w-20 flex flex-col gap-2">
+          <div className="grid grid-rows-[repeat(auto-fit,minmax(0,1fr))] gap-2 h-[600px]">
+            {images.map((imageUrl, index) => (
+              <div
+                key={index}
+                className={cn(
+                  "cursor-pointer relative overflow-hidden  border-1 transition-all",
+                  current === index + 1
+                    ? "border-gray-800 opacity-100"
+                    : "border-transparent opacity-70 hover:opacity-90"
+                )}
+                onClick={() => handleThumbClick(index)}
+                style={{ height: `${600 / images.length - (8 * (images.length - 1)) / images.length}px` }}
+              >
+                <Image
+                  src={imageUrl}
+                  alt={getAltText(imageUrl, index)}
+                  fill
+                  className="object-cover"
+                  sizes="80px"
+                />
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Main Product Image Carousel (horizontal) */}
-        <div className=" w-full order-1 md:order-2 flex justify-center items-center">
+        {/* Main Image - Full Width */}
+        <div className="flex-1">
           <Carousel
             setApi={setApi}
             className="w-full"
@@ -135,20 +125,22 @@ export default function ProductDetailsCarousel({
               direction: isRTL ? "rtl" : "ltr",
             }}
           >
-            <CarouselContent className="h-full w-full">
+            <CarouselContent>
               {images.map((imageUrl, index) => (
                 <CarouselItem key={index}>
                   <Card className="overflow-hidden w-full">
-                    <CardContent className="relative  w-full">
-                      <Image
-                        src={imageUrl}
-                        alt={getAltText(imageUrl, index)}
-                        height={500}
-                        width={400}
-                        className="object-cover cursor-pointer"
-                        loading="eager"
-                        onClick={() => handleMainImageClick(index)}
-                      />
+                    <CardContent className="p-0">
+                      <div className="relative h-[600px] w-full">
+                        <Image
+                          src={imageUrl}
+                          alt={getAltText(imageUrl, index)}
+                          fill
+                          className="object-cover cursor-pointer"
+                          loading="eager"
+                          onClick={() => handleMainImageClick(index)}
+                          sizes="(min-width: 768px) calc(100vw - 120px), 100vw"
+                        />
+                      </div>
                     </CardContent>
                   </Card>
                 </CarouselItem>
