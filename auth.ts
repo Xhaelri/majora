@@ -78,6 +78,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async signIn({ user, account, profile }) {
       console.log("signIn callback", { user, account, profile });
+
+      // Only handle Google OAuth users here, not credentials users
       if (account?.provider === "google") {
         try {
           const existingUser = await db.user.findUnique({
@@ -100,6 +102,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               },
             });
 
+            // Create cart for new user
             await db.cart.create({
               data: {
                 userId: newUser.id,
@@ -107,46 +110,67 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               },
             });
 
+            // Update user object with database values
             user.id = newUser.id;
             user.role = newUser.role;
+            user.firstName = firstName;
+            user.lastName = lastName;
           } else {
+            // Update user object with existing user data
             user.id = existingUser.id;
             user.role = existingUser.role;
+            user.firstName = existingUser.firstName || undefined;
+            user.lastName = existingUser.lastName || undefined;
           }
         } catch (error) {
-          console.error("Error creating user:", error);
+          console.error("Error in signIn callback:", error);
           return false;
         }
       }
+
       return true;
     },
 
     async jwt({ token, user, trigger }) {
+      // Handle initial login
       if (user) {
-        const dbUser = await db.user.findUnique({
-          where: { email: user.email! },
-        });
+        try {
+          const dbUser = await db.user.findUnique({
+            where: { email: user.email! },
+          });
 
-        if (dbUser) {
-          token.sub = dbUser.id;
-          token.email = dbUser.email;
-          token.name = dbUser.name;
-          token.firstName = dbUser.firstName;
-          token.lastName = dbUser.lastName;
-          token.image = dbUser.image;
-          token.role = dbUser.role; // Add role to token
-        } else {
+          if (dbUser) {
+            token.sub = dbUser.id;
+            token.email = dbUser.email;
+            token.name = dbUser.name;
+            token.firstName = dbUser.firstName;
+            token.lastName = dbUser.lastName;
+            token.image = dbUser.image;
+            token.role = dbUser.role;
+          } else {
+            // Fallback to user object data
+            token.sub = user.id;
+            token.email = user.email;
+            token.name = user.name;
+            token.firstName = user.firstName || "";
+            token.lastName = user.lastName || "";
+            token.image = user.image;
+            token.role = user.role || "USER";
+          }
+        } catch (error) {
+          console.error("Error in jwt callback during user login:", error);
           // Fallback to user object data
           token.sub = user.id;
           token.email = user.email;
           token.name = user.name;
-          token.firstName = user.firstName;
-          token.lastName = user.lastName;
+          token.firstName = user.firstName || "";
+          token.lastName = user.lastName || "";
           token.image = user.image;
-          token.role = user.role; // Add role to token
+          token.role = user.role || "USER";
         }
       }
 
+      // Handle token refresh or update
       if ((token.sub && !token.email) || trigger === "update") {
         try {
           const dbUser = await db.user.findUnique({
@@ -159,7 +183,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             token.firstName = dbUser.firstName;
             token.lastName = dbUser.lastName;
             token.image = dbUser.image;
-            token.role = dbUser.role; // Add role to token
+            token.role = dbUser.role;
           }
         } catch (error) {
           console.error("Error refreshing token:", error);
@@ -174,10 +198,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.id = token.sub!;
         session.user.email = token.email!;
         session.user.name = token.name as string;
-        session.user.firstName = token.firstName as string;
-        session.user.lastName = token.lastName as string;
-        session.user.image = token.image as string;
-        session.user.role = token.role as string;
+        session.user.firstName = (token.firstName as string) || "";
+        session.user.lastName = (token.lastName as string) || "";
+        session.user.image = (token.image as string) || undefined;
+        session.user.role = (token.role as string) || "USER";
       }
 
       return session;
