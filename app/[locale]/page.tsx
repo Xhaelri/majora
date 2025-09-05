@@ -1,12 +1,11 @@
+// app/[locale]/page.tsx
 import Hero from "@/components/Hero/Hero";
 import Hero2 from "@/components/Hero/Hero2";
-import BestSellers from "@/components/Best-Sellers/BestSellers";
-import Sets from "@/components/Sets/Sets";
-import Tops from "@/components/Tops-Shirts/Tops-Shirts";
-import Dresses from "@/components/Dresses/Dresses";
+import { getAllCategoriesWithProducts } from "@/server/db-actions/category-actions";
 import type { Metadata } from "next";
 import { routing } from "@/i18n/routing";
 import { setRequestLocale } from "next-intl/server";
+import CategorySection from "@/components/Home-Section/CategorySection";
 
 export async function generateStaticParams() {
   return routing.locales.map((locale) => ({
@@ -42,18 +41,27 @@ export const revalidate = 3600;
 
 export default async function Home({ params }: PageProps) {
   const { locale } = await params;
-
   setRequestLocale(locale);
+
+  // Fetch all categories with their products
+  const result = await getAllCategoriesWithProducts();
 
   return (
     <>
       <Hero>
         <Hero2 />
       </Hero>
-      <BestSellers />
-      <Sets />
-      <Tops />
-      <Dresses />
+
+      {/* Dynamically render category sections */}
+      {result.success && result.data ? (
+        result.data.map((category) => (
+          <CategorySection key={category.id} category={category} />
+        ))
+      ) : (
+        <section className="flex flex-col items-center gap-15">
+          <div>Error loading categories: {result.error || "Unknown error"}</div>
+        </section>
+      )}
     </>
   );
 }

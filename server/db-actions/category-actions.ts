@@ -84,13 +84,10 @@ export async function getCategoryById(categoryId: string): Promise<CategoryActio
   }
 }
 
-export async function getCategoryBySlug(slug: string): Promise<CategoryActionResult> {
+export async function getCategoryByName(name: string): Promise<CategoryActionResult> {
   try {
-    // Convert slug back to name (reverse of slugify process)
-    const categoryName = slug
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+    // Convert URL format back to normal name (replace hyphens with spaces)
+    const categoryName = name.replace(/-/g, ' ');
 
     const category = await db.category.findFirst({
       where: {
@@ -111,7 +108,7 @@ export async function getCategoryBySlug(slug: string): Promise<CategoryActionRes
             category: true,
           },
           where: {
-            isAvailable: true, // Only include available products
+            isAvailable: true,
           },
           orderBy: {
             createdAt: 'desc',
@@ -125,7 +122,7 @@ export async function getCategoryBySlug(slug: string): Promise<CategoryActionRes
       success: true,
     };
   } catch (error) {
-    console.error("Error fetching category by slug:", error);
+    console.error("Error fetching category by name:", error);
     return {
       data: null,
       success: false,
@@ -134,27 +131,41 @@ export async function getCategoryBySlug(slug: string): Promise<CategoryActionRes
   }
 }
 
-// READ - Get category by name
-export async function getCategoryByName(name: string) {
+export async function getAllCategoriesWithProducts() {
   try {
-    const category = await db.category.findUnique({
-      where: { name },
+    const categories = await db.category.findMany({
       include: {
-        _count: {
-          select: {
-            products: true,
+        products: {
+          include: {
+            variants: {
+              orderBy: [
+                { size: 'asc' },
+                { color: 'asc' }
+              ]
+            },
+            category: true,
+          },
+          where: {
+            isAvailable: true, 
+          },
+          orderBy: {
+            createdAt: 'desc',
           },
         },
       },
+      orderBy: {
+        name: 'asc', // or however you want to order categories
+      },
     });
 
-    if (!category) {
-      return { success: false, error: "Category not found" };
-    }
+    // Filter out categories with no available products
+    const categoriesWithProducts = categories.filter(
+      category => category.products && category.products.length > 0
+    );
 
-    return { success: true, data: category };
+    return { success: true, data: categoriesWithProducts };
   } catch (error) {
-    console.error("Get category by name error:", error);
-    return { success: false, error: "Failed to fetch category" };
+    console.error("Get all categories with products error:", error);
+    return { success: false, error: "Failed to fetch categories with products" };
   }
 }

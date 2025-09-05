@@ -59,7 +59,8 @@
   "MobileMenu": {
     "account": "الحساب",
     "login": "تسجيل الدخول",
-    "createAccount": "إنشاء حساب جديد"
+    "createAccount": "إنشاء حساب جديد",
+    "categoriesError":"خطأ في التصنيف"
   },
   "Common": {
     "viewAll": "مشاهدة الكل"
@@ -349,6 +350,8 @@
     "products": "المنتجات",
     "menu": "القائمة",
     "account": "الحساب",
-    "cart": "حقيبة التسوق"
+    "cart": "حقيبة التسوق",
+    "test category test":"تصنيف تجريبي"
   }
+  
 }

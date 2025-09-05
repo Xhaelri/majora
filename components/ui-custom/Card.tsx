@@ -4,7 +4,6 @@ import formatPrice from "@/utils/formatPrice";
 import Image from "next/image";
 import React, { useState } from "react";
 import { Link } from "@/i18n/navigation";
-import slugifyAdvanced from "@/utils/slugify";
 import { useLocale, useTranslations } from "next-intl";
 import { FullProduct } from "@/types/product-types";
 
@@ -48,7 +47,7 @@ const Card = ({ productData }: CardProps) => {
     <div>
       {isDesktop ? (
         <Link
-          href={`/products/${slugifyAdvanced(productData.name)}`}
+          href={`/products/${(productData.slug)}`}
           className="flex flex-col  items-center justify-center gap-2 w-full max-w-[260px]"
         >
           <div
@@ -73,18 +72,18 @@ const Card = ({ productData }: CardProps) => {
           <h1
             className={`text-md font-light  ${
               isRTL ? "font-medium" : "md:tracking-[2px]"
-            } text-center h-11 line-clamp-2 break-all uppercase`}
+            } text-center h-7 line-clamp-2 break-all uppercase`}
           >
             {isRTL ? productData.nameAr : productData.name}
           </h1>
           <div className="text-md font-extralight tracking-widest flex flex-col items-center">
-            <div className="flex flex-col gap-0 lg:gap-2 ">
+            <div className="flex flex-col gap-0 ">
               {isOnSale ? (
                 <h2 className="line-through text-nowrap text-sm">
                   {formatPrice(originalPrice)}
                 </h2>
               ) : null}
-              <h2 className="text-center text-nowrap text-sm">
+              <h2 className="text-center text-nowrap text-sm font-bold">
                 {formatPrice(currentPrice)}
               </h2>
             </div>
@@ -97,7 +96,7 @@ const Card = ({ productData }: CardProps) => {
         </Link>
       ) : (
         <Link
-          href={`/products/${slugifyAdvanced(productData.name)}`}
+          href={`/products/${(productData.slug)}`}
           className="flex flex-col items-center gap-2 w-full max-w-[260px]"
         >
           <div className="w-full aspect-[2/3] relative cursor-pointer">

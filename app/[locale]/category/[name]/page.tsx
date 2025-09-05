@@ -1,5 +1,5 @@
-import CardGrid from "@/components/ui-custom/CardGrid";
 
+import CardGrid from "@/components/ui-custom/CardGrid";
 import {
   processProducts,
   SortOption,
@@ -7,25 +7,18 @@ import {
 } from "@/utils/product-utils";
 import React from "react";
 import { default as Filtering } from "../components/FilterOptions";
-import { getCategoryBySlug } from "@/server/db-actions/category-actions";
-
-// export async function generateStaticParams() {
-//   const slugs = await getAllcategories();
-//   return slugs.map((slug) => ({
-//     slug,
-//   }));
-// }
+import { getCategoryByName } from "@/server/db-actions/category-actions";
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ name: string }>;
 }) {
   const resolvedParams = await params;
-  const category = await getCategoryBySlug(resolvedParams.slug);
+  const category = await getCategoryByName(resolvedParams.name);
 
   return {
-    title: category.data?.name,
+    title: category.data?.name || resolvedParams.name.replace(/-/g, ' '),
   };
 }
 
@@ -33,15 +26,15 @@ const CategoryPage = async ({
   params,
   searchParams,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ name: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) => {
   const resolvedParams = await params;
   const resolvedSearchParams = await searchParams;
 
-  const slug = resolvedParams.slug;
+  const categoryName = resolvedParams.name;
 
-  const result = await getCategoryBySlug(slug);
+  const result = await getCategoryByName(categoryName);
 
   // Handle error case
   if (!result.success || !result.data) {
@@ -52,7 +45,7 @@ const CategoryPage = async ({
     );
   }
 
-  const categoryProducts = result.data.products; // Now this is FullProduct[]
+  const categoryProducts = result.data.products;
 
   const sortOption = (resolvedSearchParams["sort"] as SortOption) || "featured";
 

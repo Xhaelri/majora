@@ -33,8 +33,8 @@
     "products": "Products",
     "categories": "Categories",
     "showAllResults": "Show all results for",
-   "clearFilters": "Clear Filters",
-   "allProducts":"All Products"
+    "clearFilters": "Clear Filters",
+    "allProducts": "All Products"
   },
   "menu": "Menu",
   "NotFound": {
@@ -59,7 +59,8 @@
   "MobileMenu": {
     "account": "Account",
     "login": "Login",
-    "createAccount": "Create Account"
+    "createAccount": "Create Account",
+    "categoriesError": "Category Error"
   },
   "Common": {
     "viewAll": "View All"
@@ -72,7 +73,7 @@
     "outOfStock": "Out of Stock",
     "minPrice": "Min",
     "maxPrice": "Max",
-    "categories":"Categories"
+    "categories": "Categories"
   },
   "sort": {
     "sortBy": "Sort by",
@@ -342,7 +343,8 @@
     "sets": "Sets",
     "topsShirts": "Tops & Shirts",
     "dresses": "Dresses",
-    "bottoms": "Bottoms"
+    "bottoms": "Bottoms",
+    "test category test": "test category"
   },
   "Header": {
     "home": "Home",

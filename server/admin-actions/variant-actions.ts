@@ -1,9 +1,10 @@
 "use server";
 
-import { db } from "@/lib/prisma"; 
+import { db } from "@/lib/prisma";
 
 import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { ProductActionResult } from "./product-actions";
 
 // Types
 export interface CreateProductVariantData {
@@ -33,7 +34,7 @@ export async function createProductVariant(data: CreateProductVariantData) {
       !data.size ||
       !data.color ||
       !data.colorHex ||
-      !data.stock||
+      !data.stock ||
       !data.images.length
     ) {
       return {
@@ -217,7 +218,9 @@ export async function updateProductVariant(data: UpdateProductVariantData) {
 }
 
 // DELETE - Delete a product variant
-export async function deleteProductVariant(id: string) {
+export async function deleteProductVariant(
+  id: string
+): Promise<ProductActionResult> {
   try {
     if (!id) {
       return { success: false, error: "Variant ID is required" };
@@ -231,6 +234,11 @@ export async function deleteProductVariant(id: string) {
           select: {
             id: true,
             slug: true,
+            _count: {
+              select: {
+                variants: true,
+              },
+            },
           },
         },
       },
@@ -240,18 +248,79 @@ export async function deleteProductVariant(id: string) {
       return { success: false, error: "Product variant not found" };
     }
 
-    // TODO: Add check for existing orders/cart items if needed
-    // You might want to prevent deletion if this variant is in any active orders or carts
-
-    await db.productVariant.delete({
-      where: { id },
+    // Check for existing orders/cart items containing this variant
+    const existingOrders = await db.order.findMany({
+      where: {
+        items: {
+          path: ["$[*]", "variantId"],
+          array_contains: id,
+        },
+        status: {
+          not: "CANCELLED",
+        },
+      },
+      select: { id: true },
     });
 
-    revalidatePath(`/admin/products`);
-    revalidatePath(`/admin/products/${variant.productId}`);
-    revalidatePath(`/products/${variant.product.slug}`);
+    if (existingOrders.length > 0) {
+      return {
+        success: false,
+        error: "Cannot delete variant as it exists in active orders",
+      };
+    }
 
-    return { success: true, message: "Product variant deleted successfully" };
+    // Check for existing cart items containing this variant
+    const existingCarts = await db.cart.findMany({
+      where: {
+        items: {
+          path: ["$[*]", "variantId"],
+          array_contains: id,
+        },
+      },
+      select: { id: true },
+    });
+
+    if (existingCarts.length > 0) {
+      return {
+        success: false,
+        error:
+          "Cannot delete variant as it exists in shopping carts. Please remove from carts first.",
+      };
+    }
+
+    // Check if this is the last variant for the product
+    const isLastVariant = variant.product._count.variants === 1;
+
+    if (isLastVariant) {
+      // Delete the entire product if this is the last variant
+      await db.product.delete({
+        where: { id: variant.product.id },
+      });
+
+      revalidatePath(`/admin/products`);
+      revalidatePath(`/products`);
+
+      return {
+        success: true,
+        message: "Product deleted successfully (last variant removed)",
+        data: { productDeleted: true, productId: variant.product.id },
+      };
+    } else {
+      // Delete only the variant
+      await db.productVariant.delete({
+        where: { id },
+      });
+
+      revalidatePath(`/admin/products`);
+      revalidatePath(`/admin/products/${variant.product.id}`);
+      revalidatePath(`/products/${variant.product.slug}`);
+
+      return {
+        success: true,
+        message: "Product variant deleted successfully",
+        data: { productDeleted: false, productId: variant.product.id },
+      };
+    }
   } catch (error) {
     console.error("Delete product variant error:", error);
 
@@ -273,4 +342,3 @@ export async function deleteProductVariant(id: string) {
     return { success: false, error: "Failed to delete product variant" };
   }
 }
-

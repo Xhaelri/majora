@@ -115,3 +115,20 @@ export const EGYPT_GOVERNORATES_AR = [
   "السويس",
 ];
 
+// Predefined sizes and colors
+export const SIZES = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
+
+export const COLORS = [
+  { name: "Black", hex: "#000000" },
+  { name: "White", hex: "#FFFFFF" },
+  { name: "Gray", hex: "#808080" },
+  { name: "Red", hex: "#FF0000" },
+  { name: "Blue", hex: "#0000FF" },
+  { name: "Green", hex: "#008000" },
+  { name: "Yellow", hex: "#FFFF00" },
+  { name: "Orange", hex: "#FFA500" },
+  { name: "Purple", hex: "#800080" },
+  { name: "Pink", hex: "#FFC0CB" },
+  { name: "Brown", hex: "#A52A2A" },
+  { name: "Navy", hex: "#000080" },
+];

@@ -1,78 +1,29 @@
 "use client";
 
+import { COLORS, SIZES } from "@/constants/constants";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 import {
   createProduct,
   CreateProductData,
   CreateProductVariantData,
 } from "@/server/admin-actions/product-actions";
+import { slugifyAdvanced } from "@/utils/slugify";
 import { Category } from "@prisma/client";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 
-// Predefined sizes and colors
-const SIZES = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
-const COLORS = [
-  { name: "Black", hex: "#000000" },
-  { name: "White", hex: "#FFFFFF" },
-  { name: "Gray", hex: "#808080" },
-  { name: "Red", hex: "#FF0000" },
-  { name: "Blue", hex: "#0000FF" },
-  { name: "Green", hex: "#008000" },
-  { name: "Yellow", hex: "#FFFF00" },
-  { name: "Orange", hex: "#FFA500" },
-  { name: "Purple", hex: "#800080" },
-  { name: "Pink", hex: "#FFC0CB" },
-  { name: "Brown", hex: "#A52A2A" },
-  { name: "Navy", hex: "#000080" },
-];
 
-// Slugify function
-function slugifyAdvanced(text: string): string {
-  return text
-    .toString()
-    .normalize("NFD") // Normalize diacritics
-    .replace(/[\u0300-\u036f]/g, "") // Remove diacritics
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, "-") // Replace spaces with -
-    .replace(/[^\w-]+/g, "") // Remove all non-word chars (leaving only alphanumeric and hyphens)
-    .replace(/--+/g, "-"); // Replace multiple - with single -
-}
 
 // Cloudinary upload function
-async function uploadToCloudinary(file: File): Promise<string> {
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append(
-    "upload_preset",
-    process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || ""
-  );
 
-  const response = await fetch(
-    `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
-    {
-      method: "POST",
-      body: formData,
-    }
-  );
-
-  // This is the improved part
-  if (!response.ok) {
-    const errorData = await response.json();
-    console.error("Cloudinary upload failed:", errorData);
-    // Throw a more specific error
-    throw new Error(`Cloudinary Error: ${errorData.error.message}`);
-  }
-
-  const data = await response.json();
-  return data.secure_url;
-}
 
 type Props = {
   categories: Category[];
+  onSuccess: () => void;
 };
 
-const CreateProductForm = ({ categories }: Props) => {
+const CreateProductForm = ({ categories, onSuccess }: Props) => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{
     type: "success" | "error";
@@ -93,6 +44,7 @@ const CreateProductForm = ({ categories }: Props) => {
     [key: number]: boolean;
   }>({});
 
+  const router = useRouter();
   // Generate slug when product name changes
   useEffect(() => {
     if (productName.trim()) {
@@ -216,7 +168,7 @@ const CreateProductForm = ({ categories }: Props) => {
 
       if (result.success) {
         setMessage({ type: "success", text: "Product created successfully!" });
-        // Reset form and variants
+        setTimeout(onSuccess, 1000);
         (
           document.getElementById("create-product-form") as HTMLFormElement
         )?.reset();
@@ -231,6 +183,7 @@ const CreateProductForm = ({ categories }: Props) => {
             images: [],
           },
         ]);
+        router.refresh();
       } else {
         setMessage({
           type: "error",
@@ -402,7 +355,7 @@ const CreateProductForm = ({ categories }: Props) => {
             Category
           </label>
           <div className="space-y-2">
-            {categories.map((category) => (
+            {categories?.map((category) => (
               <div key={category.id} className="flex items-center">
                 <input
                   type="radio"
@@ -489,110 +442,103 @@ const CreateProductForm = ({ categories }: Props) => {
                 )}
               </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Size Selection */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Size *
-                    </label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {SIZES.map((sizeOption) => (
-                        <label
-                          key={sizeOption}
-                          className={`flex items-center justify-center p-3 border rounded cursor-pointer hover:bg-gray-50 ${
-                            variant.size === sizeOption
-                              ? "border-blue-500 bg-blue-50 text-blue-700"
-                              : "border-gray-300"
-                          }`}
-                        >
-                          <input
-                            type="radio"
-                            name={`size-${index}`}
-                            value={sizeOption}
-                            checked={variant.size === sizeOption}
-                            onChange={(e) =>
-                              updateVariant(
-                                index,
-                                "size",
-                                e.target.value
-                              )
-                            }
-                            className="sr-only"
-                          />
-                          <span className="font-medium">{sizeOption}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Stock */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Stock Quantity *
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      value={variant.stock}
-                      onChange={(e) =>
-                        updateVariant(
-                          index,
-                          "stock",
-                          parseInt(e.target.value) || 0
-                        )
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter stock quantity"
-                    />
-                  </div>
-                </div>
-
-                {/* Color Selection */}
-                <div className="mt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Size Selection */}
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Color *
+                    Size *
                   </label>
-
-                  {/* Predefined Colors */}
-                  <div className="mb-4">
-                    <h4 className="text-sm font-medium text-gray-600 mb-2">
-                      Predefined Colors
-                    </h4>
-                    <div className="grid grid-cols-4 md:grid-cols-6 gap-3">
-                      {COLORS.map((colorOption) => (
-                        <label
-                          key={colorOption.name}
-                          className={`flex flex-col items-center p-3 border rounded cursor-pointer hover:bg-gray-50 ${
-                            variant.color === colorOption.name
-                              ? "border-blue-500 bg-blue-50"
-                              : "border-gray-300"
-                          }`}
-                        >
-                          <input
-                            type="radio"
-                            name={`color-${index}`}
-                            value={colorOption.name}
-                            checked={variant.color === colorOption.name}
-                            onChange={() =>
-                              handleColorChange(
-                                index,
-                                colorOption.name,
-                              )
-                            }
-                            className="sr-only"
-                          />
-                          <div
-                            className="w-8 h-8 rounded-full border-2 border-gray-300 mb-1"
-                            style={{ backgroundColor: colorOption.hex }}
-                          />
-                          <span className="text-xs text-center">
-                            {colorOption.name}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {SIZES.map((sizeOption) => (
+                      <label
+                        key={sizeOption}
+                        className={`flex items-center justify-center p-3 border rounded cursor-pointer hover:bg-gray-50 ${
+                          variant.size === sizeOption
+                            ? "border-blue-500 bg-blue-50 text-blue-700"
+                            : "border-gray-300"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name={`size-${index}`}
+                          value={sizeOption}
+                          checked={variant.size === sizeOption}
+                          onChange={(e) =>
+                            updateVariant(index, "size", e.target.value)
+                          }
+                          className="sr-only"
+                        />
+                        <span className="font-medium">{sizeOption}</span>
+                      </label>
+                    ))}
                   </div>
                 </div>
+
+                {/* Stock */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Stock Quantity *
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={variant.stock}
+                    onChange={(e) =>
+                      updateVariant(
+                        index,
+                        "stock",
+                        parseInt(e.target.value) || 0
+                      )
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter stock quantity"
+                  />
+                </div>
+              </div>
+
+              {/* Color Selection */}
+              <div className="mt-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Color *
+                </label>
+
+                {/* Predefined Colors */}
+                <div className="mb-4">
+                  <h4 className="text-sm font-medium text-gray-600 mb-2">
+                    Predefined Colors
+                  </h4>
+                  <div className="grid grid-cols-4 md:grid-cols-6 gap-3">
+                    {COLORS.map((colorOption) => (
+                      <label
+                        key={colorOption.name}
+                        className={`flex flex-col items-center p-3 border rounded cursor-pointer hover:bg-gray-50 ${
+                          variant.color === colorOption.name
+                            ? "border-blue-500 bg-blue-50"
+                            : "border-gray-300"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name={`color-${index}`}
+                          value={colorOption.name}
+                          checked={variant.color === colorOption.name}
+                          onChange={() =>
+                            handleColorChange(index, colorOption.name)
+                          }
+                          className="sr-only"
+                        />
+                        <div
+                          className="w-8 h-8 rounded-full border-2 border-gray-300 mb-1"
+                          style={{ backgroundColor: colorOption.hex }}
+                        />
+                        <span className="text-xs text-center">
+                          {colorOption.name}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
 
               {/* Image Upload Section */}
               <div className="mt-4">

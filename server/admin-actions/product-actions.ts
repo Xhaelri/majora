@@ -50,7 +50,9 @@ export interface ProductActionResult<T = unknown> {
 }
 
 // CREATE
-export async function createProduct(data: CreateProductData): Promise<ProductActionResult> {
+export async function createProduct(
+  data: CreateProductData
+): Promise<ProductActionResult> {
   try {
     const product = await db.product.create({
       data: {
@@ -98,30 +100,14 @@ export async function createProduct(data: CreateProductData): Promise<ProductAct
 }
 
 // UPDATE
-export async function updateProduct(data: UpdateProductData): Promise<ProductActionResult> {
+export async function updateProduct(
+  id: string,
+  data: UpdateProductData
+): Promise<ProductActionResult> {
   try {
     const product = await db.product.update({
-      where: { id: data.id },
-      data: {
-        ...(data.name && { name: data.name }),
-        ...(data.nameAr !== undefined && { nameAr: data.nameAr }),
-        ...(data.description !== undefined && {
-          description: data.description,
-        }),
-        ...(data.descriptionAr !== undefined && {
-          descriptionAr: data.descriptionAr,
-        }),
-        ...(data.slug && { slug: data.slug }),
-        ...(data.price !== undefined && { price: data.price }),
-        ...(data.salePrice !== undefined && { salePrice: data.salePrice }),
-        ...(data.isLimitedEdition !== undefined && {
-          isLimitedEdition: data.isLimitedEdition,
-        }),
-        ...(data.isAvailable !== undefined && {
-          isAvailable: data.isAvailable,
-        }),
-        ...(data.categoryId !== undefined && { categoryId: data.categoryId }),
-      },
+      where: { id },
+      data,
       include: {
         category: true,
         variants: true,
@@ -151,7 +137,9 @@ export async function updateProduct(data: UpdateProductData): Promise<ProductAct
 }
 
 // UPDATE - Toggle product availability
-export async function toggleProductAvailability(id: string): Promise<ProductActionResult> {
+export async function toggleProductAvailability(
+  id: string
+): Promise<ProductActionResult> {
   try {
     const product = await db.product.findUnique({
       where: { id },

@@ -1,4 +1,4 @@
-import ProductsSectionHeader from "@/components/ui-custom/ProductsSectionHeader";
+import CategorySectionHeader from "@/components/Home-Section/CategorySectionHeader";
 import { heroImages } from "@/constants/constants";
 import React from "react";
 type Props = {
@@ -10,9 +10,9 @@ const layout = ({ children }: Props) => {
 
   return (
     <>
-      <ProductsSectionHeader image={headerImage}>
+      <CategorySectionHeader image={headerImage}>
         SHOP ALL
-      </ProductsSectionHeader>
+      </CategorySectionHeader>
       {children}
     </>
   );
