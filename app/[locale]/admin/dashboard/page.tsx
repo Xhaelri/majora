@@ -4,7 +4,7 @@ import { Package, FolderOpen, Layers, TrendingUp } from "lucide-react";
 export default function AdminDashboardPage() {
   return (
     <div>
-      <div className="mb-6">
+      <div className="mb-6 ">
         <h2 className="text-2xl font-bold tracking-tight">Dashboard Overview</h2>
         <p className="text-muted-foreground">
           Manage your store products, categories, and variants

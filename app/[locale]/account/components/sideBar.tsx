@@ -1,6 +1,5 @@
 import { Link } from "@/i18n/navigation";
 import { auth } from "@/auth";
-import SignOut from "../SignOut";
 import { getTranslations } from "next-intl/server";
 
 interface SidebarProps {
@@ -75,9 +74,7 @@ export default async function Sidebar({ activeTab }: SidebarProps) {
                     {t("accountDetails")}
                   </Link>
                 </li>
-                <li className="hidden lg:block mt-5">
-                  <SignOut />
-                </li>
+
               </ul>
             </nav>
           </div>

@@ -19,7 +19,7 @@ export default function DashboardLayout({
   const pathname = usePathname();
 
   return (
-    <div className="flex w-full">
+    <div className="container flex w-full">
       {/* Sidebar */}
       <aside className="w-64 bg-white border-r min-h-screen p-4">
         <h2 className="text-xl font-semibold mb-6">Admin</h2>

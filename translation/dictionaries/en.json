@@ -164,6 +164,7 @@
   },
   "account": {
     "myAccount": "My Account",
+    "dashboard": "Dashboard",
     "orders": "Orders",
     "accountDetails": "Account Details",
     "logout": "Logout",

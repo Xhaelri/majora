@@ -5,48 +5,45 @@ import { useFormStatus } from "react-dom";
 import { updateUserAction } from "@/server/actions/user-actions";
 import { toast } from "sonner";
 import { Check } from "lucide-react";
-import { useTranslations } from 'next-intl';
-
+import { useTranslations } from "next-intl";
+import type { UserData, ActionState } from "@/types/user-types";
 
 interface AccountDetailsProps {
   user: UserData;
   userId: string;
 }
 
-type ActionState = {
-  success: string | null;
-  error: string | null;
-  data: UserData | null;
-};
-
 function SubmitButton() {
   const { pending } = useFormStatus();
-  const t = useTranslations('account');
-  
+  const t = useTranslations("account");
+
   return (
     <button
       type="submit"
       disabled={pending}
       className="w-full sm:w-auto px-6 py-3 bg-black text-white hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-200 font-medium"
     >
-      {pending ? t('saving') : t('saveChanges')}
+      {pending ? t("saving") : t("saveChanges")}
     </button>
   );
 }
 
 export default function AccountDetails({ user, userId }: AccountDetailsProps) {
-  const t = useTranslations('account');
-  
+  const t = useTranslations("account");
+
   const initialState: ActionState = {
     success: null,
     error: null,
     data: null,
   };
 
-  const actionWithUserId = async (prevState: ActionState, formData: FormData): Promise<ActionState> => {
+  const actionWithUserId = async (
+    prevState: ActionState,
+    formData: FormData
+  ): Promise<ActionState> => {
     return updateUserAction(userId, prevState, formData);
   };
-  
+
   const [state, formAction] = useActionState(actionWithUserId, initialState);
 
   useEffect(() => {
@@ -54,11 +51,11 @@ export default function AccountDetails({ user, userId }: AccountDetailsProps) {
       toast.custom(() => (
         <div className="bg-black text-white w-full px-4 py-3 text-sm rounded-none flex items-center justify-center gap-2">
           <Check />
-          <p className="font-semibold uppercase">{t('profileUpdated')}</p>
+          <p className="font-semibold uppercase">{t("profileUpdated")}</p>
         </div>
       ));
     }
-    
+
     if (state.error) {
       toast.custom(() => (
         <div className="bg-red-600 text-white w-full px-4 py-3 text-sm rounded-none flex items-center justify-center gap-2">
@@ -76,7 +73,7 @@ export default function AccountDetails({ user, userId }: AccountDetailsProps) {
       <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            {t('accountDetails')}
+            {t("accountDetails")}
           </h2>
         </div>
 
@@ -85,11 +82,10 @@ export default function AccountDetails({ user, userId }: AccountDetailsProps) {
           <div className="flex flex-col sm:flex-row items-center mb-8 gap-6">
             <div className="text-center sm:text-left">
               <h3 className="text-xl sm:text-2xl font-semibold text-gray-900">
-                {currentUserData.name || `${currentUserData.firstName} ${currentUserData.lastName}`.trim()}
+                {currentUserData.name ||
+                  `${currentUserData.firstName} ${currentUserData.lastName}`.trim()}
               </h3>
-              <p className="text-gray-600 mt-1">
-                {currentUserData.email}
-              </p>
+              <p className="text-gray-600 mt-1">{currentUserData.email}</p>
             </div>
           </div>
 
@@ -102,15 +98,15 @@ export default function AccountDetails({ user, userId }: AccountDetailsProps) {
                   htmlFor="firstName"
                   className="block text-sm font-medium text-gray-900 mb-2"
                 >
-                  {t('firstName')} *
+                  {t("firstName")} *
                 </label>
                 <input
                   type="text"
                   name="firstName"
                   id="firstName"
-                  defaultValue={currentUserData.firstName}
+                  defaultValue={currentUserData.firstName || ""}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                  placeholder={t('enterFirstName')}
+                  placeholder={t("enterFirstName")}
                   required
                 />
               </div>
@@ -119,15 +115,15 @@ export default function AccountDetails({ user, userId }: AccountDetailsProps) {
                   htmlFor="lastName"
                   className="block text-sm font-medium text-gray-900 mb-2"
                 >
-                  {t('lastName')} *
+                  {t("lastName")} *
                 </label>
                 <input
                   type="text"
                   name="lastName"
                   id="lastName"
-                  defaultValue={currentUserData.lastName}
+                  defaultValue={currentUserData.lastName || ""}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                  placeholder={t('enterLastName')}
+                  placeholder={t("enterLastName")}
                   required
                 />
               </div>
@@ -139,15 +135,15 @@ export default function AccountDetails({ user, userId }: AccountDetailsProps) {
                 htmlFor="email"
                 className="block text-sm font-medium text-gray-900 mb-2"
               >
-                {t('emailAddress')} *
+                {t("emailAddress")} *
               </label>
               <input
                 type="email"
                 name="email"
                 id="email"
-                defaultValue={currentUserData.email}
+                defaultValue={currentUserData.email || ""}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                placeholder={t('enterEmailAddress')}
+                placeholder={t("enterEmailAddress")}
                 required
               />
             </div>
@@ -158,7 +154,7 @@ export default function AccountDetails({ user, userId }: AccountDetailsProps) {
                 htmlFor="phone"
                 className="block text-sm font-medium text-gray-900 mb-2"
               >
-                {t('phoneNumber')}
+                {t("phoneNumber")}
               </label>
               <input
                 type="tel"
@@ -166,7 +162,7 @@ export default function AccountDetails({ user, userId }: AccountDetailsProps) {
                 id="phone"
                 defaultValue={currentUserData.phone || ""}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                placeholder={t('enterPhoneNumber')}
+                placeholder={t("enterPhoneNumber")}
               />
             </div>
 
@@ -176,7 +172,7 @@ export default function AccountDetails({ user, userId }: AccountDetailsProps) {
                 htmlFor="address"
                 className="block text-sm font-medium text-gray-900 mb-2"
               >
-                {t('address')}
+                {t("address")}
               </label>
               <input
                 type="text"
@@ -184,7 +180,7 @@ export default function AccountDetails({ user, userId }: AccountDetailsProps) {
                 id="address"
                 defaultValue={currentUserData.address || ""}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
-                placeholder={t('enterAddress')}
+                placeholder={t("enterAddress")}
               />
             </div>
 

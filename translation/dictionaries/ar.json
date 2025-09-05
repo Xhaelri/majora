@@ -164,6 +164,7 @@
   },
   "account": {
     "myAccount": "حسابي",
+    "dashboard":"صفحة التحكم",
     "orders": "طلباتي",
     "accountDetails": "تفاصيل الحساب",
     "logout": "تسجيل الخروج",

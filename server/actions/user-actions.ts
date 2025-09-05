@@ -4,6 +4,7 @@
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/prisma";
 import { validate } from "uuid";
+import { ActionState, UserData } from "@/types/user-types";
 
 export async function updateUserDetailsAction(
   userId: string,
@@ -74,38 +75,6 @@ export async function updateUserDetailsAction(
   }
 }
 
-// Updated interface to match Prisma return types
-interface UserData {
-  email: string | null;
-  firstName: string | null;
-  lastName: string | null;
-  address: string | null;
-  phone: string | null;
-  name: string | null;
-  orders?: {
-    id: string;
-    status: string;
-    orderDate: Date;
-    subtotal: number;
-    discountAmount: number | null;
-    shippingCost: number;
-    totalAmount: number;
-    billingState: string | null;
-    billingCity: string | null;
-    billingBuilding: string | null;
-    billingFloor: string | null;
-    billingStreet: string | null;
-    paymentProvider: string | null;
-    items: any; // JsonValue from Prisma
-  }[];
-}
-
-type ActionState = {
-  success: string | null;
-  error: string | null;
-  data: UserData | null;
-};
-
 export async function updateUserAction(
   userId: string,
   prevState: ActionState,
@@ -139,7 +108,7 @@ export async function updateUserAction(
   }
 }
 
-export async function getAccountDetails(userId: string) {
+export async function getAccountDetails(userId: string): Promise<UserData> {
   if (!userId) {
     throw new Error("User ID is required");
   }

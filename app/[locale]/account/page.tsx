@@ -5,8 +5,8 @@ import Sidebar from "./components/sideBar";
 import Orders from "./components/orders";
 import AccountDetails from "./components/accountDetails";
 import { Link } from "@/i18n/navigation";
-import SignOut from "./SignOut";
 import { getTranslations } from "next-intl/server";
+import { UserData } from "@/types/user-types";
 
 type Props = {
   searchParams: Promise<{ tab?: string }>;
@@ -50,7 +50,8 @@ export default async function Page({ searchParams }: Props) {
       </div>
     );
   }
-  const userData = await getAccountDetails(session.user.id);
+
+  const userData: UserData = await getAccountDetails(session.user.id);
   const activeTab = params.tab === "account" ? "account" : "orders";
 
   return (
@@ -66,9 +67,6 @@ export default async function Page({ searchParams }: Props) {
             )}
           </div>
         </main>
-        <div className="text-center lg:hidden">
-          <SignOut />
-        </div>
       </div>
     </div>
   );
