@@ -121,13 +121,13 @@ const Hero2 = () => {
         <SkeletonImage
           src={heroImages2[1].src}
           alt={heroImages2[1].alt}
-          href="/categories/tops-shirts"
+          href="/category/tops-shirts"
           label={t("tops")}
         />
         <SkeletonImage
           src={heroImages2[2].src}
           alt={heroImages2[2].alt}
-          href="/categories/bottoms"
+          href="/category/bottoms"
           label={t("bottoms")}
         />
       </div>
@@ -137,13 +137,13 @@ const Hero2 = () => {
         <SkeletonImage
           src={heroImages2[3].src}
           alt={heroImages2[3].alt}
-          href="/categories/dresses"
+          href="/category/dresses"
           label={t("dresses")}
         />
         <SkeletonImage
           src={heroImages2[4].src}
           alt={heroImages2[4].alt}
-          href="/categories/sets"
+          href="/category/sets"
           label={t("sets")}
         />
       </div>
