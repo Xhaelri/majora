@@ -207,7 +207,7 @@ export async function createBuyNowCheckoutSession(
     });
 
     const baseUrl =
-      process.env.NEXTAUTH_URL || "https://sekra-seven.vercel.app";
+      process.env.NEXTAUTH_URL || "https://majora-shop.vercel.app";
 
     const paymentKeyResponse = await fetch(
       "https://accept.paymob.com/api/acceptance/payment_keys",

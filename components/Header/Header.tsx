@@ -60,12 +60,12 @@ export default function Header({ searchBar }: { searchBar: React.ReactNode }) {
         <div className="flex items-center gap-2 ">
           <MobileMenu />
           <div className="md:hidden">
-            <Logo>Sekra</Logo>
+            <Logo>Majora</Logo>
           </div>
         </div>
 
         <div className="hidden md:flex justify-center">
-          <Logo>Sekra</Logo>
+          <Logo>Majora</Logo>
         </div>
 
         <div className="flex justify-end">

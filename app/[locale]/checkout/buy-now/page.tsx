@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import BuyNowCheckoutPage from "../components/BuyNowComponent";
 
 export const metadata: Metadata = {
-  title: "Buy Now Checkout | Sekra",
+  title: "Buy Now Checkout | Majora",
   description:
     "Complete your purchase quickly with our express buy now checkout",
 };

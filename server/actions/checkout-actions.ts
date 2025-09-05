@@ -285,7 +285,7 @@ export async function createCheckoutSession(
 
     // Step 3: Create payment key
     const baseUrl =
-      process.env.NEXTAUTH_URL || "https://sekra-seven.vercel.app";
+      process.env.NEXTAUTH_URL || "https://majora-shop.vercel.app";
 
     const paymentKeyResponse = await fetch(
       "https://accept.paymob.com/api/acceptance/payment_keys",
@@ -390,9 +390,9 @@ export async function clearUserCart(userId: string) {
     if (cart) {
       await db.cart.update({
         where: { id: cart.id },
-        data: { 
-          items: [] as any, 
-          updatedAt: new Date()
+        data: {
+          items: [] as any,
+          updatedAt: new Date(),
         },
       });
       console.log(`Cart cleared for user ${userId}`);

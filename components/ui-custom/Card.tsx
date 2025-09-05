@@ -56,7 +56,7 @@ const Card = ({ productData }: CardProps) => {
             onMouseLeave={() => setImageSrc(primaryImageUrl)}
           >
             {isOnSale ? (
-              <div className="bg-foreground text-secondary absolute top-0 right-0 h-8 w-15 z-5 flex items-center justify-center">
+              <div className={`bg-foreground text-secondary absolute top-0 right-0 h-5 w-11 ${isRTL? "text-xs":"text-sm"} md:h-7 md:w-14  z-5 flex items-center justify-center`}>
                 <p>{t('sale')}</p>
               </div>
             ) : null}
@@ -101,7 +101,7 @@ const Card = ({ productData }: CardProps) => {
         >
           <div className="w-full aspect-[2/3] relative cursor-pointer">
             {isOnSale ? (
-              <div className="bg-foreground text-secondary absolute top-0 right-0 h-5 w-11 text-sm  md:h-7 md:w-14 md:text-md z-5 flex items-center justify-center">
+              <div className={`bg-foreground text-secondary absolute top-0 right-0 h-7 w-14 ${isRTL? "text-xs":"text-sm"} md:h-7 md:w-14  z-5 flex items-center justify-center`}>
                 <p>{t('sale')}</p>
               </div>
             ) : null}

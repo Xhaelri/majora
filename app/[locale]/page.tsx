@@ -25,11 +25,11 @@ export async function generateMetadata({
 
   return {
     title: isArabic
-      ? "سكرة | أزياء نسائية وملابس"
-      : "SEKRA | Women's Fashion & Clothing",
+      ? "ماجورا | أزياء نسائية وملابس"
+      : "Majora | Women's Fashion & Clothing",
     description: isArabic
-      ? "اكتشف أحدث مجموعة من الملابس النسائية من سكرة"
-      : "Discover SEKRA's latest collection of women's clothing",
+      ? "اكتشف أحدث مجموعة من الملابس النسائية من ماجورا"
+      : "Discover Majora's latest collection of women's clothing",
     openGraph: {
       locale: isArabic ? "ar_EG" : "en_US",
     },

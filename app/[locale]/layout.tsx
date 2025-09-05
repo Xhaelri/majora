@@ -27,11 +27,11 @@ const notoSans = Noto_Sans_Arabic({
 
 export const metadata: Metadata = {
   title: {
-    default: "SEKRA | Women's Fashion & Clothing",
-    template: "%s | SEKRA",
+    default: "Majora | Women's Fashion & Clothing",
+    template: "%s | Majora",
   },
   description:
-    "Discover SEKRA's latest collection of women's clothing, featuring elegant dresses, stylish tops, kimonos, and more. Shop now for the best in fashion and exclusive deals!",
+    "Discover Majora's latest collection of women's clothing, featuring elegant dresses, stylish tops, kimonos, and more. Shop now for the best in fashion and exclusive deals!",
   keywords: [
     "women's clothing",
     "fashion",
@@ -39,17 +39,17 @@ export const metadata: Metadata = {
     "tops",
     "kimonos",
     "kaftans",
-    "SEKRA",
+    "Majora",
     "online shopping",
     "women's fashion",
     "sale",
   ],
   openGraph: {
-    title: "SEKRA | Women's Fashion & Clothing",
+    title: "Majora | Women's Fashion & Clothing",
     description:
-      "Explore SEKRA's curated collection of women's fashion. Shop dresses, tops, kimonos, and more with exclusive styles and seasonal sales.",
+      "Explore Majora's curated collection of women's fashion. Shop dresses, tops, kimonos, and more with exclusive styles and seasonal sales.",
     url: "",
-    siteName: "SEKRA",
+    siteName: "Majora",
     type: "website",
     locale: "en_US",
     images: [
@@ -57,15 +57,15 @@ export const metadata: Metadata = {
         url: "",
         width: 1200,
         height: 630,
-        alt: "SEKRA Women's Fashion Collection",
+        alt: "Majora Women's Fashion Collection",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "SEKRA | Women's Fashion & Clothing",
+    title: "Majora | Women's Fashion & Clothing",
     description:
-      "Shop the latest women's fashion at SEKRA. Discover dresses, tops, kimonos, and exclusive deals!",
+      "Shop the latest women's fashion at Majora. Discover dresses, tops, kimonos, and exclusive deals!",
     images: [""],
   },
   alternates: {

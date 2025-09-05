@@ -1,6 +1,6 @@
-# 🛍️ Sekra E-commerce
+# 🛍️ Majora E-commerce
 
-Sekra is a modern, full-stack e-commerce web application built with **Next.js 15**, **TypeScript**, and **Tailwind CSS**, designed for performance, scalability, and user experience.
+Majora is a modern, full-stack e-commerce web application built with **Next.js 15**, **TypeScript**, and **Tailwind CSS**, designed for performance, scalability, and user experience.
 It supports **authenticated users**, **guest shopping**, **serverless deployment**, and much more — aiming to deliver a smooth online shopping experience with rich interactions and modular architecture.
 
 ---
@@ -9,54 +9,54 @@ It supports **authenticated users**, **guest shopping**, **serverless deployment
 
 ### Frontend
 
-* **React 19** – Latest concurrent rendering features
-* **Next.js 15** – App Router, Server Actions, and API Routes
-* **Tailwind CSS v4** – Utility-first styling for responsive UI
-* **Framer Motion** – Smooth animations and transitions
-* **Shadcn/UI** – Customizable and reusable component library
-* **Radix UI** – Accessibility-first primitives
-* **Redux Toolkit** – State management
-* **Zod** – Type-safe schema validation for forms
-* **React Context API** – For guest user handling
+- **React 19** – Latest concurrent rendering features
+- **Next.js 15** – App Router, Server Actions, and API Routes
+- **Tailwind CSS v4** – Utility-first styling for responsive UI
+- **Framer Motion** – Smooth animations and transitions
+- **Shadcn/UI** – Customizable and reusable component library
+- **Radix UI** – Accessibility-first primitives
+- **Redux Toolkit** – State management
+- **Zod** – Type-safe schema validation for forms
+- **React Context API** – For guest user handling
 
 ### Backend
 
-* **Next.js Server Actions & API Routes** – Seamless data fetching and server logic
-* **Prisma ORM** – Database access
-* **PostgreSQL** – Main relational database
-* **Neon** – Serverless PostgreSQL for production
+- **Next.js Server Actions & API Routes** – Seamless data fetching and server logic
+- **Prisma ORM** – Database access
+- **PostgreSQL** – Main relational database
+- **Neon** – Serverless PostgreSQL for production
 
 ### Auth & Security
 
-* **Next-Auth (Auth.js)** – Secure authentication with adapters (including Prisma)
-* **Bcrypt.js** – Password hashing
-* **UUID** – Unique ID generation
+- **Next-Auth (Auth.js)** – Secure authentication with adapters (including Prisma)
+- **Bcrypt.js** – Password hashing
+- **UUID** – Unique ID generation
 
 ---
 
 ## 🧩 Features
 
-* ✅ **Authentication** using **Next-Auth** with Prisma Adapter
-* ✅ **Guest user cart** handled manually via **React Context API** and merged with DB on sign-in
-* ✅ **Server Actions** and **API Routes** to handle product fetching, user data, and orders
-* ✅ **Reusable UI components** via **shadcn/ui**, powered by Radix
-* ✅ **Animations** for interactions and transitions using **Framer Motion**
-* ✅ **Fully responsive layout** with TailwindCSS v4
-* ✅ **Type-safe form validation** using Zod + TypeScript
-* ✅ **Embla Carousel** for interactive sliders with autoplay
-* ✅ **Product zoom** with `react-medium-image-zoom`
-* ✅ Clean and maintainable codebase with ESLint, TypeScript, and folder-based structure
-* ✅ **Search functionality** with instant filtering
-* ✅ **Checkout flow** with paymob gateway integrated
-* ✅ **Implemented internationalization (i18n) ** and localization for a multi-language user experience.
+- ✅ **Authentication** using **Next-Auth** with Prisma Adapter
+- ✅ **Guest user cart** handled manually via **React Context API** and merged with DB on sign-in
+- ✅ **Server Actions** and **API Routes** to handle product fetching, user data, and orders
+- ✅ **Reusable UI components** via **shadcn/ui**, powered by Radix
+- ✅ **Animations** for interactions and transitions using **Framer Motion**
+- ✅ **Fully responsive layout** with TailwindCSS v4
+- ✅ **Type-safe form validation** using Zod + TypeScript
+- ✅ **Embla Carousel** for interactive sliders with autoplay
+- ✅ **Product zoom** with `react-medium-image-zoom`
+- ✅ Clean and maintainable codebase with ESLint, TypeScript, and folder-based structure
+- ✅ **Search functionality** with instant filtering
+- ✅ **Checkout flow** with paymob gateway integrated
+- ✅ **Implemented internationalization (i18n) ** and localization for a multi-language user experience.
 
 ---
 
 ## 🔮 Planned Features (Coming Soon)
 
-* 📊 **Admin dashboard** for managing products and orders
-* ❤️ **Wishlist** feature per user
-* ⭐ **Review & rating system** with detailed feedback
+- 📊 **Admin dashboard** for managing products and orders
+- ❤️ **Wishlist** feature per user
+- ⭐ **Review & rating system** with detailed feedback
 
 ---
 
@@ -65,8 +65,8 @@ It supports **authenticated users**, **guest shopping**, **serverless deployment
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/sekra.git
-cd sekra
+git clone https://github.com/your-username/Majora.git
+cd Majora
 ```
 
 ### 2. Install Dependencies
@@ -125,12 +125,12 @@ npm run dev
 
 ## 🛆 Dependencies Snapshot
 
-* **Auth:** `next-auth`, `@auth/prisma-adapter`, `bcryptjs`
-* **UI:** `framer-motion`, `shadcn/ui`, `radix-ui`, `tailwindcss`, `clsx`
-* **State:** `react-redux`, `@reduxjs/toolkit`
-* **Forms:** `zod`
-* **Carousel:** `embla-carousel-react`, `autoplay`
-* **Image Zoom:** `react-medium-image-zoom`
+- **Auth:** `next-auth`, `@auth/prisma-adapter`, `bcryptjs`
+- **UI:** `framer-motion`, `shadcn/ui`, `radix-ui`, `tailwindcss`, `clsx`
+- **State:** `react-redux`, `@reduxjs/toolkit`
+- **Forms:** `zod`
+- **Carousel:** `embla-carousel-react`, `autoplay`
+- **Image Zoom:** `react-medium-image-zoom`
 
 ---
 
